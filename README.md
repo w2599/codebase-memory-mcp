@@ -1028,6 +1028,9 @@ The result is a knowledge graph accurate enough to drive `trace_path` across pac
 
 ## Language Support
 
+This local build also parses Theos Logos `.x`/`.xm` sources natively; see
+[Logos indexing](docs/LOGOS.md) for syntax, source locations and limitations.
+
 162 languages, counted by the vendored grammar directories in [the parser manifest](internal/cbm/vendored/grammars/MANIFEST.md). Benchmarked against 64 real open-source repositories (78 to 49K nodes):
 
 | Tier | Score | Languages |

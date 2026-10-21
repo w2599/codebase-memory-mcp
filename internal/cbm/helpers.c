@@ -33,6 +33,52 @@ enum {
 #include <ctype.h>
 #include <stdio.h>
 
+// Logos methods use their complete selector and dispatch sign as symbol names.
+char *cbm_logos_method_name(CBMArena *a, TSNode method, const char *source) {
+    enum { MAX_PARENTS = 256 };
+    TSNode parent = ts_node_parent(method);
+    bool hook = false;
+    for (int depth = 0; depth < MAX_PARENTS && !ts_node_is_null(parent); depth++) {
+        if (strcmp(ts_node_type(parent), "class_implementation") == 0) {
+            uint32_t start = ts_node_start_byte(parent);
+            hook = source[start] == '%';
+            break;
+        }
+        parent = ts_node_parent(parent);
+    }
+    if (!hook) {
+        return NULL;
+    }
+    TSNode body = cbm_find_child_by_kind(method, "compound_statement");
+    uint32_t end = ts_node_is_null(body) ? ts_node_end_byte(method) : ts_node_start_byte(body);
+    size_t capacity = (size_t)(end - ts_node_start_byte(method)) + 3;
+    char *name = cbm_arena_alloc(a, capacity);
+    if (!name) {
+        return NULL;
+    }
+    size_t used = 0;
+    name[used++] = source[ts_node_start_byte(method)];
+    TSTreeCursor cursor = ts_tree_cursor_new(method);
+    bool more = ts_tree_cursor_goto_first_child(&cursor);
+    for (; more; more = ts_tree_cursor_goto_next_sibling(&cursor)) {
+        TSNode child = ts_tree_cursor_current_node(&cursor);
+        const char *kind = ts_node_type(child);
+        if (strcmp(kind, "compound_statement") == 0) {
+            break;
+        }
+        if (strcmp(kind, "identifier") == 0) {
+            size_t len = ts_node_end_byte(child) - ts_node_start_byte(child);
+            memcpy(name + used, source + ts_node_start_byte(child), len);
+            used += len;
+        } else if (strcmp(kind, "method_parameter") == 0) {
+            name[used++] = ':';
+        }
+    }
+    ts_tree_cursor_delete(&cursor);
+    name[used] = '\0';
+    return name;
+}
+
 // --- Portable substring search ---
 
 // Hand-rolled memmem: does not rely on the system memmem (GNU/BSD-only;
@@ -593,6 +639,9 @@ bool cbm_kind_in_set(TSNode node, const char **types) {
 bool cbm_is_namespace_scope_kind(CBMLanguage lang, const char *kind) {
     if (!kind) {
         return false;
+    }
+    if (lang == CBM_LANG_OBJC) {
+        return strcmp(kind, "logos_group") == 0;
     }
     if (lang == CBM_LANG_CPP || lang == CBM_LANG_CUDA) {
         return strcmp(kind, "namespace_definition") == 0;
@@ -1187,6 +1236,15 @@ bool cbm_is_c_preprocessor_lang(CBMLanguage lang) {
 // const", and a member lookup for "operator bool" (the implicit call in
 // `if (obj)`) misses.
 char *cbm_func_name_node_text(CBMArena *a, TSNode name_node, const char *source, CBMLanguage lang) {
+    if (lang == CBM_LANG_OBJC) {
+        TSNode parent = ts_node_parent(name_node);
+        if (!ts_node_is_null(parent) && strcmp(ts_node_type(parent), "method_definition") == 0) {
+            char *selector = cbm_logos_method_name(a, parent, source);
+            if (selector) {
+                return selector;
+            }
+        }
+    }
     char *text = cbm_node_text(a, name_node, source);
     /* A C keyword is never a function name: the definition is an error-recovery
      * artifact. No name means no def and no call scope (calls inside fall back

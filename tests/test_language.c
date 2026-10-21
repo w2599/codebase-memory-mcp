@@ -7,6 +7,7 @@
 #include "../src/foundation/compat_fs.h"
 #include "test_framework.h"
 #include "discover/discover.h"
+#include "discover/userconfig.h"
 
 /* ── Extension-based detection ─────────────────────────────────── */
 
@@ -1381,6 +1382,24 @@ static CBMLanguage classify_content(const char *name, const char *content, size_
 
 typedef CBMLanguage (*path_probe_fn)(const char *path);
 
+TEST(lang_logos_extensions_and_objc_headers) {
+    ASSERT_EQ(cbm_language_for_extension(".x"), CBM_LANG_OBJC);
+    ASSERT_EQ(cbm_language_for_extension(".xm"), CBM_LANG_OBJC);
+    ASSERT_EQ(classify_content("Tweak.x", "%hook A\n%end\n", 14), CBM_LANG_OBJC);
+    const char *objc = "#import <Foundation/Foundation.h>\n@interface A : NSObject\n@end\n";
+    ASSERT_EQ(classify_content("A.h", objc, strlen(objc)), CBM_LANG_OBJC);
+    cbm_userext_t override = {".h", CBM_LANG_CPP};
+    cbm_userconfig_t config = {.entries = &override, .count = 1};
+    ASSERT_EQ(cbm_language_classify_with(&config, "A.h", (const unsigned char *)objc,
+                                          strlen(objc), false, true), CBM_LANG_CPP);
+    const char *cpp = "#include <string>\nclass A {};\n";
+    ASSERT_EQ(classify_content("A.h", cpp, strlen(cpp)), CBM_LANG_CPP);
+    const char *fragment = "@synchronized(self) { id name = @\"A\"; }\n";
+    ASSERT_EQ(classify_content("Fragment.inc.h", fragment, strlen(fragment)), CBM_LANG_OBJC);
+    ASSERT_EQ(cbm_language_classify("A.h", NULL, 0, false, false), CBM_LANG_CPP);
+    PASS();
+}
+
 TEST(lang_probe_bytes_follow_the_name) {
     ASSERT_EQ(cbm_language_probe_bytes("main.go"), 0);
     ASSERT_EQ(cbm_language_probe_bytes("Makefile"), 0);
@@ -1795,6 +1814,7 @@ SUITE(language) {
     RUN_TEST(lang_ext_sosl);
 
     RUN_TEST(lang_all_have_names);
+    RUN_TEST(lang_logos_extensions_and_objc_headers);
     RUN_TEST(lang_probe_bytes_follow_the_name);
     RUN_TEST(lang_classify_matches_every_content_rule);
     RUN_TEST(lang_classify_unreadable_content_keeps_the_name_default);

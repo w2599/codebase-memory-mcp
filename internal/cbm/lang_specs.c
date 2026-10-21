@@ -551,7 +551,8 @@ static const char *ocaml_var_types[] = {"value_definition", NULL};
 
 // ==================== OBJECTIVE-C ====================
 static const char *objc_func_types[] = {"function_definition", "method_definition",
-                                        "method_declaration", NULL};
+                                        "method_declaration", "logos_function_definition",
+                                        "logos_constructor", NULL};
 static const char *objc_class_types[] = {"class_interface",      "class_implementation",
                                          "protocol_declaration", "class_declaration",
                                          "enum_specifier",       "struct_declaration",

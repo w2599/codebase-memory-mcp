@@ -1,0 +1,7 @@
+{
+  "name": "cbm-objc-logos-grammar",
+  "private": true,
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": { "tree-sitter-c": "0.23.4" }
+}

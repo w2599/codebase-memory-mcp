@@ -6628,7 +6628,8 @@ static void extract_func_def(CBMExtractCtx *ctx, TSNode node, const CBMLangSpec 
     if (ctx->enclosing_class_qn &&
         (ctx->language == CBM_LANG_CPP || ctx->language == CBM_LANG_CUDA ||
          ctx->language == CBM_LANG_TYPESCRIPT || ctx->language == CBM_LANG_TSX ||
-         ctx->language == CBM_LANG_ARKTS || ctx->language == CBM_LANG_NIX)) {
+         ctx->language == CBM_LANG_ARKTS || ctx->language == CBM_LANG_NIX ||
+         ctx->language == CBM_LANG_OBJC)) {
         def.qualified_name = cbm_arena_sprintf(a, "%s.%s", ctx->enclosing_class_qn, qn_name);
     }
     def.label = "Function";
@@ -11583,7 +11584,7 @@ static const char *compute_class_qn(CBMExtractCtx *ctx, TSNode node, const char 
     return saved_enclosing;
 }
 
-static void extract_typescript_namespace_def(CBMExtractCtx *ctx, TSNode node,
+static void extract_namespace_def(CBMExtractCtx *ctx, TSNode node,
                                              const char *saved_enclosing) {
     TSNode name_node = ts_node_child_by_field_name(node, TS_FIELD("name"));
     if (ts_node_is_null(name_node)) {
@@ -12252,8 +12253,8 @@ static void walk_defs(CBMExtractCtx *ctx, TSNode root, const CBMLangSpec *spec, 
         if (is_namespace_scope_kind(ctx->language, kind, node)) {
             const char *new_enclosing = compute_class_qn(ctx, node, frame.enclosing_class_qn);
             if (ctx->language == CBM_LANG_TYPESCRIPT || ctx->language == CBM_LANG_TSX ||
-                ctx->language == CBM_LANG_ARKTS) {
-                extract_typescript_namespace_def(ctx, node, frame.enclosing_class_qn);
+                ctx->language == CBM_LANG_ARKTS || ctx->language == CBM_LANG_OBJC) {
+                extract_namespace_def(ctx, node, frame.enclosing_class_qn);
             }
             wd_push_children_reverse(&s, node, new_enclosing);
             continue;

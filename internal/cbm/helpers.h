@@ -12,6 +12,10 @@ void *cbm_memmem(const void *haystack, size_t haystack_len, const void *needle, 
 // Extract text of a node from source. Returns arena-allocated string.
 char *cbm_node_text(CBMArena *a, TSNode node, const char *source);
 
+// Full signed selector for a Logos hook method; NULL for ordinary Objective-C.
+// Keeps class/instance methods and multi-part selectors distinct in the graph.
+char *cbm_logos_method_name(CBMArena *a, TSNode method, const char *source);
+
 // Check if a string is a language keyword (should be skipped as callee/usage).
 bool cbm_is_keyword(const char *name, CBMLanguage lang);
 

@@ -2443,6 +2443,142 @@ TEST(objc_implementation) {
     PASS();
 }
 
+/* Original Logos bytes must survive extraction: distinct groups, complete
+ * selectors, dispatch sign, call owners and source byte/line positions. */
+TEST(logos_hooks_keep_groups_selectors_and_original_locations) {
+    const char *src =
+        "static int helper(int x) { return x; }\n"
+        "%group First\n%hook Animal\n"
+        "- (int)value { return helper(%orig); }\n"
+        "+ (int)value { return helper(2); }\n"
+        "- (void)setA:(int)a b:(int)b { helper(a); }\n"
+        "- (void)setA:(int)a c:(int)c { helper(c); }\n"
+        "%end\n%end\n"
+        "%group Second\n%hook Animal\n"
+        "- (int)value { return %orig(3); }\n%end\n%end\n";
+    CBMFileResult *r = extract(src, CBM_LANG_OBJC, "t", "Tweak.x");
+    ASSERT_NOT_NULL(r);
+    ASSERT_FALSE(r->has_error);
+    ASSERT_FALSE(r->parse_incomplete);
+    ASSERT_EQ(count_defs_with_label(r, "Method"), 5);
+    ASSERT(has_def_qn(r, "t.Tweak.First.Animal.-value"));
+    ASSERT(has_def_qn(r, "t.Tweak.First.Animal.+value"));
+    ASSERT(has_def_qn(r, "t.Tweak.First.Animal.-setA:b:"));
+    ASSERT(has_def_qn(r, "t.Tweak.First.Animal.-setA:c:"));
+    ASSERT(has_def_qn(r, "t.Tweak.Second.Animal.-value"));
+    bool located = false, owned = false;
+    for (int i = 0; i < r->defs.count; i++) {
+        CBMDefinition *d = &r->defs.items[i];
+        if (strcmp(d->qualified_name, "t.Tweak.First.Animal.-value") == 0) {
+            ASSERT_EQ(d->start_line, 4);
+            ASSERT_EQ(d->end_line, 4);
+            ASSERT_STR_EQ(d->file_path, "Tweak.x");
+            located = true;
+        }
+    }
+    for (int i = 0; i < r->calls.count; i++) {
+        CBMCall *c = &r->calls.items[i];
+        if (strcmp(c->callee_name, "helper") == 0 && c->start_line == 4) {
+            ASSERT_STR_EQ(c->enclosing_func_qn, "t.Tweak.First.Animal.-value");
+            ASSERT_EQ(c->source_origin, CBM_SOURCE_ORIGIN_RAW);
+            ASSERT_TRUE(strncmp(src + c->site_start_byte, "helper", 6) == 0);
+            owned = true;
+        }
+    }
+    ASSERT_TRUE(located);
+    ASSERT_TRUE(owned);
+    ASSERT_EQ(count_calls_named(r, "%orig"), 0);
+    cbm_free_result(r);
+    PASS();
+}
+
+TEST(logos_function_hooks_constructors_and_directives) {
+    const char *src =
+        "%config(generator=internal);\n"
+        "static void helper(void) {}\n"
+        "%group Runtime\n"
+        "%hookf(int,\n target, int x) { helper(); return %orig(x); }\n"
+        "%subclass Child : NSObject <NSCopying>\n"
+        "%property(nonatomic, retain) id state;\n"
+        "%new(\"v@:\")\n"
+        "- (void)added { %log; id c = %c(+Child); void *f = &%orig; helper(); }\n"
+        "%end\n%end\n"
+        "%ctor { %init(Runtime, Child = objc_getClass(\"Child\")); helper(); }\n"
+        "%dtor { helper(); }\n";
+    CBMFileResult *r = extract(src, CBM_LANG_OBJC, "t", "Hooks.xm");
+    ASSERT_NOT_NULL(r);
+    ASSERT_FALSE(r->has_error);
+    ASSERT_FALSE(r->parse_incomplete);
+    ASSERT(has_def_qn(r, "t.Hooks.Runtime.target"));
+    ASSERT(has_def(r, "Method", "-added"));
+    ASSERT(has_def(r, "Function", "%ctor"));
+    ASSERT(has_def(r, "Function", "%dtor"));
+    ASSERT_EQ(count_calls_named(r, "helper"), 4);
+    bool hook_owned = false, ctor_owned = false;
+    for (int i = 0; i < r->calls.count; i++) {
+        CBMCall *c = &r->calls.items[i];
+        if (strcmp(c->callee_name, "helper") != 0) continue;
+        if (strcmp(c->enclosing_func_qn, "t.Hooks.Runtime.target") == 0) hook_owned = true;
+        if (strcmp(c->enclosing_func_qn, "t.Hooks.%ctor") == 0) ctor_owned = true;
+    }
+    ASSERT_TRUE(hook_owned);
+    ASSERT_TRUE(ctor_owned);
+    cbm_free_result(r);
+    PASS();
+}
+
+TEST(logos_variadic_function_hooks_and_numeric_config) {
+    CBMFileResult *r = extract(
+        "%config(dump=1)\n"
+        "%hookf(int, trace, const char *format, ...) { return %orig(format, 1); }\n",
+        CBM_LANG_OBJC, "t", "Trace.x");
+    ASSERT_NOT_NULL(r);
+    ASSERT_FALSE(r->has_error);
+    ASSERT_FALSE(r->parse_incomplete);
+    ASSERT(has_def(r, "Function", "trace"));
+    cbm_free_result(r);
+    PASS();
+}
+
+TEST(logos_comments_strings_and_modulo_are_not_directives) {
+    CBMFileResult *r = extract(
+        "// %hook Fake\n/* %group Nope %end */\n"
+        "static int helper(int x) { const char *s = \"%hook Fake %end\"; return x % 2; }\n",
+        CBM_LANG_OBJC, "t", "Plain.x");
+    ASSERT_NOT_NULL(r);
+    ASSERT_FALSE(r->parse_incomplete);
+    ASSERT_EQ(count_defs_with_label(r, "Method"), 0);
+    ASSERT(has_def(r, "Function", "helper"));
+    cbm_free_result(r);
+    PASS();
+}
+
+TEST(logos_malformed_source_reports_incomplete_parse) {
+    CBMFileResult *r = extract("%hook Animal\n- (void)run { helper(); }\n",
+                               CBM_LANG_OBJC, "t", "Broken.x");
+    ASSERT_NOT_NULL(r);
+    ASSERT_FALSE(r->has_error);
+    ASSERT_TRUE(r->parse_incomplete);
+    cbm_free_result(r);
+    PASS();
+}
+
+TEST(objc_sdk_nullability_regions_keep_header_definitions) {
+    CBMFileResult *r = extract(
+        "#import <UIKit/UIKit.h>\nNS_ASSUME_NONNULL_BEGIN\n"
+        "@interface Picker : UIView\n"
+        "@property(nonatomic, copy, nullable) NSString *name;\n"
+        "- (nullable NSString *)title:(nullable NSString *)value;\n"
+        "@end\nNS_ASSUME_NONNULL_END\n",
+        CBM_LANG_OBJC, "t", "Picker.h");
+    ASSERT_NOT_NULL(r);
+    ASSERT_FALSE(r->has_error);
+    ASSERT_FALSE(r->parse_incomplete);
+    ASSERT(has_def(r, "Class", "Picker"));
+    cbm_free_result(r);
+    PASS();
+}
+
 /* --- Dart top-level function --- */
 TEST(dart_top_level_function) {
     CBMFileResult *r = extract(
@@ -12407,6 +12543,12 @@ SUITE(extraction) {
     RUN_TEST(swift_labeled_call_string_arg_issue1892);
     RUN_TEST(objc_interface);
     RUN_TEST(objc_implementation);
+    RUN_TEST(objc_sdk_nullability_regions_keep_header_definitions);
+    RUN_TEST(logos_hooks_keep_groups_selectors_and_original_locations);
+    RUN_TEST(logos_function_hooks_constructors_and_directives);
+    RUN_TEST(logos_variadic_function_hooks_and_numeric_config);
+    RUN_TEST(logos_comments_strings_and_modulo_are_not_directives);
+    RUN_TEST(logos_malformed_source_reports_incomplete_parse);
     RUN_TEST(dart_top_level_function);
     RUN_TEST(rust_enum);
     RUN_TEST(zig_struct);

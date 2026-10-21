@@ -994,7 +994,7 @@ static const char *compute_func_qn(CBMExtractCtx *ctx, TSNode node, const CBMLan
     if (ctx->language == CBM_LANG_OBJC && strcmp(ts_node_type(node), "method_definition") == 0) {
         TSNode id = cbm_find_child_by_kind(node, "identifier");
         if (!ts_node_is_null(id)) {
-            char *mname = cbm_node_text(ctx->arena, id, ctx->source);
+            char *mname = cbm_func_name_node_text(ctx->arena, id, ctx->source, ctx->language);
             if (mname && mname[0]) {
                 if (state->enclosing_class_qn) {
                     return cbm_arena_sprintf(ctx->arena, "%s.%s", state->enclosing_class_qn, mname);

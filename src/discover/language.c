@@ -48,6 +48,10 @@ static const ext_entry_t EXT_TABLE[] = {
     {".hxx", CBM_LANG_CPP},
     {".ixx", CBM_LANG_CPP},
 
+    /* Theos Logos: parsed natively by the Objective-C grammar. */
+    {".x", CBM_LANG_OBJC},
+    {".xm", CBM_LANG_OBJC},
+
     /* C# */
     {".cs", CBM_LANG_CSHARP},
     /* Blazor components. The C# grammar recovers the @code block; the
@@ -1297,7 +1301,8 @@ static bool has_objc_markers(const char *buf) {
            str_contains(buf, "@protocol") || str_contains(buf, "@property") ||
            str_contains(buf, "#import") || str_contains(buf, "@selector") ||
            str_contains(buf, "@encode") || str_contains(buf, "@synthesize") ||
-           str_contains(buf, "@dynamic");
+           str_contains(buf, "@dynamic") || str_contains(buf, "@synchronized") ||
+           str_contains(buf, "@autoreleasepool") || str_contains(buf, "@\"");
 }
 
 static bool has_magma_end_markers(const char *buf) {
@@ -1602,7 +1607,7 @@ static bool lang_name_in(const char *name, const char *const *list) {
 
 /* The content rule a name needs, or NULL. */
 static const char *lang_probe_extension(const char *filename) {
-    static const char *const PROBED[] = {".m", ".cls", ".inc", ".cfc", ".frm", ".res", NULL};
+    static const char *const PROBED[] = {".m", ".h", ".cls", ".inc", ".cfc", ".frm", ".res", NULL};
     const char *dot = strrchr(filename, '.');
     return (dot && lang_name_in(dot, PROBED)) ? dot : NULL;
 }
@@ -1656,6 +1661,17 @@ CBMLanguage cbm_language_classify_with(const cbm_userconfig_t *config, const cha
         if (strcmp(ext, ".m") == 0) {
             /* Objective-C, Magma or MATLAB */
             lang = readable ? lang_m_text(buf) : CBM_LANG_MATLAB;
+        } else if (strcmp(ext, ".h") == 0) {
+            bool user_mapped = false;
+            for (const char *dot = strchr(filename, '.'); dot; dot = strchr(dot + 1, '.')) {
+                if (cbm_userconfig_lookup(config, dot) != CBM_LANG_COUNT) {
+                    user_mapped = true;
+                    break;
+                }
+            }
+            if (!user_mapped && lang == CBM_LANG_CPP && readable && has_objc_markers(buf)) {
+                lang = CBM_LANG_OBJC;
+            }
         } else if (strcmp(ext, ".cls") == 0) {
             /* ObjectScript UDL, Apex or a Visual Basic 6 class module */
             lang = readable ? lang_cls_text(buf) : CBM_LANG_APEX;
