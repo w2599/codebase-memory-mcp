@@ -58,9 +58,24 @@ are development dependencies only.
 Build and test from the repository root:
 
 ```sh
-scripts/build.sh --version 0.12.1-logos.1
+scripts/build.sh --with-ui --version 0.12.1-logos.4
 scripts/test.sh --suites language,discover,extraction
 ```
+
+The `--with-ui` flag includes the web interface. Without it, a command-line-only
+build cannot serve the page even if `ui_enabled` is enabled. Install and start
+the local UI with:
+
+```sh
+build/c/codebase-memory-mcp install --skip-config --dir="$HOME/.local/bin" -y
+codebase-memory-mcp config set ui_enabled true
+codebase-memory-mcp config set ui-lang zh
+codebase-memory-mcp daemon start --open --port=9749
+```
+
+Open <http://127.0.0.1:9749/>. This starts a daemon that survives closing the
+coding client; it does not register a login service. See [UI languages](UI_LANGUAGES.md)
+for browser language selection and the English fallback.
 
 Use a full native index of the original repository after switching from the old
 snapshot-based adapter. Retire its project and `worker/logos-index` only after
@@ -76,6 +91,8 @@ checking original-file Hook coverage and native index diagnostics.
   original `.x` bytes and line numbers.
 - The project retained 8 unrelated partial-parse diagnostics and 3 plist
   resource diagnostics; no diagnostics were suppressed by the Logos support.
+- The localized web UI passed its production build and all 3,992 frontend tests,
+  including Chinese reading levels, graph controls, settings and editor strings.
 
 This is a local patch on v0.12.1, not an upstream release. Keep this feature branch
 when updating; installing an upstream binary replaces the local parser changes.

@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 import { useEffect, useState } from 'react';
 import type { SymbolRef } from '../core/focus-protocol';
 import { symbolKindOf } from '../provider/cbm-rpc-provider';
@@ -33,7 +34,7 @@ export async function loadSelectionHierarchy(source: ClosureSource, workspaceRoo
                 const facts = await source.getFacts(...args);
                 if (!facts.callees || !['known', 'inferred'].includes(facts.callees.state)) {
                     incomplete = true;
-                    if (isRoot) rootFailure = 'Outgoing calls are unavailable for this symbol.';
+                    if (isRoot) rootFailure = t("Outgoing calls are unavailable for this symbol.");
                 }
                 return facts;
             } catch (error) {
@@ -45,8 +46,8 @@ export async function loadSelectionHierarchy(source: ClosureSource, workspaceRoo
     };
     const walk = await getClosure(wrapped, workspaceRoot, root, options);
     if (rootFailure) return { status: 'unavailable', message: rootFailure };
-    return { status: 'ready', walk, message: incomplete ? 'Some outgoing calls could not be read. This hierarchy is incomplete.'
-        : walk.edges.length === 0 && !walk.truncated ? 'No outgoing calls are recorded for this symbol.' : '' };
+    return { status: 'ready', walk, message: incomplete ? t("Some outgoing calls could not be read. This hierarchy is incomplete.")
+        : walk.edges.length === 0 && !walk.truncated ? t("No outgoing calls are recorded for this symbol.") : '' };
 }
 
 /** Clear old selections immediately and ignore responses from earlier roots or projects. */
@@ -57,13 +58,13 @@ export function useSelectionHierarchy(source: ClosureSource, workspaceRoot: stri
     useEffect(() => {
         if (!key || !root) return;
         let cancelled = false;
-        setResult({ key, source, value: { status: 'loading', message: `Loading outgoing calls for ${root.name}…` } });
+        setResult({ key, source, value: { status: 'loading', message: tr`Loading outgoing calls for ${root.name}…` } });
         void loadSelectionHierarchy(source, workspaceRoot, root, { projectName: project, generation: 1, depth: bounds.depth, cap: bounds.cap })
             .then((value) => { if (!cancelled) setResult({ key, source, value }); })
             .catch((error: unknown) => { if (!cancelled) setResult({ key, source, value: { status: 'unavailable', message: error instanceof Error ? error.message : String(error) } }); });
         return () => { cancelled = true; };
     }, [source, workspaceRoot, project, key, root, bounds.depth, bounds.cap]);
-    if (!key) return { status: 'empty', message: 'Choose a symbol to see its outgoing call hierarchy.' };
-    if (!result || result.key !== key || result.source !== source) return { status: 'loading', message: `Loading outgoing calls for ${root?.name ?? 'the selected symbol'}…` };
+    if (!key) return { status: 'empty', message: t("Choose a symbol to see its outgoing call hierarchy.") };
+    if (!result || result.key !== key || result.source !== source) return { status: 'loading', message: tr`Loading outgoing calls for ${root?.name ?? t("the selected symbol")}…` };
     return result.value;
 }

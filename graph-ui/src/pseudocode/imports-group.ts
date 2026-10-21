@@ -1,3 +1,4 @@
+import { tr } from '../i18n/translate';
 /*
  * Herkunft: portiert am 2026-08-29 aus CodeAtlasIDE,
  * /Users/bernhard/Desktop/CodeAtlasIDE/theia-extensions/codeatlas-views/src/browser/pseudocode/imports-group.ts
@@ -352,7 +353,7 @@ function entryOf(ref: FileImportRef, index: number, input: ImportsGroupInput): O
         };
     }
 
-    const label = ref.alias === undefined ? ref.name : `${ref.name} as ${ref.alias}`;
+    const label = ref.alias === undefined ? ref.name : tr`${ref.name} as ${ref.alias}`;
     const match = matchOf(ref, input.irs);
     if (match !== undefined) {
         return {

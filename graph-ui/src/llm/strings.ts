@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /**
  * Was das Panel und die Statusleiste ueber den Sidecar sagen.
  *
@@ -25,7 +26,7 @@ import { POLICY_PATH } from './policy';
  * Der Unterstrich faellt mit weg; er war die Schreibweise einer Konstanten und
  * nicht die eines Namens, den jemand liest.
  */
-export const LLM_TITLE = 'LOCAL LLM';
+export const LLM_TITLE = t("LOCAL LLM");
 
 /**
  * Der konkrete Aufruf, den das Panel im Zustand `not-running` nennt.
@@ -55,34 +56,30 @@ export const LLM_MODEL_CHOICES =
  * 3072 Token Kontext, und das ist nachpruefbar.
  */
 export const LLM_CLASS_NOTE =
-    'class-a is Qwen3.5-2B at 3072 tokens of context, class-b is gemma-4-E4B at 8192. '
-    + 'The class is the context window, not a parameter count.';
+    t("class-a is Qwen3.5-2B at 3072 tokens of context, class-b is gemma-4-E4B at 8192. The class is the context window, not a parameter count.");
 
 /** Der Satz im Zustand `off`. Er sagt ausdruecklich, dass nichts gefragt wird. */
 export const LLM_OFF_MESSAGE =
-    'off. Nothing is started and nothing is probed: while this is off, this page '
-    + `sends no request to 127.0.0.1:${SIDECAR_PORT}.`;
+    tr`off. Nothing is started and nothing is probed: while this is off, this page sends no request to 127.0.0.1:${SIDECAR_PORT}.`;
 
 /** Was daruntersteht, damit der Schalter auffindbar ist. */
 export const LLM_OFF_HINT =
-    'Turn it on here or in the [a]tlas menu. Everything else on this surface keeps '
-    + 'showing the same deterministic text either way.';
+    t("Turn it on here or in the [a]tlas menu. Everything else on this surface keeps showing the same deterministic text either way.");
 
 /** Der Satz im Zustand `not-running`: eine Anleitung, keine Fehlermeldung. */
 export const LLM_NOT_RUNNING_MESSAGE =
-    `on, but nothing is listening on 127.0.0.1:${SIDECAR_PORT}. This page has no backend and `
-    + 'cannot start a process, so the sidecar is started from a shell:';
+    tr`on, but nothing is listening on 127.0.0.1:${SIDECAR_PORT}. This page has no backend and cannot start a process, so the sidecar is started from a shell:`;
 
 /** Die zweite Zeile derselben Anleitung. */
 export const LLM_NOT_RUNNING_HINT =
-    `Other models: ${LLM_MODEL_CHOICES}. ${LLM_CLASS_NOTE} Stop it again with ${LLM_STOP_COMMAND}.`;
+    tr`Other models: ${LLM_MODEL_CHOICES}. ${LLM_CLASS_NOTE} Stop it again with ${LLM_STOP_COMMAND}.`;
 
 /** Der Satz im Zustand `starting`. */
 export const LLM_STARTING_MESSAGE =
-    `a sidecar on 127.0.0.1:${SIDECAR_PORT} answers "Loading model". Waiting for it to finish.`;
+    tr`a sidecar on 127.0.0.1:${SIDECAR_PORT} answers "Loading model". Waiting for it to finish.`;
 
 /** Der Satz im Zustand `ready`, vor dem Modellnamen. */
-export const LLM_READY_MESSAGE = 'ready on 127.0.0.1:' + String(SIDECAR_PORT) + '.';
+export const LLM_READY_MESSAGE = tr`ready on 127.0.0.1:${String(SIDECAR_PORT)}.`;
 
 /**
  * Der Satz im Zustand `disabled-by-policy`.
@@ -91,44 +88,43 @@ export const LLM_READY_MESSAGE = 'ready on 127.0.0.1:' + String(SIDECAR_PORT) + 
  * diesen Zusatz suchte der Leser sie in diesem Repository, wo sie nicht liegt.
  */
 export function llmPolicyMessage(project: string): string {
-    const where = project.length > 0 ? `of the indexed project "${project}"` : 'of the indexed project';
-    return `off by policy. The committed ${POLICY_PATH} ${where} says "llm": "deny", `
-        + 'and a committed policy beats any preference of this browser.';
+    const where = project.length > 0 ? tr`of the indexed project "${project}"` : t("of the indexed project");
+    return tr`off by policy. The committed ${POLICY_PATH} ${where} says "llm": "deny", and a committed policy beats any preference of this browser.`;
 }
 
 /** Was unter dem Policy-Satz steht, wenn die Datei zwar da, aber unlesbar war. */
 export function llmPolicyDetail(detail: string): string {
     return detail.length === 0
         ? ''
-        : `The switch stays visible and stays without effect. Reason: ${detail}`;
+        : tr`The switch stays visible and stays without effect. Reason: ${detail}`;
 }
 
 /** Der Wert des Statusleisten-Chips zu einer Lage. Der Beweislauf liest ihn woertlich. */
 export function llmChipValue(state: SidecarState, model: string): string {
     switch (state) {
         case 'off':
-            return 'off';
+            return t("off");
         case 'disabled-by-policy':
-            return 'off by policy';
+            return t("off by policy");
         case 'not-running':
-            return 'not running';
+            return t("not running");
         case 'starting':
-            return 'starting';
+            return t("starting");
         case 'ready':
-            return model.length > 0 ? `ready: ${model}` : 'ready';
+            return model.length > 0 ? tr`ready: ${model}` : t("ready");
         default:
-            return 'off';
+            return t("off");
     }
 }
 
 /** Der `title` des Menuepunktes, je nach Lage. */
 export function llmMenuTitle(state: SidecarState): string {
     if (state === 'disabled-by-policy') {
-        return `atlas: the local model is denied by the project's ${POLICY_PATH}; the switch has no effect`;
+        return tr`atlas: the local model is denied by the project's ${POLICY_PATH}; the switch has no effect`;
     }
     return state === 'off'
-        ? 'atlas: turn the local model on (nothing is probed while it is off)'
-        : 'atlas: turn the local model off (no request goes to the sidecar afterwards)';
+        ? t("atlas: turn the local model on (nothing is probed while it is off)")
+        : t("atlas: turn the local model off (no request goes to the sidecar afterwards)");
 }
 
 /**
@@ -147,5 +143,5 @@ export function llmMenuTitle(state: SidecarState): string {
  * keine Verdrahtung; es aendert sich, was danebensteht.
  */
 export function llmMenuLabel(state: SidecarState): string {
-    return state === 'off' || state === 'disabled-by-policy' ? '[l]ocal llm off' : '[l]ocal llm on';
+    return state === 'off' || state === 'disabled-by-policy' ? t("[l]ocal llm off") : t("[l]ocal llm on");
 }

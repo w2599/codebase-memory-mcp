@@ -1,3 +1,5 @@
+import { getLocale, type Locale } from '../i18n/locale';
+import { t } from '../i18n/translate';
 import type { BrowserAiProgress, BrowserAiRuntime, BrowserAiSource, BrowserChatMessage, BrowserChatOptions, BrowserChatRuntime, BrowserStopReason } from './browser-ai-controller';
 import { BROWSER_MODEL, getBrowserModel } from './model-policy';
 import { BrowserRuntimeFatalError, isFatalBrowserRuntimeError, isGpuRuntimeFailure, runtimeErrorDetail } from './runtime-fault';
@@ -15,6 +17,7 @@ export interface BrowserWorkerRequest {
     generationProfile?: BrowserChatOptions['generationProfile'];
     /** Prepare from the browser cache only: no model download is allowed. */
     cacheOnly?: boolean;
+    uiLanguage?: Locale;
 }
 export interface BrowserWorkerResponse {
     id: number;
@@ -30,7 +33,7 @@ export interface BrowserWorkerResponse {
 /** One model per worker. Only prepare can authorize a download. Stop keeps GPU/model state alive. */
 export function createBrowserChatRuntime(modelId: string = BROWSER_MODEL.id): BrowserChatRuntime {
     const model = getBrowserModel(modelId);
-    if (model.availability !== 'available') throw new Error(model.compatibilityNote);
+    if (model.availability !== 'available') throw new Error(t(model.compatibilityNote));
     const worker = new Worker(new URL('./browser-ai.worker.ts', import.meta.url), { type: 'module' });
     let sequence = 0;
     let disposed = false;
@@ -58,27 +61,27 @@ export function createBrowserChatRuntime(modelId: string = BROWSER_MODEL.id): Br
         const { kind } = event.data;
         // Device loss is worker-wide and may arrive while idle (id 0).
         if (kind === 'error' && (event.data.fatal || isGpuRuntimeFailure(event.data.error))) {
-            failRuntime(event.data.error ?? 'Browser GPU runtime failed.'); return;
+            failRuntime(event.data.error ?? t("Browser GPU runtime failed.")); return;
         }
         if (!pending || pending.id !== event.data.id) return;
         if (kind === 'progress') { pending.progress?.(event.data.progress ?? {}); return; }
         if (kind === 'token') { pending.onToken?.(event.data.output ?? ''); return; }
         const request = pending; pending = undefined;
-        if (kind === 'error') request.reject(new Error(event.data.error ?? 'Browser model failed.'));
+        if (kind === 'error') request.reject(new Error(event.data.error ?? t("Browser model failed.")));
         else request.resolve(event.data);
     };
     worker.onerror = event => {
-        failRuntime(event.message || 'Browser model worker failed.');
+        failRuntime(event.message || t("Browser model worker failed."));
     };
     const request = (
         payload: Omit<BrowserWorkerRequest, 'id' | 'modelId'>,
         callbacks: { progress?: (value: BrowserAiProgress) => void; onToken?: (chunk: string) => void } = {},
     ): Promise<BrowserWorkerResponse> => new Promise((resolve, reject) => {
-        if (disposed) { reject(fatalFailure ?? new Error('The browser model was unloaded. Load it again to continue.')); return; }
-        if (pending) { reject(new Error('The browser model is already busy.')); return; }
+        if (disposed) { reject(fatalFailure ?? new Error(t("The browser model was unloaded. Load it again to continue."))); return; }
+        if (pending) { reject(new Error(t("The browser model is already busy."))); return; }
         const id = ++sequence;
         pending = { id, kind: payload.kind, resolve, reject, ...callbacks };
-        try { worker.postMessage({ ...payload, id, modelId } satisfies BrowserWorkerRequest); }
+        try { worker.postMessage({ ...payload, id, modelId, ...(getLocale() === 'zh' ? { uiLanguage: 'zh' as const } : {}) } satisfies BrowserWorkerRequest); }
         catch (error) {
             if (isGpuRuntimeFailure(error)) failRuntime(error);
             else { pending = undefined; reject(error instanceof Error ? error : new Error(runtimeErrorDetail(error))); }
@@ -88,7 +91,7 @@ export function createBrowserChatRuntime(modelId: string = BROWSER_MODEL.id): Br
         prepare: async (progress, options) => { await request({ kind: 'prepare', ...options?.cacheOnly ? { cacheOnly: true } : {} }, { progress }); },
         countTokens: async messages => {
             const response = await request({ kind: 'count', messages });
-            if (!Number.isSafeInteger(response.count) || response.count! < 0) throw new Error('The model returned an invalid token count.');
+            if (!Number.isSafeInteger(response.count) || response.count! < 0) throw new Error(t("The model returned an invalid token count."));
             return response.count!;
         },
         chat: async (messages, onToken, options) => {
@@ -115,7 +118,7 @@ export function createBrowserChatRuntime(modelId: string = BROWSER_MODEL.id): Br
             if (disposed) return;
             disposed = true;
             worker.terminate();
-            pending?.reject(new Error('The browser model was unloaded.'));
+            pending?.reject(new Error(t("The browser model was unloaded.")));
             pending = undefined;
         },
     };

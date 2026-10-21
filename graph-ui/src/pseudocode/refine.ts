@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /**
  * Letting the local model rephrase a deterministic block, and refusing when it
  * did anything else.
@@ -90,18 +91,18 @@ export function refusalReason(document: PseudocodeDocument, answer: string): str
         return REFINE_REASON_EMPTY;
     }
     if (incoming.length !== document.lines.length) {
-        return `${REFINE_REASON_COUNT} (${incoming.length} instead of ${document.lines.length})`;
+        return tr`${REFINE_REASON_COUNT} (${incoming.length} instead of ${document.lines.length})`;
     }
     for (let index = 0; index < document.lines.length; index++) {
         const expected = document.lines[index].order;
         const actual = leadingNumberOf(incoming[index]);
         if (expected !== actual) {
-            return `${REFINE_REASON_NUMBERS} (line ${index + 1}: expected `
-                + `${expected === undefined ? 'no number' : expected} and got `
-                + `${actual === undefined ? 'no number' : actual})`;
+            return tr`${REFINE_REASON_NUMBERS} (line ${index + 1}: expected `
+                + tr`${expected === undefined ? t("no number") : expected} and got `
+                + `${actual === undefined ? t("no number") : actual})`;
         }
     }
-    return 'the rewrite did not map onto the block it was built from';
+    return t("the rewrite did not map onto the block it was built from");
 }
 
 /**

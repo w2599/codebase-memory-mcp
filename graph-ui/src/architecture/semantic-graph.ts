@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 import type { RouteRef } from '../core/intelligence-provider';
 import type { GraphData, GraphEdge, GraphNode } from '../galaxy/types';
 import { areaLevels, areaOf, areaTrail, MAP_RELATIONS } from './repository-map';
@@ -290,7 +291,7 @@ export function layoutFolderHierarchy(nodes: SemanticNode[], base = ''): Semanti
     const place = (box: HierarchyBox, x: number, z: number) => {
         if (box.node) { box.node.position = [x, box.level * 1.6 + 0.08, z]; return; }
         if (box.level) platforms.push({ id: `hierarchy:${box.key}`, path: box.path,
-            label: box.unknown ? 'Unknown source' : box.path, position: [x, box.level * 1.6, z], width: box.width, depth: box.depth, level: box.level });
+            label: box.unknown ? t("Unknown source") : box.path, position: [x, box.level * 1.6, z], width: box.width, depth: box.depth, level: box.level });
         for (const child of box.children) place(child, x + child.x, z + child.z);
     };
     place(root, 0, 0);
@@ -316,7 +317,7 @@ function placeOutside(outside: SemanticNode[], inside: SemanticNode[], platforms
     outside.forEach((node, index) => {
         node.position = [center + (index % columns + 1 - columns / 2) * spacing, 1.68, top + 28 + Math.floor(index / columns) * spacing];
     });
-    return { id: 'hierarchy:outside', path: '', label: 'Outside', position: [center, 1.6, top + depth / 2], width, depth, level: 1 };
+    return { id: 'hierarchy:outside', path: '', label: t("Outside"), position: [center, 1.6, top + depth / 2], width, depth, level: 1 };
 }
 
 /** Prune empty containers without repacking the stable unfiltered layout. */
@@ -341,8 +342,8 @@ export function buildSemanticGraph(graph: GraphData, options: SemanticGraphOptio
     let nodes: SemanticNode[] = [];
     let edges: SemanticEdge[] = [];
     const warnings: string[] = [];
-    let title = options.filePath ?? options.areaPath ?? 'Repository structure';
-    let positionMeaning = 'Nested platforms follow source folders; areas outside the opened one wait in their own lane. Boxes represent source grouping, not deployed services.';
+    let title = options.filePath ?? options.areaPath ?? t("Repository structure");
+    let positionMeaning = t("Nested platforms follow source folders; areas outside the opened one wait in their own lane. Boxes represent source grouping, not deployed services.");
     const depth = bounded(options.depth, 3, 8);
     let rootId: string | undefined;
     let hiddenRoutes = 0;
@@ -367,16 +368,16 @@ export function buildSemanticGraph(graph: GraphData, options: SemanticGraphOptio
                     if (!depths.has(target)) { depths.set(target, currentDepth + 1); queue.push(target); }
                     if (depths.size >= 1000) break;
                 }
-                if (depths.size >= 1000) { warnings.push('Reachability analysis stopped at 1,000 symbols.'); break; }
+                if (depths.size >= 1000) { warnings.push(t("Reachability analysis stopped at 1,000 symbols.")); break; }
             }
             nodes = [...depths].map(([id, distance]) => ({ ...symbolNode(byId.get(id)!), depth: distance }));
             edges = aggregate(evidence.filter(edge => edge.type === 'CALLS' && depths.has(edge.source.id) && depths.has(edge.target.id)), node => symbolId(node));
             title = root.name;
             if ([...depths].some(([id, distance]) => distance === depth && (outgoing.get(id) ?? []).some(target => !depths.has(target)))) {
-                warnings.push(`More calls continue beyond the ${depth}-hop boundary.`);
+                warnings.push(tr`More calls continue beyond the ${depth}-hop boundary.`);
             }
-        } else warnings.push('No indexed entry-point classification matches this repository snapshot.');
-        positionMeaning = 'Left to right: shortest static call distance from the entry point. This is possible reachability, not runtime execution order.';
+        } else warnings.push(t("No indexed entry-point classification matches this repository snapshot."));
+        positionMeaning = t("Left to right: shortest static call distance from the entry point. This is possible reachability, not runtime execution order.");
     } else if (options.view === 'routes') {
         const currentByIdentity = new Map(graph.nodes.map(node => [identity(node), node]));
         const recorded = evidence.filter(edge => ['HTTP_CALLS', 'ASYNC_CALLS', 'HANDLES'].includes(edge.type));
@@ -411,7 +412,7 @@ export function buildSemanticGraph(graph: GraphData, options: SemanticGraphOptio
                 const id = `route:${identity(node)}`;
                 if (!routeNodes.has(id)) routeNodes.set(id, { ...symbolNode(node), id, kind: 'route',
                     graphNode: currentNodes.has(node) ? node : undefined,
-                    label: readableRoute(edge?.routePath ?? node.name), detail: node.file_path ?? 'Indexed route; source location unavailable' });
+                    label: readableRoute(edge?.routePath ?? node.name), detail: node.file_path ?? t("Indexed route; source location unavailable") });
                 return id;
             }
             const area = node.file_path ? areaOf(node.file_path) : undefined;
@@ -420,7 +421,7 @@ export function buildSemanticGraph(graph: GraphData, options: SemanticGraphOptio
             let group = routeNodes.get(id);
             if (!group) {
                 group = { id, kind: area ? 'area' : 'symbol', label: area ?? node.name,
-                    detail: `${role === 'handler' ? 'Handler' : 'Caller'} source area; inferred from file paths`,
+                    detail: tr`${role === 'handler' ? t("Handler") : t("Caller")} source area; inferred from file paths`,
                     position: [0, 0, 0], count: 0, areaPath: area, members: [] };
                 routeNodes.set(id, group);
             }
@@ -439,7 +440,7 @@ export function buildSemanticGraph(graph: GraphData, options: SemanticGraphOptio
             const id = `registration:${route.method ?? ''}:${route.path}@${route.filePath ?? ''}:${route.line ?? ''}`;
             if (options.hideTestRoutes && route.filePath && TEST_SOURCE.test(route.filePath)) { hidden.add(id); continue; }
             routeNodes.set(id, { id, kind: 'route', label: `${route.method ? `${route.method} ` : ''}${readableRoute(route.path)}`,
-                detail: `${route.origin === 'source' ? 'Source' : 'Index'} registration · handler relationship not resolved`,
+                detail: tr`${route.origin === 'source' ? t("Source") : t("Index")} registration · handler relationship not resolved`,
                 position: [0, 0, 0], count: 1, filePath: route.filePath, line: route.line, members: [] });
         }
         hiddenRoutes = hidden.size;
@@ -455,8 +456,8 @@ export function buildSemanticGraph(graph: GraphData, options: SemanticGraphOptio
             }
             for (const [prefix, routes] of prefixes) if (routes.length > 1 && prefix !== '/') {
                 const id = `route-group:${prefix}`;
-                routeNodes.set(id, { id, kind: 'route', kindLabel: 'Route group', routePrefix: prefix, label: `${prefix} · ${routes.length}`,
-                    detail: `${routes.length} routes whose path starts with ${prefix}`, position: [0, 0, 0], count: routes.length,
+                routeNodes.set(id, { id, kind: 'route', kindLabel: t("Route group"), routePrefix: prefix, label: `${prefix} · ${routes.length}`,
+                    detail: tr`${routes.length} routes whose path starts with ${prefix}`, position: [0, 0, 0], count: routes.length,
                     members: routes.flatMap(route => route.members) });
                 for (const route of routes) { grouped.set(route.id, id); routeNodes.delete(route.id); }
             }
@@ -474,9 +475,9 @@ export function buildSemanticGraph(graph: GraphData, options: SemanticGraphOptio
         nodes = [...routeNodes.values()];
         for (const node of nodes) node.members.sort(nodeOrder);
         warnings.push(...options.routeSnapshot?.warnings ?? []);
-        if (options.routeSnapshot?.truncated) warnings.push('Route relationships are partial; missing lines do not prove that services are disconnected.');
-        title = 'Requests across source areas';
-        positionMeaning = 'Caller areas → route paths → handler areas. Only recorded HTTP, async and handler relationships become lines; isolated routes are registrations.';
+        if (options.routeSnapshot?.truncated) warnings.push(t("Route relationships are partial; missing lines do not prove that services are disconnected."));
+        title = t("Requests across source areas");
+        positionMeaning = t("Caller areas → route paths → handler areas. Only recorded HTTP, async and handler relationships become lines; isolated routes are registrations.");
     } else {
         const groups = new Map<string, SemanticNode>();
         const nodeGroups = new Map<number, string>();
@@ -517,7 +518,7 @@ export function buildSemanticGraph(graph: GraphData, options: SemanticGraphOptio
             const paths = inventory.get(id) ?? new Set<string>(); paths.add(path); inventory.set(id, paths);
             if (options.filePath && [...groups.values()].some(group => group.filePath === path)) continue;
             if (!groups.has(id)) groups.set(id, { id, kind: level.kind, label: options.filePath ? path : scopedLabel(level.path),
-                detail: options.filePath ? 'File inventory · no symbols in the loaded graph' : '',
+                detail: options.filePath ? t("File inventory · no symbols in the loaded graph") : '',
                 position: [0, 0, 0], count: 0, areaPath: level.kind === 'area' ? level.path : scope ?? areaOf(path),
                 filePath: level.kind === 'file' ? path : undefined, members: [] });
         }
@@ -546,7 +547,7 @@ export function buildSemanticGraph(graph: GraphData, options: SemanticGraphOptio
                 if (!nodeGroups.has(inside.id) && options.filePath && ['File', 'Module'].includes(inside.label)) {
                     const id = `file:${options.filePath}`;
                     const group: SemanticNode = groups.get(id) ?? { id, kind: 'file', label: options.filePath,
-                        detail: 'File-level dependencies', position: [0, 0, 0], count: 0,
+                        detail: t("File-level dependencies"), position: [0, 0, 0], count: 0,
                         filePath: options.filePath, areaPath: areaOf(options.filePath), members: [] };
                     if (!group.members.includes(inside)) { group.members.push(inside); group.count++; }
                     groups.set(id, group); nodeGroups.set(inside.id, id);
@@ -555,16 +556,16 @@ export function buildSemanticGraph(graph: GraphData, options: SemanticGraphOptio
                 const areaPath = outsideArea(outside.file_path!);
                 const id = `area:${areaPath}`;
                 const group: SemanticNode = groups.get(id) ?? { id, kind: 'area', label: areaPath,
-                    detail: 'External source area · inferred from file paths', position: [0, 0, 0],
+                    detail: t("External source area · inferred from file paths"), position: [0, 0, 0],
                     count: 0, areaPath, members: [], external: true };
                 if (!group.members.includes(outside)) { group.members.push(outside); group.count++; }
                 groups.set(id, group); nodeGroups.set(outside.id, id);
             }
         }
         nodes = [...groups.values()].map(node => ({ ...node, members: node.members.sort(nodeOrder),
-            detail: node.detail || `${new Set([...node.members.map(member => member.file_path), ...(inventory.get(node.id) ?? [])]).size} files · ${node.count} indexed nodes` }));
+            detail: node.detail || tr`${new Set([...node.members.map(member => member.file_path), ...(inventory.get(node.id) ?? [])]).size} files · ${node.count} indexed nodes` }));
         edges = aggregate(scopedEvidence, node => nodeGroups.get(node.id));
-        if (options.view === 'dependencies') title = options.filePath ?? options.areaPath ?? 'Dependencies between source areas';
+        if (options.view === 'dependencies') title = options.filePath ?? options.areaPath ?? t("Dependencies between source areas");
     }
 
     const filter = options.filter?.trim().toLowerCase();
@@ -595,7 +596,7 @@ export function buildSemanticGraph(graph: GraphData, options: SemanticGraphOptio
         }
         nodes = nodes.filter(node => context.has(node.id));
         edges = edges.filter(edge => context.has(edge.source) && context.has(edge.target));
-        if (context.size > matching.size) warnings.push('Showing filter matches and their one-hop neighbors for relationship context.');
+        if (context.size > matching.size) warnings.push(t("Showing filter matches and their one-hop neighbors for relationship context."));
     }
     const totalNodes = nodes.length; const totalEdges = edges.length;
     nodes = filter ? capped(nodes, edges) : unfiltered;
@@ -639,8 +640,8 @@ export function buildSemanticGraph(graph: GraphData, options: SemanticGraphOptio
         const short = distinctLabels(nodes.filter(node => node.kind === 'route').map(node => node.label));
         for (const node of nodes) if (node.kind === 'route' && short.has(node.label)) node.shortLabel = short.get(node.label);
     }
-    if (unresolved) warnings.push(`${unresolved} relationships have an endpoint outside the loaded repository snapshot.`);
-    if (graph.total_nodes > graph.nodes.length) warnings.push('The loaded repository snapshot contains only part of the indexed graph.');
+    if (unresolved) warnings.push(tr`${unresolved} relationships have an endpoint outside the loaded repository snapshot.`);
+    if (graph.total_nodes > graph.nodes.length) warnings.push(t("The loaded repository snapshot contains only part of the indexed graph."));
     return { view: options.view, scopeKey: `${options.view}:${options.areaPath ?? ''}:${options.filePath ?? ''}:${rootId ?? ''}:${filter ?? ''}`,
         title, positionMeaning, nodes, ...(platforms ? { platforms: pruneHierarchyPlatforms(platforms, nodes) } : {}),
         edges, totalNodes, totalEdges, omittedNodes: totalNodes - nodes.length,

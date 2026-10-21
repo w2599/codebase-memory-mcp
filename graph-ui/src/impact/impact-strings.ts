@@ -1,3 +1,5 @@
+import { formatCount } from '../i18n/count';
+import { t, tr } from '../i18n/translate';
 /*
  * Herkunft: portiert am 2026-08-28 aus CodeAtlasIDE,
  * /Users/bernhard/Desktop/CodeAtlasIDE/theia-extensions/codeatlas-views/src/browser/strings.ts
@@ -18,48 +20,48 @@
 
 /** `3 files` oder `1 file`. Die eine Pluralregel dieser Datei. */
 export function countOf(count: number, singular: string, plural: string): string {
-    return `${count} ${count === 1 ? singular : plural}`;
+    return formatCount(count, singular, plural);
 }
 
 // Signale, wortgleich mit der Karte des Referenzprojekts ----------------------
 
-export const MAP_SIGNAL_UNGUARDED_RECURSION = 'recursion with no visible base case';
-export const MAP_SIGNAL_ALLOCATION_IN_LOOP = 'allocates inside a loop';
-export const MAP_SIGNAL_SCAN_IN_LOOP = 'scans a list inside a loop';
+export const MAP_SIGNAL_UNGUARDED_RECURSION = t("recursion with no visible base case");
+export const MAP_SIGNAL_ALLOCATION_IN_LOOP = t("allocates inside a loop");
+export const MAP_SIGNAL_SCAN_IN_LOOP = t("scans a list inside a loop");
 
 export function mapSignalNesting(depth: number): string {
-    return depth === 1 ? 'one loop' : `loops nested ${depth} deep`;
+    return depth === 1 ? t("one loop") : tr`loops nested ${depth} deep`;
 }
 
 export function mapSignalThinking(score: number): string {
-    return `cognitive complexity ${score}`;
+    return tr`cognitive complexity ${score}`;
 }
 
 export function mapSignalBranches(score: number): string {
-    return `${countOf(score, 'branch', 'branches')} to follow`;
+    return tr`${countOf(score, 'branch', 'branches')} to follow`;
 }
 
 export function mapSignalFanIn(count: number): string {
-    return `reached by ${countOf(count, 'symbol', 'symbols')}`;
+    return tr`reached by ${countOf(count, 'symbol', 'symbols')}`;
 }
 
 // Das Risikowort und was daneben steht ---------------------------------------
 
 /** The risk word, and the sentence that says what kind of claim it is. */
 export const RISK_LABELS: Readonly<Record<'low' | 'medium' | 'high', string>> = {
-    low: 'LOW',
-    medium: 'MEDIUM',
-    high: 'HIGH',
+    low: t("LOW"),
+    medium: t("MEDIUM"),
+    high: t("HIGH"),
 };
 
 export const IMPACT_BADGE_TOOLTIP =
-    'A rule applied to what the index recorded, not a prediction. The sentences beside it are the whole of the reasoning.';
+    t("A rule applied to what the index recorded, not a prediction. The sentences beside it are the whole of the reasoning.");
 
 /** What a risk chip says when the symbol is reached from outside the program. */
-export const IMPACT_SIGNAL_ENTRY_POINT = 'reachable from outside the program';
+export const IMPACT_SIGNAL_ENTRY_POINT = t("reachable from outside the program");
 
 /** What a risk chip says when nothing about the symbol reached a threshold. */
-export const IMPACT_SIGNAL_NONE = 'nothing measured on this symbol reached a threshold';
+export const IMPACT_SIGNAL_NONE = t("nothing measured on this symbol reached a threshold");
 
 export function impactRiskTooltip(level: 'low' | 'medium' | 'high', reasons: string[]): string {
     const because = reasons.length === 0 ? IMPACT_SIGNAL_NONE : reasons.join('; ');
@@ -67,23 +69,21 @@ export function impactRiskTooltip(level: 'low' | 'medium' | 'high', reasons: str
 }
 
 /** How a route was tied to the change. Two different strengths of claim. */
-export const IMPACT_ENDPOINT_VIA_HANDLER = 'The registration names a handler this change reaches.';
+export const IMPACT_ENDPOINT_VIA_HANDLER = t("The registration names a handler this change reaches.");
 export const IMPACT_ENDPOINT_VIA_FILE =
-    'The registration is written in a file this change reaches. CBM Lens cannot name the handler here, so this is the file and not the function.';
+    t("The registration is written in a file this change reaches. CBM Lens cannot name the handler here, so this is the file and not the function.");
 
 // Die Erzaehlung, ein Satz je Lesung -----------------------------------------
 
 export function impactChangedSentence(files: number, symbols: number): string {
     if (files === 0) {
-        return 'Nothing in the working tree differs from the baseline.';
+        return t("Nothing in the working tree differs from the baseline.");
     }
-    const where = files === 1 ? 'it' : 'them';
+    const where = files === 1 ? t("it") : t("them");
     if (symbols === 0) {
-        return `${countOf(files, 'file differs', 'files differ')} from the baseline, `
-            + `and the index holds no symbol in ${where}.`;
+        return tr`${countOf(files, 'file differs', 'files differ')} from the baseline, and the index holds no symbol in ${where}.`;
     }
-    return `${countOf(files, 'file differs', 'files differ')} from the baseline, `
-        + `and the index places ${countOf(symbols, 'symbol', 'symbols')} inside ${where}.`;
+    return tr`${countOf(files, 'file differs', 'files differ')} from the baseline, and the index places ${countOf(symbols, 'symbol', 'symbols')} inside ${where}.`;
 }
 
 /**
@@ -96,36 +96,31 @@ export function impactChangedSentence(files: number, symbols: number): string {
  * hat sich geaendert", und das steht dort nicht.
  */
 export function impactSeedSentence(seeds: number, listed: number): string {
-    return `The analysis scoped the diff to ${countOf(seeds, 'declaration', 'declarations')}, `
-        + `and the list below is the ${countOf(listed, 'symbol', 'symbols')} the index places inside those files.`;
+    return tr`The analysis scoped the diff to ${countOf(seeds, 'declaration', 'declarations')}, and the list below is the ${countOf(listed, 'symbol', 'symbols')} the index places inside those files.`;
 }
 
 export function impactDownstreamSentence(count: number, distance: number): string {
     if (count === 0) {
-        return 'Nothing in the indexed workspace calls those symbols, so the change stops where it is.';
+        return t("Nothing in the indexed workspace calls those symbols, so the change stops where it is.");
     }
-    return `Walking the calls inwards reaches ${countOf(count, 'further symbol', 'further symbols')} `
-        + `within ${countOf(distance, 'step', 'steps')}.`;
+    return tr`Walking the calls inwards reaches ${countOf(count, 'further symbol', 'further symbols')} within ${countOf(distance, 'step', 'steps')}.`;
 }
 
 export function impactEndpointSentence(paths: string[]): string {
     if (paths.length === 0) {
-        return 'No HTTP endpoint CBM Lens recovered is registered in a file this change reaches.';
+        return t("No HTTP endpoint CBM Lens recovered is registered in a file this change reaches.");
     }
-    return `${countOf(paths.length, 'endpoint is', 'endpoints are')} registered in a file `
-        + `this change reaches: ${paths.join(', ')}.`;
+    return tr`${countOf(paths.length, 'endpoint is', 'endpoints are')} registered in a file this change reaches: ${paths.join(', ')}.`;
 }
 
 export function impactTestsSentence(covering: number, missing: number): string {
     if (covering === 0 && missing === 0) {
-        return 'No affected symbol could be checked for test callers.';
+        return t("No affected symbol could be checked for test callers.");
     }
     if (missing === 0) {
-        return 'Every affected symbol that was checked has a test caller '
-            + `(${countOf(covering, 'test caller', 'test callers')} in total), so a change here would be noticed.`;
+        return tr`Every affected symbol that was checked has a test caller (${countOf(covering, 'test caller', 'test callers')} in total), so a change here would be noticed.`;
     }
-    return `No test caller was found for ${countOf(missing, 'affected symbol', 'affected symbols')}, `
-        + `so a change to ${missing === 1 ? 'it' : 'them'} would go unnoticed by any automatic check.`;
+    return tr`No test caller was found for ${countOf(missing, 'affected symbol', 'affected symbols')}, so a change to ${missing === 1 ? t("it") : t("them")} would go unnoticed by any automatic check.`;
 }
 
 /**
@@ -136,24 +131,23 @@ export function impactTestsSentence(covering: number, missing: number): string {
  * that keeps a quiet page from reading like a clean one.
  */
 export function impactUnmeasuredSentence(count: number): string {
-    return `Complexity readings were unavailable for ${countOf(count, 'symbol', 'symbols')}, `
-        + 'so the level rests on what the analysis could not measure as well as on what it could.';
+    return tr`Complexity readings were unavailable for ${countOf(count, 'symbol', 'symbols')}, so the level rests on what the analysis could not measure as well as on what it could.`;
 }
 
 export function impactTestLookupCapped(cap: number): string {
-    return `Test callers were looked up for the first ${cap} affected symbols only; the rest were not checked.`;
+    return tr`Test callers were looked up for the first ${cap} affected symbols only; the rest were not checked.`;
 }
 
 export const IMPACT_WALK_TRUNCATED =
-    'The caller walk stopped at its bound, so the list of what calls this change is a floor and not a total.';
+    t("The caller walk stopped at its bound, so the list of what calls this change is a floor and not a total.");
 
 /** Evidence rows: what each claim rests on, in the reader's words. */
-export const IMPACT_EVIDENCE_TITLE = 'What this rests on';
+export const IMPACT_EVIDENCE_TITLE = t("What this rests on");
 
 export const IMPACT_EVIDENCE_SOURCES: Readonly<Record<'detect_changes' | 'architecture' | 'facts', string>> = {
-    detect_changes: 'the change set the analysis reported, plus the calls into it',
-    architecture: 'the whole-project summary, including the routes CBM Lens recovered',
-    facts: 'the per-symbol readings: complexity, and callers flagged as test code',
+    detect_changes: t("the change set the analysis reported, plus the calls into it"),
+    architecture: t("the whole-project summary, including the routes CBM Lens recovered"),
+    facts: t("the per-symbol readings: complexity, and callers flagged as test code"),
 };
 
 export function impactEvidenceValue(
@@ -170,14 +164,13 @@ export function impactEvidenceValue(
 // ihre Regeln aufzaehlt. Beides steht hier, weil W4b beides verlangt.
 
 /** Die Ueberschrift der Flaeche. */
-export const IMPACT_TITLE = 'What would this change reach?';
-export const IMPACT_RISK_UNRESOLVED = 'RISK UNRESOLVED';
-export const IMPACT_NO_ELEVATED_SIGNAL = 'NO ELEVATED SIGNAL';
+export const IMPACT_TITLE = t("What would this change reach?");
+export const IMPACT_RISK_UNRESOLVED = t("RISK UNRESOLVED");
+export const IMPACT_NO_ELEVATED_SIGNAL = t("NO ELEVATED SIGNAL");
 export const IMPACT_UNRESOLVED_TOOLTIP =
-    'Some risk inputs are missing. No elevated rule fired; this does not establish low risk.';
+    t("Some risk inputs are missing. No elevated rule fired; this does not establish low risk.");
 export function impactUnresolvedInputs(unmeasured: number, total: number): string {
-    return `Risk inputs are missing for ${unmeasured} of ${total} symbols. `
-        + 'No elevated signal is not evidence of safety. Open an affected file to inspect its revision, dependency paths and local Git evidence.';
+    return tr`Risk inputs are missing for ${unmeasured} of ${total} symbols. No elevated signal is not evidence of safety. Open an affected file to inspect its revision, dependency paths and local Git evidence.`;
 }
 
 /**
@@ -188,24 +181,23 @@ export function impactUnresolvedInputs(unmeasured: number, total: number): strin
  * Suche, und c ist der von change, also von dem Wort, das der Leser im Kopf
  * hat, wenn er wissen will, was seine Aenderung erreicht.
  */
-export const IMPACT_MENU_LABEL = '[c]hange scope';
+export const IMPACT_MENU_LABEL = t("[c]hange scope");
 
 /** Der Satz darunter: was gelesen wird und was das Wort am Ende bedeutet. */
 export const IMPACT_SUBLINE =
-    'Read from the change set the analysis reports, the calls into it, and the routes CBM Lens recovered. '
-    + 'The word on the right is a rule applied to those readings, never a prediction.';
+    t("Read from the change set the analysis reports, the calls into it, and the routes CBM Lens recovered. The word on the right is a rule applied to those readings, never a prediction.");
 
-export const IMPACT_MODE_LABEL = 'Compare against';
-export const IMPACT_MODE_WORKING_TREE = 'Working tree';
+export const IMPACT_MODE_LABEL = t("Compare against");
+export const IMPACT_MODE_WORKING_TREE = t("Working tree");
 export const IMPACT_MODE_WORKING_TREE_TOOLTIP =
-    'Compare the working tree against the last commit, which is what the analysis does when nobody names a point.';
-export const IMPACT_MODE_SINCE_REF = 'Since ref';
-export const IMPACT_MODE_SINCE_REF_TOOLTIP = 'Compare the working tree against a named point in history.';
+    t("Compare the working tree against the last commit, which is what the analysis does when nobody names a point.");
+export const IMPACT_MODE_SINCE_REF = t("Since ref");
+export const IMPACT_MODE_SINCE_REF_TOOLTIP = t("Compare the working tree against a named point in history.");
 
-export const IMPACT_REF_LABEL = 'Baseline';
-export const IMPACT_REF_PLACEHOLDER = 'branch, tag or commit';
-export const IMPACT_REF_GO = 'Go';
-export const IMPACT_REF_GO_TOOLTIP = 'Compare the working tree against this point in history.';
+export const IMPACT_REF_LABEL = t("Baseline");
+export const IMPACT_REF_PLACEHOLDER = t("branch, tag or commit");
+export const IMPACT_REF_GO = t("Go");
+export const IMPACT_REF_GO_TOOLTIP = t("Compare the working tree against this point in history.");
 
 /**
  * Was zu einem abgelehnten Ref gesagt wird.
@@ -217,13 +209,13 @@ export const IMPACT_REF_GO_TOOLTIP = 'Compare the working tree against this poin
  * verschiedene Lagen.
  */
 export function impactRefRejected(ref: string, rule: string): string {
-    return `"${ref}" is not a usable git ref: ${rule}. Nothing was asked of the analysis backend.`;
+    return tr`"${ref}" is not a usable git ref: ${rule}. Nothing was asked of the analysis backend.`;
 }
 
-export const IMPACT_LOADING = 'Reading the change set, the summary and the per-symbol readings.';
-export const IMPACT_LOAD_FAILED = 'The change set could not be read.';
+export const IMPACT_LOADING = t("Reading the change set, the summary and the per-symbol readings.");
+export const IMPACT_LOAD_FAILED = t("The change set could not be read.");
 
-export const IMPACT_EMPTY_MESSAGE = 'No project, so there is no change set to read.';
+export const IMPACT_EMPTY_MESSAGE = t("No project, so there is no change set to read.");
 
 /**
  * Die Ueberschriften der vier Listen.
@@ -234,18 +226,18 @@ export const IMPACT_EMPTY_MESSAGE = 'No project, so there is no change set to re
  * die "geaendert" behauptet, waere die eine Zeile dieser Flaeche, die mehr sagt
  * als ihre Lesung hergibt.
  */
-export const IMPACT_DIRECT_TITLE = 'Symbols in the changed files';
-export const IMPACT_DOWNSTREAM_TITLE = 'What calls them';
-export const IMPACT_ENDPOINTS_TITLE = 'Endpoints reached';
-export const IMPACT_TESTS_TITLE = 'Tests';
+export const IMPACT_DIRECT_TITLE = t("Symbols in the changed files");
+export const IMPACT_DOWNSTREAM_TITLE = t("What calls them");
+export const IMPACT_ENDPOINTS_TITLE = t("Endpoints reached");
+export const IMPACT_TESTS_TITLE = t("Tests");
 
 export const IMPACT_DIRECT_EMPTY =
-    'The index places no symbol inside the changed files.';
+    t("The index places no symbol inside the changed files.");
 export const IMPACT_DOWNSTREAM_EMPTY =
-    'Nothing in the indexed workspace calls the changed symbols.';
+    t("Nothing in the indexed workspace calls the changed symbols.");
 export const IMPACT_ENDPOINTS_EMPTY =
-    'No route CBM Lens recovered is registered in a file this change reaches.';
-export const IMPACT_TESTS_EMPTY = 'No affected symbol could be checked for test callers.';
+    t("No route CBM Lens recovered is registered in a file this change reaches.");
+export const IMPACT_TESTS_EMPTY = t("No affected symbol could be checked for test callers.");
 
 /**
  * Wie viele Dateien der Routen-Scan geoeffnet hat, und was das begrenzt.
@@ -256,34 +248,34 @@ export const IMPACT_TESTS_EMPTY = 'No affected symbol could be checked for test 
  */
 export function impactRouteScanNote(scanned: number, cap: number | undefined, truncatedFiles: number): string {
     const head = cap === undefined
-        ? `Routes were read off the text of ${countOf(scanned, 'indexed source file', 'indexed source files')}.`
-        : `Routes were read from the first ${cap} indexed source files only.`;
+        ? tr`Routes were read off the text of ${countOf(scanned, 'indexed source file', 'indexed source files')}.`
+        : tr`Routes were read from the first ${cap} indexed source files only.`;
     return truncatedFiles === 0
         ? head
-        : `${head} ${countOf(truncatedFiles, 'file', 'files')} arrived incomplete, so a registration past the cut is not on this list.`;
+        : tr`${head} ${countOf(truncatedFiles, 'file', 'files')} arrived incomplete, so a registration past the cut is not on this list.`;
 }
 
 /** Die Zeile ueber der Badge-Begruendung. */
-export const IMPACT_BADGE_WHY_TITLE = 'Which rules fired';
+export const IMPACT_BADGE_WHY_TITLE = t("Which rules fired");
 
 /** Was dort steht, wenn keine Regel griff. */
-export const IMPACT_BADGE_WHY_NONE = 'No rule reached a threshold, so the level is the floor and not a finding.';
+export const IMPACT_BADGE_WHY_NONE = t("No rule reached a threshold, so the level is the floor and not a finding.");
 
 /** Eine Regel des Gesamturteils als Satz. */
 export function impactEndpointRule(count: number): string {
-    return `${countOf(count, 'endpoint is', 'endpoints are')} registered in a file this change reaches.`;
+    return tr`${countOf(count, 'endpoint is', 'endpoints are')} registered in a file this change reaches.`;
 }
 
 export function impactUntestedRule(count: number): string {
-    return `No test caller was found for ${countOf(count, 'affected symbol', 'affected symbols')}.`;
+    return tr`No test caller was found for ${countOf(count, 'affected symbol', 'affected symbols')}.`;
 }
 
 /** Eine Regel eines einzelnen Symbols als Satz. */
 export function impactSymbolRule(name: string, level: 'low' | 'medium' | 'high', reasons: string[]): string {
-    return `${name} is ${RISK_LABELS[level]}: ${reasons.join('; ')}.`;
+    return tr`${name} is ${RISK_LABELS[level]}: ${reasons.join('; ')}.`;
 }
 
 // Review zu K42: der Knopf Refresh der Dateiwirkung in Explore sagt, dass er laeuft, dann wann er lief ---
 // (die gemeinsamen Saetze "Up to date at …" und "Refresh failed at …" stehen in ui/refresh/strings.ts).
 
-export const FILE_IMPACT_REFRESH = { idle: 'Refresh', busy: 'Refreshing…', done: (time: string) => `Impact refreshed at ${time}` };
+export const FILE_IMPACT_REFRESH = { idle: t("Refresh"), busy: t("Refreshing…"), done: (time: string) => tr`Impact refreshed at ${time}` };

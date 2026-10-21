@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { RpcIntelligenceClient } from '../provider/rpc-client';
 import type { SearchGraphHit } from '../provider/rpc-schemas';
@@ -21,12 +22,12 @@ export function choicesFromSearchHits(hits: readonly SearchGraphHit[]): Choice[]
             scope: { kind: 'symbol', qualifiedName: hit.qualified_name, name: hit.name } });
         if (!file) continue;
         const path = file.replace(/\\/g, '/');
-        choices.set(path, { key: path, name: path, kind: 'File', detail: 'Indexed file', scope: { kind: 'file', path, name: path } });
+        choices.set(path, { key: path, name: path, kind: 'File', detail: t("Indexed file"), scope: { kind: 'file', path, name: path } });
         const parts = path.split('/');
         for (let i = 1; i < parts.length; i++) {
             const folder = parts.slice(0, i).join('/');
             if (!folder) continue;
-            choices.set(folder + '/', { key: folder + '/', name: folder + '/', kind: 'Folder', detail: 'Indexed folder',
+            choices.set(folder + '/', { key: folder + '/', name: folder + '/', kind: 'Folder', detail: t("Indexed folder"),
                 scope: { kind: 'folder', path: folder, name: folder + '/' } });
         }
     }
@@ -68,13 +69,13 @@ export default function GalaxyNavigator({ nodes, onSelect, onSelectScope, projec
         if (!project || query.trim().length < 2 || (embedded && !pickerOpen)) return;
         const abort = new AbortController();
         const timer = setTimeout(() => {
-            setStatus('Searching index…');
+            setStatus(t("Searching index…"));
             const client = new RpcIntelligenceClient({ fetch: fetchImpl, signal: abort.signal });
             client.searchGraph(project, { query: query.trim(), limit: 12, signal: abort.signal }).then(result => {
                 if (abort.signal.aborted) return;
                 setRemote(choicesFromSearchHits(result.results));
-                setStatus(result.total && result.total > 12 ? 'Top matches · refine to narrow' : '');
-            }).catch(() => { if (!abort.signal.aborted) setStatus('Index search unavailable · loaded matches shown'); });
+                setStatus(result.total && result.total > 12 ? t("Top matches · refine to narrow") : '');
+            }).catch(() => { if (!abort.signal.aborted) setStatus(t("Index search unavailable · loaded matches shown")); });
         }, 250);
         return () => { clearTimeout(timer); abort.abort(); };
     }, [project, query, fetchImpl, embedded, pickerOpen]);
@@ -100,7 +101,7 @@ export default function GalaxyNavigator({ nodes, onSelect, onSelectScope, projec
         }
         if (onSelectScope) for (const [path, count] of paths) if (needle && path.toLocaleLowerCase().includes(needle)) {
             const folder = path.endsWith('/');
-            choices.push({ key: path, name: path, detail: `${count.toLocaleString()} loaded nodes`, kind: folder ? 'Folder' : 'File',
+            choices.push({ key: path, name: path, detail: tr`${count.toLocaleString()} loaded nodes`, kind: folder ? 'Folder' : 'File',
                 scope: { kind: folder ? 'folder' : 'file', path: path.replace(/\/$/, ''), name: path } });
         }
         const priority = (choice: Choice) => searchPriority(choice, needle);
@@ -117,22 +118,22 @@ export default function GalaxyNavigator({ nodes, onSelect, onSelectScope, projec
                 setPickerOpen(false);
             }}><span className="atlas-graph-result-kind">{choice.kind}</span><strong>{choice.name}</strong><span>{choice.detail}</span></button>
         </li>)}</ul>
-        {matches.length === 0 && <p>No matching indexed nodes.</p>}
+        {matches.length === 0 && <p>{t("No matching indexed nodes.")}</p>}
     </>;
-    if (embedded) return <div ref={container} className="atlas-galaxy-search-container" role="search" aria-label="Galaxy exploration"
+    if (embedded) return <div ref={container} className="atlas-galaxy-search-container" role="search" aria-label={t("Galaxy exploration")}
         onKeyDown={event => {
             if (event.key === 'Escape') { event.stopPropagation(); setPickerOpen(false); input.current?.focus(); }
         }}>
-        <input ref={input} type="search" aria-label="Find a graph node" placeholder="Find node, file or folder…"
+        <input ref={input} type="search" aria-label={t("Find a graph node")} placeholder={t("Find node, file or folder…")}
             value={query} onFocus={() => setPickerOpen(true)} onChange={event => { setQuery(event.target.value); setPickerOpen(true); }} />
         {pickerOpen && <div className="atlas-galaxy-node-picker atlas-galaxy-search-results">{results}</div>}
     </div>;
     return <details ref={details} className="atlas-galaxy-navigator" onKeyDown={event => {
         if (event.key === 'Escape') { event.stopPropagation(); details.current!.open = false; details.current?.querySelector('summary')?.focus(); }
     }}>
-        <summary>Find node or cluster</summary>
+        <summary>{t("Find node or cluster")}</summary>
         <div className="atlas-galaxy-node-picker">
-            <input ref={input} type="search" aria-label="Find a graph node" placeholder="Symbol, file, or folder…"
+            <input ref={input} type="search" aria-label={t("Find a graph node")} placeholder={t("Symbol, file, or folder…")}
                 value={query} onChange={event => setQuery(event.target.value)} />
             {results}
         </div>

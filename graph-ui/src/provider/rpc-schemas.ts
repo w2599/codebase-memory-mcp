@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /*
  * Herkunft: portiert am 2026-08-28 aus CodeAtlasIDE,
  * /Users/bernhard/Desktop/CodeAtlasIDE/theia-extensions/codeatlas-intelligence/src/node/client/schemas.ts
@@ -391,16 +392,16 @@ export function readListProjects(value: unknown): ListProjectsResult {
     for (const key of ['total', 'returned', 'offset', 'limit'] as const) {
         const value = raw[key];
         if (value !== undefined) {
-            if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0) throw new Error(`Invalid project pagination: ${key}.`);
+            if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0) throw new Error(tr`Invalid project pagination: ${key}.`);
             result[key] = value;
         }
     }
     if (raw['has_more'] !== undefined) {
-        if (typeof raw['has_more'] !== 'boolean') throw new Error('Invalid project pagination: has_more.');
+        if (typeof raw['has_more'] !== 'boolean') throw new Error(t("Invalid project pagination: has_more."));
         result.hasMore = raw['has_more'];
     }
     if (raw['next_offset'] !== undefined && raw['next_offset'] !== null) {
-        if (typeof raw['next_offset'] !== 'number' || !Number.isSafeInteger(raw['next_offset']) || raw['next_offset'] < 0) throw new Error('Invalid project pagination: next_offset.');
+        if (typeof raw['next_offset'] !== 'number' || !Number.isSafeInteger(raw['next_offset']) || raw['next_offset'] < 0) throw new Error(t("Invalid project pagination: next_offset."));
         result.nextOffset = raw['next_offset'];
     }
     return result;

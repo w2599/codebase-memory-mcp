@@ -1,3 +1,4 @@
+import { t, tr } from './i18n/translate';
 /**
  * Die Verdrahtung: Projekt aus der Adresszeile, Baum aus dem Graphen, Datei in
  * den Reader.
@@ -853,7 +854,7 @@ function ProjectWindowView({ projectWindow }: { projectWindow: ProjectWindow<Win
             : undefined);
     }, [selectionScope]);
     useEffect(() => { setProactiveSelection(undefined); setChatGraphSelection(undefined); setChatAttachment(undefined); }, [project]);
-    const [projectDetail, setProjectDetail] = useState('resolving project ...');
+    const [projectDetail, setProjectDetail] = useState(t("resolving project ..."));
     const [serverOk, setServerOk] = useState<boolean | undefined>(undefined);
     const [counts, setCounts] = useState<{ nodes?: number; edges?: number }>({});
 
@@ -882,7 +883,7 @@ function ProjectWindowView({ projectWindow }: { projectWindow: ProjectWindow<Win
     const [document, setDocument] = useState<ReaderDocument | undefined>(undefined);
     const [documentOrigin, setDocumentOrigin] = useState<ReaderSourceOrigin>();
     const [readerStatus, setReaderStatus] = useState<ReaderStatus>('idle');
-    const [readerMessage, setReaderMessage] = useState('pick a file in the explorer');
+    const [readerMessage, setReaderMessage] = useState(t("pick a file in the explorer"));
     const [command, setCommand] = useState('');
 
     useEffect(() => { setPinnedCode(undefined); }, [project]);
@@ -925,7 +926,7 @@ function ProjectWindowView({ projectWindow }: { projectWindow: ProjectWindow<Win
     const [twinStatus, setTwinStatus] = useState<TwinStatus>('empty');
     const [twinMessage, setTwinMessage] = useState(TWIN_EMPTY_MESSAGE);
     const [twinHint, setTwinHint] = useState(TWIN_EMPTY_HINT);
-    const [twinName, setTwinName] = useState('no symbol');
+    const [twinName, setTwinName] = useState(t("no symbol"));
     const [caretLine, setCaretLine] = useState<number | undefined>(undefined);
     const [settledCaret, setSettledCaret] = useState<number | undefined>(undefined);
     const [pointedLine, setPointedLine] = useState<number | undefined>(undefined);
@@ -1546,7 +1547,7 @@ function ProjectWindowView({ projectWindow }: { projectWindow: ProjectWindow<Win
         galaxySelectionProject === project ? galaxySelection : undefined, repositoryReading.snapshot,
     ), [galaxySelectionProject, project, galaxySelection, repositoryReading.snapshot]);
     const selectionUnavailable = Boolean(galaxySelectionProject === project && galaxySelection && repositoryReading.snapshot && !activeGalaxySelection);
-    const selectionUnavailableText = 'The previous selection is absent from this bounded index snapshot. Choose a source element again to inspect its current evidence.';
+    const selectionUnavailableText = t("The previous selection is absent from this bounded index snapshot. Choose a source element again to inspect its current evidence.");
     const selectedGraphSymbol = useMemo(() => hierarchySymbolOf(activeGalaxySelection, project), [activeGalaxySelection, project]);
     const readerFocusSymbol = (twinSymbol?.projectName === undefined || twinSymbol.projectName === project) && symbolMatchesReader(twinSymbol, activePath, readerFocusRange)
         ? twinSymbol : symbolMatchesReader(selectedGraphSymbol, activePath, readerFocusRange) ? selectedGraphSymbol : undefined;
@@ -3414,7 +3415,7 @@ function ProjectWindowView({ projectWindow }: { projectWindow: ProjectWindow<Win
             // sonst eine Kopie der Regel statt der Regel.
             validateRefine: (answer: string) => {
                 if (pseudocode === undefined) {
-                    return { applied: false, reason: 'no block is shown' };
+                    return { applied: false, reason: t("no block is shown") };
                 }
                 const outcome = applyRefinement(pseudocode, answer);
                 return outcome.kind === 'applied'
@@ -4037,36 +4038,36 @@ function ProjectWindowView({ projectWindow }: { projectWindow: ProjectWindow<Win
     const rootLevel = levels.get('');
     const treeNoteParts: string[] = [];
     if (treeError.length > 0) {
-        treeNoteParts.push(`tree unavailable: ${treeError}`);
+        treeNoteParts.push(tr`tree unavailable: ${treeError}`);
     } else if (rootLevel !== undefined) {
-        treeNoteParts.push(`${rootLevel.files} files, ${rootLevel.symbols} symbols from ${TREE_ROUTE}`);
+        treeNoteParts.push(tr`${rootLevel.files} files, ${rootLevel.symbols} symbols from ${TREE_ROUTE}`);
         const dropped = [...levels.values()].reduce((sum, level) => sum + level.droppedNonPaths, 0);
         if (dropped > 0) {
             treeNoteParts.push(
                 dropped === 1
-                    ? '1 index entry names no path and is not shown'
-                    : `${dropped} index entries name no path and are not shown`,
+                    ? t("1 index entry names no path and is not shown")
+                    : tr`${dropped} index entries name no path and are not shown`,
             );
         }
         if (budgetHit) {
-            treeNoteParts.push(`only ${EAGER_LEVEL_BUDGET} folders opened up front, the rest load on click`);
+            treeNoteParts.push(tr`only ${EAGER_LEVEL_BUDGET} folders opened up front, the rest load on click`);
         }
     } else if (project.length === 0) {
-        treeNoteParts.push(projectDetail.length > 0 ? projectDetail : 'no project');
+        treeNoteParts.push(projectDetail.length > 0 ? projectDetail : t("no project"));
     } else {
-        treeNoteParts.push('loading the tree ...');
+        treeNoteParts.push(t("loading the tree ..."));
     }
     // Die zweite Quelle bekommt ihren eigenen Satz. "Noch nicht gefragt" und
     // "gefragt, nichts gefunden" sehen im Baum gleich aus und sind es nicht.
     if (coverageError.length > 0) {
-        treeNoteParts.push(`coverage unavailable: ${coverageError}`);
+        treeNoteParts.push(tr`coverage unavailable: ${coverageError}`);
     } else if (!coverageAsked) {
-        treeNoteParts.push('joining the coverage lists ...');
+        treeNoteParts.push(t("joining the coverage lists ..."));
     } else {
         treeNoteParts.push(
-            `${coverage.counts.partial} partial, ${coverage.counts.skipped} skipped, `
-            + `${coverage.counts.notIndexedFiles} files and ${coverage.counts.notIndexedDirs} folders `
-            + `not indexed, ${coverage.counts.scopeEntries} coverage entries joined in`,
+            tr`${coverage.counts.partial} partial, ${coverage.counts.skipped} skipped, `
+            + tr`${coverage.counts.notIndexedFiles} files and ${coverage.counts.notIndexedDirs} folders `
+            + tr`not indexed, ${coverage.counts.scopeEntries} coverage entries joined in`,
         );
     }
 
@@ -4169,7 +4170,7 @@ function ProjectWindowView({ projectWindow }: { projectWindow: ProjectWindow<Win
     const openRecord = coverage.records.get(activePath);
     const coverageNote =
         readerStatus === 'ready' && openRecord?.state === 'partial'
-            ? { state: 'partially parsed', text: partialFileNote(activePath, openRecord.reason) }
+            ? { state: t("partially parsed"), text: partialFileNote(activePath, openRecord.reason) }
             : undefined;
 
     useEffect(() => {
@@ -4608,7 +4609,7 @@ function ProjectWindowView({ projectWindow }: { projectWindow: ProjectWindow<Win
                 setGalaxySelection(undefined);
                 onSelectionEvidence(selectionEvidenceContext({ project, view: 'galaxy-coverage', source: '/api/layout missed_graph',
                     label: messages.galaxy.coverageSelection(node.name), selected: { id: node.sourceId, name: node.name, path: node.file_path, kind: node.label },
-                    limitations: 'Coverage metadata only, not a code symbol. Detailed reasons, source ranges, relationships and freshness are unavailable.' }));
+                    limitations: t("Coverage metadata only, not a code symbol. Detailed reasons, source ranges, relationships and freshness are unavailable.") }));
             }}
             onLayout={onLayout}
             walk={workspace === 'galaxy' ? undefined : walk}
@@ -4860,7 +4861,7 @@ function ProjectWindowView({ projectWindow }: { projectWindow: ProjectWindow<Win
                     readSource={readMapSource}
                     graph={repositoryReading.snapshot} graphGeneration={repositoryReading.snapshot?.generation} selection={activeGalaxySelection} selectionPanel={mapSelectionPanel}
                     graphNote={repositoryReading.error ?? (repositoryReading.snapshot
-                        ? `Index: ${repositoryReading.snapshot.indexedAt || 'timestamp unknown'} · snapshot ${repositoryReading.snapshot.generation}. ${repositoryReading.snapshot.nodesTruncated || repositoryReading.snapshot.edgesTruncated ? 'The architecture query reached a bound; some evidence is omitted.' : 'All matching source symbols and dependency edges in this index snapshot were read.'}${selectionUnavailable ? ` ${selectionUnavailableText}` : ''}`
+                        ? tr`Index: ${repositoryReading.snapshot.indexedAt || t("timestamp unknown")} · snapshot ${repositoryReading.snapshot.generation}. ${repositoryReading.snapshot.nodesTruncated || repositoryReading.snapshot.edgesTruncated ? t("The architecture query reached a bound; some evidence is omitted.") : t("All matching source symbols and dependency edges in this index snapshot were read.")}${selectionUnavailable ? ` ${selectionUnavailableText}` : ''}`
                         : undefined)}
                     onSelect={selectMapNode}
                     loading={overviewLoading} error={overviewError}

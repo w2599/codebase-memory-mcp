@@ -1,3 +1,4 @@
+import { tr } from '../i18n/translate';
 /**
  * Die Schritt-Nummern im Rand des Readers, als Monaco-Dekorationen.
  *
@@ -116,7 +117,7 @@ export function badgeDecorations(
             stickiness: NEVER_GROWS_WHEN_TYPING_AT_EDGES,
             ...(badge.label === undefined
                 ? {}
-                : { hoverMessage: { value: `Step ${badge.ordinal}: ${badge.label}` } }),
+                : { hoverMessage: { value: tr`Step ${badge.ordinal}: ${badge.label}` } }),
         },
     }));
 }

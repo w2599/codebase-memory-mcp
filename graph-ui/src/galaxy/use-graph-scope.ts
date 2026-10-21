@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { frontierCallCount, graphEdgeTypesKey, loadGraphScope, type GraphScope, type ScopedGraph, type ScopeProgress, type TraceDirection } from './graph-scope';
 import { RpcIntelligenceClient } from '../provider/rpc-client';
@@ -52,7 +53,7 @@ export function useGraphScope({ project, layout, filePath, range, fetch: fetchIm
             // Paint retained evidence while revalidating, never label it current yet.
             void loadGraphScope(project, scope, actualDepth, actualDirection, layout, {
                 signal: abort.signal, edgeTypes: selectedTypes, cache: warmCache.begin(),
-                client: { queryGraph: async () => { throw new Error('Uncached neighborhood'); } },
+                client: { queryGraph: async () => { throw new Error(t("Uncached neighborhood")); } },
             }).then(value => {
                 if (!abort.signal.aborted && (!checked || checkedGeneration === warmCache.generation)) setCachedPreview({ key, value });
             }).catch(() => { /* A partial cache is not a complete preview. */ });
@@ -87,7 +88,7 @@ export function useGraphScope({ project, layout, filePath, range, fetch: fetchIm
             const after = await generation();
             if (before && after !== before) {
                 neighborhood?.invalidate(); setCachedPreview(undefined);
-                throw new Error('The index changed while loading this scope. Retry for the current index.');
+                throw new Error(t("The index changed while loading this scope. Retry for the current index."));
             }
             if (!abort.signal.aborted) {
                 transaction?.commit();

@@ -1,3 +1,5 @@
+import { kindLabel } from '../i18n/presentation';
+import { t, tr } from '../i18n/translate';
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Edges, Html, OrbitControls, OrthographicCamera } from '@react-three/drei';
@@ -127,8 +129,8 @@ function Relationship({ edge, geometry, selected, emphasized, dimmed, showLabel,
         </mesh>
         {showLabel && !dimmed && <Html position={labelPosition} center zIndexRange={[30, 20]}>
             <button type="button" className="architecture-edge-label" onClick={onSelect}
-                style={{ borderColor: color }} aria-label={`Inspect ${edge.type} relationship, ${edge.count} indexed edges`}>
-                {edge.type.replaceAll('_', ' ').toLowerCase()}{edge.count > 1 && <span> ×{edge.count}</span>}
+                style={{ borderColor: color }} aria-label={tr`Inspect ${kindLabel(edge.type)} relationship, ${edge.count} indexed edges`}>
+                {kindLabel(edge.type).replaceAll('_', ' ').toLowerCase()}{edge.count > 1 && <span> ×{edge.count}</span>}
             </button>
         </Html>}
     </group>;
@@ -145,8 +147,8 @@ function ArchitectureNode({ node, selected, highlighted, dimmed, labelVisible = 
     const size = dimensions(node);
     const labelY = size[1] + 7;
     const measure = node.measure;
-    const lineText = measure?.lines === undefined ? 'Lines unavailable'
-        : `${measure.measuredFiles < measure.files ? '≥ ' : ''}${measure.lines.toLocaleString()} indexed lines`;
+    const lineText = measure?.lines === undefined ? t("Lines unavailable")
+        : tr`${measure.measuredFiles < measure.files ? '≥ ' : ''}${measure.lines.toLocaleString()} indexed lines`;
     const mixed = Boolean(measure && measure.languages.length > 1);
     const roofLanguages = node.tint && mixed ? measure!.languages.slice(0, 4) : [];
     const roofTotal = measure?.lines || measure?.files || 1;
@@ -184,10 +186,10 @@ function ArchitectureNode({ node, selected, highlighted, dimmed, labelVisible = 
                 data-node-id={node.id} data-position={node.position.join(',')} data-label-visible={labelVisible}
                 data-lines={measure?.lines} data-height={size[1]} data-language={measure?.languages[0]?.name} data-gravity={node.gravity ?? 0} data-size-percent={node.sizePercent} data-gravity-percent={node.gravityPercent}
                 onPointerEnter={() => onHover(node.id)} onPointerLeave={() => onHover()}
-                title={`${node.label}${path && path !== node.label ? `\n${path}` : ''}\n${node.detail}${measure ? `\n${lineText}\n${measure.languages.map(language => language.name).join(', ')} (from file types)` : ''}`}>
-                {selected && <span className="architecture-node-kind"><i style={{ background: color }} />{node.kindLabel ?? (node.kind === 'area' ? 'Source area' : node.kind)}</span>}
-                <span className="architecture-node-title"><strong>{node.hotspot && <span className="architecture-hotspot-mark" title={`${node.hotspot.findings.length} ranked hotspots; strongest measured fan-in ${node.hotspot.maxFanIn ?? 'unavailable'}${node.gravityPercent === undefined ? '' : `; gravity ${Number(node.gravityPercent.toFixed(1))}%`}`}>◉ </span>}{node.shortLabel ?? node.label}</strong>{!measure && node.gravityPercent !== undefined && <small className="architecture-node-size" title="Gravity relative to strongest hotspot">{node.gravityPercent > 0 && node.gravityPercent < 0.1 ? '<0.1' : Number(node.gravityPercent.toFixed(1))}%</small>}</span>
-                {selected && measure && <span className="architecture-node-metric"><i style={{ background: color }} />{measure.lines === undefined ? '?' : `${measure.measuredFiles < measure.files ? '≥' : ''}${Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(measure.lines)}`} lines{mixed ? ' · mixed' : ''}</span>}
+                title={`${node.label}${path && path !== node.label ? `\n${path}` : ''}\n${node.detail}${measure ? tr`\n${lineText}\n${measure.languages.map(language => language.name).join(', ')} (from file types)` : ''}`}>
+                {selected && <span className="architecture-node-kind"><i style={{ background: color }} />{node.kindLabel ?? (node.kind === 'area' ? t("Source area") : node.kind)}</span>}
+                <span className="architecture-node-title"><strong>{node.hotspot && <span className="architecture-hotspot-mark" title={tr`${node.hotspot.findings.length} ranked hotspots; strongest measured fan-in ${node.hotspot.maxFanIn ?? t("unavailable")}${node.gravityPercent === undefined ? '' : tr`; gravity ${Number(node.gravityPercent.toFixed(1))}%`}`}>◉ </span>}{node.shortLabel ?? node.label}</strong>{!measure && node.gravityPercent !== undefined && <small className="architecture-node-size" title={t("Gravity relative to strongest hotspot")}>{node.gravityPercent > 0 && node.gravityPercent < 0.1 ? '<0.1' : Number(node.gravityPercent.toFixed(1))}%</small>}</span>
+                {selected && measure && <span className="architecture-node-metric"><i style={{ background: color }} />{measure.lines === undefined ? '?' : `${measure.measuredFiles < measure.files ? '≥' : ''}${Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(measure.lines)}`}{t(" lines")}{mixed ? t(" · mixed") : ''}</span>}
                 {selected && <span className="architecture-node-detail">{node.detail}</span>}
             </button>
         </Html>
@@ -383,7 +385,7 @@ export function ArchitectureScene({ model: graphModel, selectedId, selectedEdgeI
         style={{ cursor: hoveredId || hoveredEdgeId ? 'pointer' : 'grab' }}>
         <Canvas {...background} frameloop={active ? 'demand' : 'never'} dpr={[1, 1.5]}
             gl={{ antialias: true, alpha: false, powerPreference: 'low-power' }}
-            role="img" aria-label={`${model.title}. ${model.positionMeaning}. Use the adjacent list to select nodes and inspect relationships.`}>
+            role="img" aria-label={tr`${model.title}. ${model.positionMeaning}. Use the adjacent list to select nodes and inspect relationships.`}>
             <color attach="background" args={[SCENE_PALETTE.background]} />
             <OrthographicCamera makeDefault position={[80, 100, 100]} near={0.1} far={2000} zoom={5} />
             <ambientLight intensity={1.6} />
@@ -412,6 +414,6 @@ export function ArchitectureScene({ model: graphModel, selectedId, selectedEdgeI
             <FitArchitecture model={model} planar={planar} resetKey={resetKey} controls={controls} active={active} />
             <SceneLabels model={model} priorityId={selectedId ?? hoveredId} selectedId={selectedId} cull={adaptiveLabels || model.view === 'hotspots'} onVisible={setVisibleHotspotLabels} onFolders={setFolderSpotsShown} />
         </Canvas>
-        <div className="architecture-scene-guide" aria-hidden="true"><span>{planar ? 'PLAN' : '3D MAP'}</span>{planar ? 'Drag to pan · Scroll to zoom' : 'Drag to orbit · Right-drag to pan · Scroll to zoom'}</div>
+        <div className="architecture-scene-guide" aria-hidden="true"><span>{planar ? t("PLAN") : t("3D MAP")}</span>{planar ? t("Drag to pan · Scroll to zoom") : t("Drag to orbit · Right-drag to pan · Scroll to zoom")}</div>
     </div>;
 }

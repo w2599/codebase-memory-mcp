@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 /**
  * Die Lese-Flaeche: Monaco, read-only, mit dem Quelltext, den der Server
  * geliefert hat.
@@ -180,7 +181,7 @@ export default function MonacoReader(props: MonacoReaderProps): JSX.Element {
         });
         const monaco = prepareMonaco();
         const ask = editor.addAction({
-            id: 'atlas.ask-about-selection', label: 'Ask about selection',
+            id: 'atlas.ask-about-selection', label: t("Ask about selection"),
             keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyL],
             run: () => {
                 const snapshot = readSelection();

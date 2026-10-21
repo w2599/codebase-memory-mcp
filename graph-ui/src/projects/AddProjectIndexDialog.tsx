@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 import { useEffect, useRef, useState } from 'react';
 import type { JSX } from 'react';
 import type { ProjectEntry } from '../provider/rpc-schemas';
@@ -46,7 +47,7 @@ function validName(name: string): boolean {
     return name.length > 0 && name.length <= 200 && /^[A-Za-z0-9_-][A-Za-z0-9._-]*$/.test(name)
         && !name.includes('..') && normalizedName(name) === name;
 }
-const nameHint = 'Use up to 200 letters, numbers, underscores, dots or single dashes. No spaces or leading dots.';
+const nameHint = t('Use up to 200 letters, numbers, underscores, dots or single dashes. No spaces or leading dots.');
 
 export default function AddProjectIndexDialog({ open, source, onClose, onOpenProject, onActivityChange, pollMs = 1500 }: AddProjectIndexDialogProps): JSX.Element | null {
     const [step, setStep] = useState<'browse' | 'confirm' | 'progress'>('browse');
@@ -97,7 +98,7 @@ export default function AddProjectIndexDialog({ open, source, onClose, onOpenPro
             if (!alive.current || ticket !== browseTicket.current) return;
             setLevel(next); setPathInput(previous => previous === path ? next.path : previous);
         } catch {
-            if (alive.current && ticket === browseTicket.current) setBrowseError('Could not open this folder. Check the path and try again.');
+            if (alive.current && ticket === browseTicket.current) setBrowseError(t('Could not open this folder. Check the path and try again.'));
         } finally {
             if (alive.current && ticket === browseTicket.current) setBrowsing(false);
         }
@@ -148,33 +149,33 @@ export default function AddProjectIndexDialog({ open, source, onClose, onOpenPro
             if (!current()) return;
             const found = jobs.find(candidate => candidate.slot === tracked.slot);
             if (!found || !samePath(found.path, tracked.path) || found.status === 'unknown') {
-                updateJob({ ...tracked, status: 'error', phase: 'lost', message: 'This job is no longer identifiable in the server status. Completion is unconfirmed.' });
+                updateJob({ ...tracked, status: 'error', phase: 'lost', message: t("This job is no longer identifiable in the server status. Completion is unconfirmed.") });
                 return;
             }
             if (found.status === 'error') {
-                updateJob({ ...tracked, status: 'error', phase: 'failed', message: found.error || 'The server reported an indexing failure.' });
+                updateJob({ ...tracked, status: 'error', phase: 'failed', message: found.error || t('The server reported an indexing failure.') });
                 return;
             }
             if (found.status === 'indexing') {
-                updateJob({ ...tracked, status: 'indexing', phase: 'running', message: 'Indexing source and relationships…' });
+                updateJob({ ...tracked, status: 'indexing', phase: 'running', message: t('Indexing source and relationships…') });
                 return;
             }
-            updateJob({ ...tracked, status: 'indexing', phase: 'verifying', message: 'Indexing finished. Checking the project…' });
+            updateJob({ ...tracked, status: 'indexing', phase: 'verifying', message: t("Indexing finished. Checking the project…") });
             const [projects, health] = await Promise.all([source.listProjects(), source.projectHealth(tracked.name)]);
             if (!current()) return;
             const project = projects.find(candidate => candidate.name === tracked.name);
             setEntries(projects); setListStatus('ready');
             if (project && samePath(project.root_path, tracked.path) && health.status === 'healthy') {
-                updateJob({ ...tracked, status: 'done', phase: 'finished', message: 'The project index is ready to explore.' });
+                updateJob({ ...tracked, status: 'done', phase: 'finished', message: t("The project index is ready to explore.") });
             } else if ((project?.root_path && !samePath(project.root_path, tracked.path)) || health.status === 'corrupt') {
                 updateJob({ ...tracked, status: 'error', phase: 'failed', message: health.status === 'corrupt'
-                    ? 'The index could not be verified as healthy. Inspect its errors in System.'
-                    : 'The returned project belongs to a different folder. This index was not verified.' });
+                    ? t("The index could not be verified as healthy. Inspect its errors in System.")
+                    : t("The returned project belongs to a different folder. This index was not verified.") });
             } else {
-                updateJob({ ...tracked, status: 'indexing', phase: 'unavailable', message: 'The job finished, but its project index could not be verified yet. Check again.' });
+                updateJob({ ...tracked, status: 'indexing', phase: 'unavailable', message: t("The job finished, but its project index could not be verified yet. Check again.") });
             }
         } catch {
-            if (current()) updateJob({ ...tracked, phase: 'unavailable', message: 'Status is unavailable. The job may still be running; retry the status check.' });
+            if (current()) updateJob({ ...tracked, phase: 'unavailable', message: t("Status is unavailable. The job may still be running; retry the status check.") });
         } finally {
             pollPending.current = false;
             if (alive.current) setReadingStatus(false);
@@ -210,11 +211,11 @@ export default function AddProjectIndexDialog({ open, source, onClose, onOpenPro
             const valid = Number.isInteger(started.slot) && started.slot >= 0 && samePath(started.path, path);
             const tracked: TrackedIndex = { id: ++nextJob.current, name: projectName, path, slot: started.slot,
                 status: valid ? 'indexing' : 'error', phase: valid ? 'running' : 'lost', message: valid
-                    ? 'Indexing source and relationships…' : 'The server accepted the request without a matching job identifier. Completion is unconfirmed.' };
+                    ? t('Indexing source and relationships…') : t("The server accepted the request without a matching job identifier. Completion is unconfirmed.") };
             updateJob(tracked); setStep('progress');
             if (valid) void pollRef.current();
         } catch {
-            if (alive.current) setSubmitError('The index request was not confirmed. Check the server in System before trying again.');
+            if (alive.current) setSubmitError(t("The index request was not confirmed. Check the server in System before trying again."));
         } finally { submitPending.current = false; if (alive.current) setSubmitting(false); }
     };
     const another = (): void => {
@@ -227,48 +228,48 @@ export default function AddProjectIndexDialog({ open, source, onClose, onOpenPro
 
     return <div className="add-index-backdrop" onPointerDown={event => { if (event.target === event.currentTarget) onClose(); }}>
         <section ref={panel} className="add-index-dialog" role="dialog" aria-modal="true" aria-labelledby="add-index-title" tabIndex={-1}>
-            <header><div><p>Local repository</p><h2 id="add-index-title">Add project index</h2></div><button type="button" className="add-index-close" aria-label="Close add project index" onClick={onClose}>×</button></header>
+            <header><div><p>{t("Local repository")}</p><h2 id="add-index-title">{t("Add project index")}</h2></div><button type="button" className="add-index-close" aria-label={t("Close add project index")} onClick={onClose}>×</button></header>
             {step === 'browse' && <>
                 <form className="add-index-path" onSubmit={event => { event.preventDefault(); void browse(pathInput.trim()); }}>
-                    <label htmlFor="add-index-folder">Folder</label><div><input ref={pathField} id="add-index-folder" value={pathInput} spellCheck={false}
-                        placeholder="Enter a local folder path" onChange={event => setPathInput(event.target.value)} /><button type="submit">Go</button></div>
+                    <label htmlFor="add-index-folder">{t("Folder")}</label><div><input ref={pathField} id="add-index-folder" value={pathInput} spellCheck={false}
+                        placeholder={t("Enter a local folder path")} onChange={event => setPathInput(event.target.value)} /><button type="submit">{t("Go")}</button></div>
                 </form>
-                <div className="add-index-folder-tools">{level && <button type="button" disabled={browsing || !level.parent || samePath(level.parent, level.path)} onClick={() => { void browse(level.parent); }}>↑ Up</button>}
+                <div className="add-index-folder-tools">{level && <button type="button" disabled={browsing || !level.parent || samePath(level.parent, level.path)} onClick={() => { void browse(level.parent); }}>{t("↑ Up")}</button>}
                     {level?.roots.map(root => <button type="button" key={root} onClick={() => { void browse(root); }}>{root}</button>)}</div>
-                <div className="add-index-folders" aria-label="Folders" aria-busy={browsing}>
-                    {browsing && <p role="status">Opening folder…</p>}
+                <div className="add-index-folders" aria-label={t("Folders")} aria-busy={browsing}>
+                    {browsing && <p role="status">{t("Opening folder…")}</p>}
                     {browseError && <p role="alert">{browseError}</p>}
-                    {!browsing && !browseError && level?.dirs.length === 0 && <p>No visible subfolders.</p>}
-                    {!browseError && <ul>{level?.dirs.slice().sort((left, right) => left.localeCompare(right)).map(dir => <li key={dir}><button type="button" aria-label={`Open folder ${dir}`} disabled={browsing} onClick={() => { void browse(childPath(level, dir)); }}><span aria-hidden="true">▱</span>{dir}<span aria-hidden="true">›</span></button></li>)}</ul>}
+                    {!browsing && !browseError && level?.dirs.length === 0 && <p>{t("No visible subfolders.")}</p>}
+                    {!browseError && <ul>{level?.dirs.slice().sort((left, right) => left.localeCompare(right)).map(dir => <li key={dir}><button type="button" aria-label={tr`Open folder ${dir}`} disabled={browsing} onClick={() => { void browse(childPath(level, dir)); }}><span aria-hidden="true">▱</span>{dir}<span aria-hidden="true">›</span></button></li>)}</ul>}
                 </div>
-                <footer><span>Choose a folder to index. Nothing starts while browsing.</span><button type="button" className="add-index-primary" disabled={!level?.path || browsing || !!browseError || !samePath(pathInput.trim(), level.path)} onClick={useFolder}>Use this folder</button></footer>
+                <footer><span>{t("Choose a folder to index. Nothing starts while browsing.")}</span><button type="button" className="add-index-primary" disabled={!level?.path || browsing || !!browseError || !samePath(pathInput.trim(), level.path)} onClick={useFolder}>{t("Use this folder")}</button></footer>
             </>}
             {step === 'confirm' && <form className="add-index-confirm" onSubmit={event => { event.preventDefault(); void start(); }}>
                 <p className="add-index-chosen-path">{selectedPath}</p>
-                <label htmlFor="add-index-name">Project name</label><input ref={nameField} id="add-index-name" value={name} spellCheck={false} disabled={submitting}
+                <label htmlFor="add-index-name">{t("Project name")}</label><input ref={nameField} id="add-index-name" value={name} spellCheck={false} disabled={submitting}
                     onChange={event => { setName(event.target.value); setSubmitError(''); }} aria-describedby="add-index-name-hint" />
                 <p id="add-index-name-hint" className="add-index-hint">{nameHint}</p>
-                {!validName(name.trim()) && <p role="status">Choose a valid project name before indexing.</p>}
-                {listStatus === 'loading' && <p role="status">Checking existing projects…</p>}
-                {listStatus === 'error' && <div className="add-index-warning" role="alert"><p>Could not check existing projects.</p><button type="button" onClick={() => { void loadProjects(); }}>Retry project check</button></div>}
-                {duplicate && <div className="add-index-warning" role="status"><p>{folderDuplicate ? `This folder is already indexed as ${duplicate.name}.` : `The name ${duplicate.name} is already in use. Choose another name.`}</p>
-                    {folderDuplicate && <button type="button" onClick={() => openProject(duplicate.name)}>Open project</button>}</div>}
+                {!validName(name.trim()) && <p role="status">{t("Choose a valid project name before indexing.")}</p>}
+                {listStatus === 'loading' && <p role="status">{t("Checking existing projects…")}</p>}
+                {listStatus === 'error' && <div className="add-index-warning" role="alert"><p>{t("Could not check existing projects.")}</p><button type="button" onClick={() => { void loadProjects(); }}>{t("Retry project check")}</button></div>}
+                {duplicate && <div className="add-index-warning" role="status"><p>{folderDuplicate ? tr`This folder is already indexed as ${duplicate.name}.` : tr`The name ${duplicate.name} is already in use. Choose another name.`}</p>
+                    {folderDuplicate && <button type="button" onClick={() => openProject(duplicate.name)}>{t("Open project")}</button>}</div>}
                 {submitError && <p className="add-index-warning" role="alert">{submitError}</p>}
-                <footer><button type="button" disabled={submitting} onClick={() => setStep('browse')}>Choose another folder</button>
-                    <button type="submit" className="add-index-primary" disabled={submitting || !validName(name.trim()) || !!duplicate || listStatus !== 'ready'}>{submitting ? 'Starting…' : 'Start indexing'}</button></footer>
+                <footer><button type="button" disabled={submitting} onClick={() => setStep('browse')}>{t("Choose another folder")}</button>
+                    <button type="submit" className="add-index-primary" disabled={submitting || !validName(name.trim()) || !!duplicate || listStatus !== 'ready'}>{submitting ? t("Starting…") : t("Start indexing")}</button></footer>
             </form>}
             {step === 'progress' && job && <div className="add-index-progress" data-status={job.status}>
                 <span className="add-index-progress-icon" aria-hidden="true">{job.status === 'done' ? '✓' : job.status === 'error' || job.phase === 'unavailable' ? '!' : '◎'}</span>
-                <h3>{job.status === 'done' ? 'Ready to explore' : job.phase === 'failed' ? 'Indexing failed' : job.phase === 'lost' ? 'Tracking interrupted' : job.phase === 'unavailable' ? 'Status unavailable' : job.phase === 'verifying' ? 'Checking the index' : 'Indexing repository'}</h3>
+                <h3>{job.status === 'done' ? t("Ready to explore") : job.phase === 'failed' ? t("Indexing failed") : job.phase === 'lost' ? t("Tracking interrupted") : job.phase === 'unavailable' ? t("Status unavailable") : job.phase === 'verifying' ? t("Checking the index") : t("Indexing repository")}</h3>
                 <strong>{job.name}</strong><p className="add-index-chosen-path">{job.path}</p>
-                {(job.phase === 'running' || job.phase === 'verifying') && <progress aria-label="Indexing progress" />}
+                {(job.phase === 'running' || job.phase === 'verifying') && <progress aria-label={t("Indexing progress")} />}
                 <p role={job.status === 'error' || job.phase === 'unavailable' ? 'alert' : 'status'}>{job.message}</p>
-                {job.status === 'indexing' && <p className="add-index-hint">You can close this window. Indexing continues in the daemon.</p>}
+                {job.status === 'indexing' && <p className="add-index-hint">{t("You can close this window. Indexing continues in the daemon.")}</p>}
                 <div className="add-index-progress-actions">
-                    {(job.phase === 'unavailable' || job.phase === 'lost') && Number.isInteger(job.slot) && job.slot >= 0 && <button type="button" disabled={readingStatus} onClick={() => { void pollRef.current(); }}>{readingStatus ? 'Checking…' : 'Retry status'}</button>}
-                    {job.status === 'done' && <button type="button" className="add-index-primary" onClick={() => openProject(job.name)}>Open project</button>}
-                    {job.status !== 'indexing' && <button type="button" disabled={readingStatus} onClick={another}>Add another project</button>}
-                    {job.status === 'indexing' && <button type="button" onClick={onClose}>Close for now</button>}
+                    {(job.phase === 'unavailable' || job.phase === 'lost') && Number.isInteger(job.slot) && job.slot >= 0 && <button type="button" disabled={readingStatus} onClick={() => { void pollRef.current(); }}>{readingStatus ? t("Checking…") : t("Retry status")}</button>}
+                    {job.status === 'done' && <button type="button" className="add-index-primary" onClick={() => openProject(job.name)}>{t("Open project")}</button>}
+                    {job.status !== 'indexing' && <button type="button" disabled={readingStatus} onClick={another}>{t("Add another project")}</button>}
+                    {job.status === 'indexing' && <button type="button" onClick={onClose}>{t("Close for now")}</button>}
                 </div>
             </div>}
         </section>

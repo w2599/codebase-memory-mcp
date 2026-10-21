@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /**
  * Der Datei-Baum, wie ihn der Explorer zeigt: die VEREINIGUNG aus dem Graphen
  * und den Coverage-Listen des Servers.
@@ -604,7 +605,7 @@ function readCoverageRows(value: unknown): CoverageRow[] {
                     && Number.isSafeInteger(start) && Number.isSafeInteger(end)
                     && start > 0 && end >= start ? [`${start}-${end}`] : [];
             });
-            if (ranges.length > 0) row.detail = `Source lines: ${ranges.join(', ')}`;
+            if (ranges.length > 0) row.detail = tr`Source lines: ${ranges.join(', ')}`;
         }
         const match = coverageString(entry['match']);
         if (match.length > 0) {
@@ -830,19 +831,19 @@ export function buildCoverageIndex(input: {
 
         if (status.parsePartialTruncated && (!listingComplete || listedKind('parse_partial') < status.parsePartialCount)) {
             truncations.push(
-                `the server cut the parse_partial list: ${status.parsePartialCount} recorded, fewer listed`,
+                tr`the server cut the parse_partial list: ${status.parsePartialCount} recorded, fewer listed`,
             );
         }
         const listedSkipped = rootRows.filter((row) => coverageStateForKind(row.kind) === 'skipped').length;
         if (status.skippedTruncated && (!listingComplete || listedSkipped < status.skippedCount)) {
             truncations.push(
-                `the server cut the skipped list: ${status.skippedCount} recorded, fewer listed`,
+                tr`the server cut the skipped list: ${status.skippedCount} recorded, fewer listed`,
             );
         }
         if (status.notIndexedTruncated && (!listingComplete || listedKind('not_indexed_dir') < status.notIndexedDirsCount || listedKind('not_indexed_file') < status.notIndexedFilesCount)) {
             truncations.push(
-                'the server cut the not_indexed list: '
-                + `${status.notIndexedDirsCount} folders and ${status.notIndexedFilesCount} files recorded, fewer listed`,
+                t("the server cut the not_indexed list: ")
+                + tr`${status.notIndexedDirsCount} folders and ${status.notIndexedFilesCount} files recorded, fewer listed`,
             );
         }
     }
@@ -863,8 +864,8 @@ export function buildCoverageIndex(input: {
     for (const [scope, reading] of scopeReadings) {
         if (!complete(reading)) {
             truncations.push(
-                `the coverage reading under "${scope}" is incomplete or inconsistent: `
-                + `${reading.total} recorded, ${reading.rows.size} distinct rows loaded`,
+                tr`the coverage reading under "${scope}" is incomplete or inconsistent: `
+                + tr`${reading.total} recorded, ${reading.rows.size} distinct rows loaded`,
             );
         }
     }

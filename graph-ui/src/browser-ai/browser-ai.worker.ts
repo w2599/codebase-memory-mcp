@@ -1,3 +1,5 @@
+import { setRuntimeLocale } from '../i18n/locale';
+import { t, tr } from '../i18n/translate';
 import { AutoModelForCausalLM, AutoTokenizer, env, InterruptableStoppingCriteria, LogitsProcessorList, NoRepeatNGramLogitsProcessor, TextStreamer } from '@huggingface/transformers';
 import type { PreTrainedModel, PreTrainedTokenizer, Tensor } from '@huggingface/transformers';
 import wasmUrl from '../../node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.wasm?url';
@@ -53,28 +55,28 @@ globalThis.fetch = async (input: RequestInfo | URL, options?: RequestInit): Prom
     const method = options?.method ?? (input instanceof Request ? input.method : 'GET');
     const isModel = isPinnedModelRequest(absolute, selected.id);
     if (method !== 'GET' || (!runtimeUrls.has(absolute) && !(downloadsAllowed && isModel))) {
-        throw new Error('This request is outside the approved model download.');
+        throw new Error(t("This request is outside the approved model download."));
     }
     const response = await nativeFetch(input, { ...options, credentials: 'omit', cache: 'no-store' });
     if (isModel && !MODEL_DOWNLOAD_ORIGINS.includes(new URL(response.url).origin as typeof MODEL_DOWNLOAD_ORIGINS[number])) {
-        throw new Error('The model download redirected outside its approved hosts.');
+        throw new Error(t("The model download redirected outside its approved hosts."));
     }
     return response;
 };
 
 async function prepare(id: number, modelId: string, cacheOnly = false): Promise<void> {
     const next = getBrowserModel(modelId);
-    if (next.availability !== 'available') throw new Error(next.compatibilityNote);
+    if (next.availability !== 'available') throw new Error(t(next.compatibilityNote));
     if (model && tokenizer) {
-        if (selected.id !== modelId) throw new Error('Unload the current model before changing models.');
+        if (selected.id !== modelId) throw new Error(t("Unload the current model before changing models."));
         return;
     }
     selected = next;
     const gpu = (navigator as unknown as { gpu?: { requestAdapter(): Promise<{ features: { has(feature: string): boolean } } | null> } }).gpu;
-    if (!gpu) throw new Error('WebGPU is unavailable in this browser. Use a browser with WebGPU enabled. No model was downloaded.');
+    if (!gpu) throw new Error(t("WebGPU is unavailable in this browser. Use a browser with WebGPU enabled. No model was downloaded."));
     const adapter = await gpu.requestAdapter();
-    if (!adapter?.features.has('shader-f16')) throw new Error('This model needs WebGPU with shader-f16 support. No model was downloaded.');
-    if (typeof caches === 'undefined') throw new Error('Browser model storage is unavailable. Use a secure localhost browser session.');
+    if (!adapter?.features.has('shader-f16')) throw new Error(t("This model needs WebGPU with shader-f16 support. No model was downloaded."));
+    if (typeof caches === 'undefined') throw new Error(t("Browser model storage is unavailable. Use a secure localhost browser session."));
     env.allowLocalModels = false;
     env.allowRemoteModels = true;
     // v4 tokenizer discovery drops revision options; even its metadata probes must stay pinned.
@@ -133,9 +135,9 @@ const REPETITION_CONTROLS = {
 } as const;
 
 function tokenize(messages: readonly BrowserChatMessage[]): { input_ids: Tensor; attention_mask: Tensor } {
-    if (!model || !tokenizer) throw new Error('Load a browser model before sending a message.');
+    if (!model || !tokenizer) throw new Error(t("Load a browser model before sending a message."));
     if (!messages.length || messages.some(message => !['system', 'user', 'assistant'].includes(message.role) || typeof message.content !== 'string')) {
-        throw new Error('The conversation contains an invalid message.');
+        throw new Error(t("The conversation contains an invalid message."));
     }
     // This exact tensor is counted and sent to generate: no character slicing or pipeline truncation.
     const templateOptions = {
@@ -147,16 +149,16 @@ function tokenize(messages: readonly BrowserChatMessage[]): { input_ids: Tensor;
 
 async function generate(id: number, messages: readonly BrowserChatMessage[], options: BrowserChatOptions): Promise<{ output: string; stopReason: BrowserStopReason }> {
     if (options.generationProfile !== undefined && options.generationProfile !== 'automatic-explanation')
-        throw new Error('Invalid generation profile.');
+        throw new Error(t("Invalid generation profile."));
     const automaticExplanation = options.generationProfile === 'automatic-explanation';
     const maxOutputTokens = automaticExplanation ? Math.min(AUTO_OUTPUT_TOKENS, selected.maxOutputTokens) : selected.maxOutputTokens;
     const outputTokens = options.maxOutputTokens ?? maxOutputTokens;
     if (!Number.isSafeInteger(outputTokens) || outputTokens <= 0 || outputTokens > maxOutputTokens)
-        throw new Error(`Invalid output token limit. Use an integer from 1 to ${maxOutputTokens}.`);
+        throw new Error(tr`Invalid output token limit. Use an integer from 1 to ${maxOutputTokens}.`);
     const inputs = tokenize(messages);
     const count = inputs.input_ids.dims.at(-1)!;
     if (count + outputTokens > selected.contextTokens) {
-        throw new Error(`This conversation uses ${count.toLocaleString()} input tokens. The browser limit is ${selected.contextTokens.toLocaleString()}, including ${outputTokens} reserved for the answer. Remove earlier messages or attach a smaller selection; no code was truncated.`);
+        throw new Error(tr`This conversation uses ${count.toLocaleString()} input tokens. The browser limit is ${selected.contextTokens.toLocaleString()}, including ${outputTokens} reserved for the answer. Remove earlier messages or attach a smaller selection; no code was truncated.`);
     }
     stopping.reset();
     let answer = '', generated = 0, last: bigint | undefined;
@@ -181,7 +183,7 @@ async function generate(id: number, messages: readonly BrowserChatMessage[], opt
         throw invalidateRuntime(error);
     }
     if (fatalFailure) throw fatalFailure;
-    if (!answer.trim() && !stopping.interrupted) throw new Error('The model returned no answer.');
+    if (!answer.trim() && !stopping.interrupted) throw new Error(t("The model returned no answer."));
     // A stopped answer is reported as stopped; a full output budget means the answer was cut,
     // unless its last token was the end of sequence (the streamer also receives that token).
     const ends = [model!.generation_config?.eos_token_id ?? [], tokenizer!.eos_token_id ?? []].flat().map(token => BigInt(token));
@@ -190,6 +192,7 @@ async function generate(id: number, messages: readonly BrowserChatMessage[], opt
 }
 
 self.onmessage = async (event: MessageEvent<BrowserWorkerRequest>) => {
+    if (event.data.uiLanguage === 'zh' || event.data.uiLanguage === 'en') setRuntimeLocale(event.data.uiLanguage);
     const { id, kind, source, messages } = event.data;
     if (fatalFailure) { post({ id, kind: 'error', error: fatalFailure.detail, fatal: true }); return; }
     if (kind === 'stop') {

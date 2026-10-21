@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 /**
  * Die beiden Coverage-Quellen holen und zu einem Befund zusammenlegen.
  *
@@ -74,12 +75,12 @@ export async function loadCoverage(
         );
         if ((status.generation && answer.metadata.generation && status.generation !== answer.metadata.generation)
             || (generation !== undefined && generation !== answer.metadata.generation)) {
-            throw new Error('Index generation changed while reading coverage. Run the local diagnosis again.');
+            throw new Error(t("Index generation changed while reading coverage. Run the local diagnosis again."));
         }
         generation = answer.metadata.generation;
         const scope = answer.scopes[0];
         if (scope === undefined) {
-            throw new Error('The daemon returned no root coverage scope. Coverage completeness is unknown.');
+            throw new Error(t("The daemon returned no root coverage scope. Coverage completeness is unknown."));
         }
         scopes.push(scope);
         if (!scope.hasMore) {

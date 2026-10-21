@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 /**
  * What lies behind a call, as far as what this window already holds says.
  *
@@ -124,39 +125,29 @@ const RELATION = {
  */
 export const ENRICHMENT_MISSING: readonly { kind: string; reason: string }[] = [
     {
-        kind: 'what the callee reads or writes',
+        kind: t("what the callee reads or writes"),
         reason:
-            'The layout carries USAGE edges without a direction and without a kind, so "query goes to the '
-            + 'database" cannot be read off them: a USAGE edge to `rows` says the two are related, not that '
-            + 'the symbol reads it. The `reads` and `writes` families of the callee would answer it, and '
-            + 'those come from a facts request per callee, which is a second server way this block does not '
-            + 'take.',
+            t("The layout carries USAGE edges without a direction and without a kind, so \"query goes to the database\" cannot be read off them: a USAGE edge to `rows` says the two are related, not that the symbol reads it. The `reads` and `writes` families of the callee would answer it, and those come from a facts request per callee, which is a second server way this block does not take."),
     },
     {
-        kind: 'the callee\'s own steps, in order',
+        kind: t("the callee's own steps, in order"),
         reason:
-            'The graph says that the callee calls something, not in which order or under which condition. '
-            + 'The walk behind the flow explainer has the order; reading it here would mean running that walk '
-            + 'for every step of every block.',
+            t("The graph says that the callee calls something, not in which order or under which condition. The walk behind the flow explainer has the order; reading it here would mean running that walk for every step of every block."),
     },
     {
-        kind: 'whether a raised error escapes through this call',
+        kind: t("whether a raised error escapes through this call"),
         reason:
-            'RAISES records where an error is constructed and thrown, never which caller lets it through. '
-            + 'The note therefore says what the callee can raise and never what this symbol propagates.',
+            t("RAISES records where an error is constructed and thrown, never which caller lets it through. The note therefore says what the callee can raise and never what this symbol propagates."),
     },
     {
-        kind: 'the callee\'s signature and return type',
+        kind: t("the callee's signature and return type"),
         reason:
-            'The layout nodes carry a name, a place, a kind and two call counts. Parameters and return types '
-            + 'are in neither the layout nor the twin\'s IR of the calling symbol.',
+            t("The layout nodes carry a name, a place, a kind and two call counts. Parameters and return types are in neither the layout nor the twin's IR of the calling symbol."),
     },
     {
-        kind: 'anything at all about an unresolved callee',
+        kind: t("anything at all about an unresolved callee"),
         reason:
-            'A call site the index did not resolve carries no qualified name, and this module joins on the '
-            + 'qualified name alone (two functions named `create` in two files are the reason). Such a step '
-            + 'says at its own line that the index records no place for it.',
+            t("A call site the index did not resolve carries no qualified name, and this module joins on the qualified name alone (two functions named `create` in two files are the reason). Such a step says at its own line that the index records no place for it."),
     },
 ];
 
@@ -187,9 +178,9 @@ export interface EnrichmentAvailability {
 
 /** Where a usable kind came from. Named per kind, because the reason differs per kind. */
 const SOURCE: Readonly<Record<StepInsightKind, string>> = {
-    raises: 'RAISES edges of the layout this window already loaded (/api/layout)',
-    'calls-on': 'CALLS edges of the layout this window already loaded (/api/layout)',
-    'reads-env': 'CONFIGURES edges to an environment node of the layout this window already loaded',
+    raises: t("RAISES edges of the layout this window already loaded (/api/layout)"),
+    'calls-on': t("CALLS edges of the layout this window already loaded (/api/layout)"),
+    'reads-env': t("CONFIGURES edges to an environment node of the layout this window already loaded"),
 };
 
 /**
@@ -274,10 +265,10 @@ export function enrichmentAvailabilityOf(
     const missing = [...ENRICHMENT_MISSING];
     if (graph === undefined || graph.nodes.length === 0) {
         missing.unshift({
-            kind: 'every kind below',
+            kind: t("every kind below"),
             reason:
-                'This window holds no layout for the project yet, so nothing about a called symbol was in '
-                + 'reach when this block was built. That is a statement about this window and not about the '
+                t("This window holds no layout for the project yet, so nothing about a called symbol was in ")
+                + t("reach when this block was built. That is a statement about this window and not about the ")
                 + 'code.',
         });
     }

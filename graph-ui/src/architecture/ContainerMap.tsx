@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 import { Component, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { RpcIntelligenceClient } from '../provider/rpc-client';
 import type { ProjectEntry } from '../provider/rpc-schemas';
@@ -22,9 +23,9 @@ type Discovery = keyof typeof text.serviceMap | undefined;
 class ContainerSceneBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
     state = { failed: false };
     static getDerivedStateFromError() { return { failed: true }; }
-    render() { return this.state.failed ? <p className="spatial-unavailable">3D is unavailable. Use the service and connection lists to inspect the same evidence.</p> : this.props.children; }
+    render() { return this.state.failed ? <p className="spatial-unavailable">{t("3D is unavailable. Use the service and connection lists to inspect the same evidence.")}</p> : this.props.children; }
 }
-const evidenceLabel = (kind: string) => kind === 'startup' ? 'Startup dependency' : kind === 'configuration' ? 'Configured destination' : 'Call found in source';
+const evidenceLabel = (kind: string) => kind === 'startup' ? t("Startup dependency") : kind === 'configuration' ? t("Configured destination") : t("Call found in source");
 const relativeSource = (absolute: string, selection: ContainerSelection) => {
     const prefix = selection.inventory.rootPath.replaceAll('\\', '/').replace(/\/$/, '') + '/';
     return absolute.startsWith(prefix) ? absolute.slice(prefix.length) : undefined;
@@ -55,7 +56,7 @@ export default function ContainerMap({ project, generation, active, filter, onNa
         void client.listProjects().then(async response => {
             const projects = response.projects;
             const current = projects.find(entry => entry.name === project);
-            if (!current) throw new Error('Project is no longer indexed.');
+            if (!current) throw new Error(t("Project is no longer indexed."));
             const inventory = await loadContainerInventory(current, client);
             if (controller.signal.aborted) return;
             setAvailable(projects); setSelections([{ inventory, manifest: inventory.manifests[0] ?? '' }]);
@@ -80,7 +81,7 @@ export default function ContainerMap({ project, generation, active, filter, onNa
         setReading({ key }); setFocus(undefined); setSource(undefined);
         void loadContainerTopology(selections, client, controller.signal).then(result => {
             if (!controller.signal.aborted) setReading({ key, result });
-        }).catch(() => { if (!controller.signal.aborted) setReading({ key, error: 'Could not complete service inspection. Refresh to try again.' }); });
+        }).catch(() => { if (!controller.signal.aborted) setReading({ key, error: t("Could not complete service inspection. Refresh to try again.") }); });
         return () => controller.abort();
     }, [active, project, key, selections]);
     const result = reading?.key === key ? reading.result : undefined;
@@ -113,11 +114,11 @@ export default function ContainerMap({ project, generation, active, filter, onNa
         if (!sourceEvidence) return;
         const inventory = selections.find(selection => selection.inventory.project === sourceEvidence.project)?.inventory;
         const qn = inventory?.files.get(sourceEvidence.path);
-        if (!qn) { setSource({ key, evidence: sourceEvidence, error: 'This source location is not in the selected project inventory.' }); return; }
+        if (!qn) { setSource({ key, evidence: sourceEvidence, error: t("This source location is not in the selected project inventory.") }); return; }
         const controller = new AbortController(), client = new RpcIntelligenceClient({ signal: controller.signal });
         void client.getCodeSnippet(sourceEvidence.project, qn, { startLine: Math.max(1, sourceEvidence.line - 2), maxLines: 12 }).then(snippet => {
             if (!controller.signal.aborted) setSource({ key, evidence: sourceEvidence, text: snippet.source });
-        }).catch(() => { if (!controller.signal.aborted) setSource({ key, evidence: sourceEvidence, error: 'Source evidence is unavailable.' }); });
+        }).catch(() => { if (!controller.signal.aborted) setSource({ key, evidence: sourceEvidence, error: t("Source evidence is unavailable.") }); });
         return () => controller.abort();
     }, [sourceEvidence, key, selections]);
     const addProject = async (name: string) => {
@@ -135,72 +136,72 @@ export default function ContainerMap({ project, generation, active, filter, onNa
     const incident = selectedService ? shownEdges.filter(edge => edge.source === selectedService.id || edge.target === selectedService.id) : [];
     const warnings = [...new Set([...(topology?.warnings ?? []), ...(result?.warnings ?? [])])];
     useSelectionEvidence(onSelectionEvidence, selectedService || selectedEdge ? {
-        project, generation, view: 'architecture-services', source: 'selected indexed Compose manifests and bounded source inspection',
+        project, generation, view: 'architecture-services', source: t("selected indexed Compose manifests and bounded source inspection"),
         label: selectedService?.name ?? `${servicesById.get(selectedEdge!.source)?.name} → ${servicesById.get(selectedEdge!.target)?.name}`,
         selected: { service: selectedService, connection: selectedEdge,
             ...(selectedEdge ? { sourceService: servicesById.get(selectedEdge.source), targetService: servicesById.get(selectedEdge.target) } : {}),
             currentSource: source?.key === key ? { location: source.evidence, text: source.text, error: source.error,
-                provenance: 'Current local source; may differ from the indexed snapshot.' } : undefined },
+                provenance: t("Current local source; may differ from the indexed snapshot.") } : undefined },
         relationships: selectedService ? { count: incident.length, items: incident } : undefined,
         scope: { manifests: selections.map(item => ({ project: item.inventory.project, manifest: item.manifest })), startupDependencies: startup, configuredDestinations: configured },
         limitations: { warnings, unresolvedDestinations: topology?.unresolved.length, omittedNodes: graph?.omittedNodes, omittedEdges: graph?.omittedEdges,
-            interpretation: 'Static declarations, not live containers. Startup dependencies are not calls. Configured destinations do not prove execution; source ownership is inferred from build inputs.' },
+            interpretation: t("Static declarations, not live containers. Startup dependencies are not calls. Configured destinations do not prove execution; source ownership is inferred from build inputs.") },
     } : undefined, active);
-    return <section className="spatial-architecture container-map" aria-label="Container service map">
-        <header className="spatial-heading"><div><span className="spatial-eyebrow">Routes / Services</span><h2>How the services connect</h2>
-            <p>One square per declared service. Follow a connection to see the configuration and code behind it.</p></div>
-            <div className="spatial-camera-controls"><button aria-pressed={!planar} onClick={() => setPlanar(false)}>3D</button><button aria-pressed={planar} onClick={() => setPlanar(true)}>Plan</button>
+    return <section className="spatial-architecture container-map" aria-label={t("Container service map")}>
+        <header className="spatial-heading"><div><span className="spatial-eyebrow">{t("Routes / Services")}</span><h2>{t("How the services connect")}</h2>
+            <p>{t("One square per declared service. Follow a connection to see the configuration and code behind it.")}</p></div>
+            <div className="spatial-camera-controls"><button aria-pressed={!planar} onClick={() => setPlanar(false)}>3D</button><button aria-pressed={planar} onClick={() => setPlanar(true)}>{t("Plan")}</button>
                 <button onClick={() => setResetKey(value => value + 1)}>{text.fitMap}</button><RefreshControl labels={text.refreshFeedback.services} feedback={refresh.feedback} onRefresh={() => {
                     refresh.begin();
                     setRevision(value => value + 1);
                     if (!selections.length || !selections[0].inventory.manifests.length) setDiscoveryRevision(value => value + 1);
                 }} /></div></header>
-        <div className="container-projects" aria-label="Deployment sources">{selections.map((selection, index) => <label key={selection.inventory.project}><span>{selection.inventory.project}</span>
-            <select aria-label={`Compose file for ${selection.inventory.project}`} value={selection.manifest} onChange={event => setSelections(current => current.map((item, i) => i === index ? { ...item, manifest: event.target.value } : item))}>
-                <option value="">Source only</option>{selection.inventory.manifests.map(path => <option key={path}>{path}</option>)}</select>
-            {index > 0 && <button aria-label={`Remove ${selection.inventory.project}`} onClick={() => setSelections(current => current.filter((_, i) => i !== index))}>×</button>}</label>)}
-            {selections.length < 4 && <select aria-label="Compare indexed project" value="" disabled={adding} onChange={event => { void addProject(event.target.value); }}><option value="">{adding ? 'Reading project…' : '+ Compare project'}</option>
+        <div className="container-projects" aria-label={t("Deployment sources")}>{selections.map((selection, index) => <label key={selection.inventory.project}><span>{selection.inventory.project}</span>
+            <select aria-label={tr`Compose file for ${selection.inventory.project}`} value={selection.manifest} onChange={event => setSelections(current => current.map((item, i) => i === index ? { ...item, manifest: event.target.value } : item))}>
+                <option value="">{t("Source only")}</option>{selection.inventory.manifests.map(path => <option key={path}>{path}</option>)}</select>
+            {index > 0 && <button aria-label={tr`Remove ${selection.inventory.project}`} onClick={() => setSelections(current => current.filter((_, i) => i !== index))}>×</button>}</label>)}
+            {selections.length < 4 && <select aria-label={t("Compare indexed project")} value="" disabled={adding} onChange={event => { void addProject(event.target.value); }}><option value="">{adding ? t("Reading project…") : t("+ Compare project")}</option>
                 {available.filter(entry => !selections.some(selection => selection.inventory.project === entry.name)).map(entry => <option key={entry.name} value={entry.name}>{entry.name}</option>)}</select>}</div>
-        <div className="spatial-controls"><div className="atlas-arch-context">{navigation}<nav aria-label="Service navigation"><button onClick={clearSelection}>All services</button>{focus && <span> / {servicesById.get(focus)?.name} and neighbors</span>}</nav></div>
-            <div className="container-edge-key"><span><i className="container-call-key" />Calls</span><label><input type="checkbox" checked={configured} onChange={event => setConfigured(event.target.checked)} />Configured destinations</label>
-                <label><input type="checkbox" checked={startup} onChange={event => setStartup(event.target.checked)} />Startup dependencies</label></div></div>
+        <div className="spatial-controls"><div className="atlas-arch-context">{navigation}<nav aria-label={t("Service navigation")}><button onClick={clearSelection}>{t("All services")}</button>{focus && <span> / {servicesById.get(focus)?.name}{t(" and neighbors")}</span>}</nav></div>
+            <div className="container-edge-key"><span><i className="container-call-key" />{t("Calls")}</span><label><input type="checkbox" checked={configured} onChange={event => setConfigured(event.target.checked)} />{t("Configured destinations")}</label>
+                <label><input type="checkbox" checked={startup} onChange={event => setStartup(event.target.checked)} />{t("Startup dependencies")}</label></div></div>
         {discovery && <div role="status" className="spatial-notice container-discovery" data-discovery={discovery}><p>{text.serviceMap[discovery]}</p>
             {discovery === 'none' && onShowEndpoints && <button className="spatial-primary" onClick={onShowEndpoints}>{text.showEndpoints}</button>}</div>}
-        {!discovery && selections.length > 0 && !selections.some(selection => selection.manifest) && <p className="spatial-notice">Select a Compose file to show its declared services.</p>}
-        {reading?.key === key && !result && <p role="status" className="spatial-notice">{reading.error ?? 'Reading deployment definitions and bounded source evidence…'}</p>}
+        {!discovery && selections.length > 0 && !selections.some(selection => selection.manifest) && <p className="spatial-notice">{t("Select a Compose file to show its declared services.")}</p>}
+        {reading?.key === key && !result && <p role="status" className="spatial-notice">{reading.error ?? t("Reading deployment definitions and bounded source evidence…")}</p>}
         {graph && topology && <><div className="spatial-map-layout"><div className="spatial-map">
             {graph.nodes.length ? <ContainerSceneBoundary key={key}><ArchitectureScene model={graph} active={active} planar={planar} resetKey={resetKey} adaptiveLabels={graph.nodes.length > 16}
                 selectedId={selectedService?.id} selectedEdgeId={selectedEdge?.id} onSelect={selectService} onSelectEdge={id => { setSelected({ key, edge: id }); setSource(undefined); }}
-                onClearSelection={clearSelection} onOpen={id => { selectService(id); setFocus(id); }} /></ContainerSceneBoundary> : <p className="spatial-unavailable">No matching service declarations in the selected files.</p>}
-            <div className="spatial-map-caption"><span>Static declarations · not live containers</span><span>Double-click a square to focus · select an arrow for evidence</span></div></div>
-            <aside className="spatial-inspector" aria-label="Service inspector">
-                {selectedService ? <><span className="spatial-eyebrow">Declared service</span><h3>{selectedService.name}</h3><p className="spatial-muted">{selectedService.project}</p>
-                    <button className="spatial-primary" onClick={() => setFocus(selectedService.id)}>Focus service</button>
-                    <button onClick={() => inspect({ project: selectedService.project, path: selectedService.manifest, line: selectedService.line, summary: 'Service declaration' })}>Open declaration</button>
-                    <dl className="container-facts"><dt>Image</dt><dd>{selectedService.image ?? 'Built locally'}</dd><dt>Networks</dt><dd>{selectedService.networks.map(network => network.split(':').at(-1)).join(', ') || 'No resolved network'}</dd>
-                        <dt>Ports</dt><dd>{selectedService.ports.join(', ') || 'Not declared'}</dd>{Boolean(selectedService.profiles?.length) && <><dt>Profiles</dt><dd>{selectedService.profiles!.join(', ')} · optional</dd></>}
-                        <dt>Source</dt><dd>{selectedService.sourcePaths.length ? `${selectedService.sourcePaths.length} candidate files` : 'Image-only or unresolved ownership'}</dd></dl>
-                    <div className="spatial-members"><h4>Connections</h4>{incident.length ? incident.map(edge => <button key={edge.id} onClick={() => setSelected({ key, edge: edge.id })}>{servicesById.get(edge.source)?.name} → {servicesById.get(edge.target)?.name}<small>{evidenceLabel(edge.kind)} · {edge.protocol}</small></button>) : <p>No detected connections with the current filters.</p>}
-                        <h4>Source files</h4>{selectedService.sourcePaths.slice(0, memberLimit).map(absolute => {
+                onClearSelection={clearSelection} onOpen={id => { selectService(id); setFocus(id); }} /></ContainerSceneBoundary> : <p className="spatial-unavailable">{t("No matching service declarations in the selected files.")}</p>}
+            <div className="spatial-map-caption"><span>{t("Static declarations · not live containers")}</span><span>{t("Double-click a square to focus · select an arrow for evidence")}</span></div></div>
+            <aside className="spatial-inspector" aria-label={t("Service inspector")}>
+                {selectedService ? <><span className="spatial-eyebrow">{t("Declared service")}</span><h3>{selectedService.name}</h3><p className="spatial-muted">{selectedService.project}</p>
+                    <button className="spatial-primary" onClick={() => setFocus(selectedService.id)}>{t("Focus service")}</button>
+                    <button onClick={() => inspect({ project: selectedService.project, path: selectedService.manifest, line: selectedService.line, summary: t("Service declaration") })}>{t("Open declaration")}</button>
+                    <dl className="container-facts"><dt>{t("Image")}</dt><dd>{selectedService.image ?? t("Built locally")}</dd><dt>{t("Networks")}</dt><dd>{selectedService.networks.map(network => network.split(':').at(-1)).join(', ') || t("No resolved network")}</dd>
+                        <dt>{t("Ports")}</dt><dd>{selectedService.ports.join(', ') || t("Not declared")}</dd>{Boolean(selectedService.profiles?.length) && <><dt>{t("Profiles")}</dt><dd>{selectedService.profiles!.join(', ')}{t(" · optional")}</dd></>}
+                        <dt>{t("Source")}</dt><dd>{selectedService.sourcePaths.length ? tr`${selectedService.sourcePaths.length} candidate files` : t("Image-only or unresolved ownership")}</dd></dl>
+                    <div className="spatial-members"><h4>{t("Connections")}</h4>{incident.length ? incident.map(edge => <button key={edge.id} onClick={() => setSelected({ key, edge: edge.id })}>{servicesById.get(edge.source)?.name} → {servicesById.get(edge.target)?.name}<small>{evidenceLabel(edge.kind)} · {edge.protocol}</small></button>) : <p>{t("No detected connections with the current filters.")}</p>}
+                        <h4>{t("Source files")}</h4>{selectedService.sourcePaths.slice(0, memberLimit).map(absolute => {
                             const owner = selections.find(selection => { const path = relativeSource(absolute, selection); return path !== undefined && selection.inventory.files.has(path); });
                             const path = owner && relativeSource(absolute, owner);
-                            return path && owner ? <button key={absolute} onClick={() => inspect({ project: owner.inventory.project, path, line: 1, summary: 'Candidate source file' })}>{path}<small>{owner.inventory.project}</small></button> : <span key={absolute}>{absolute}</span>;
-                        })}{selectedService.sourcePaths.length > memberLimit && <button onClick={() => setMemberLimit(value => value + 24)}>Show more files</button>}</div></>
+                            return path && owner ? <button key={absolute} onClick={() => inspect({ project: owner.inventory.project, path, line: 1, summary: t("Candidate source file") })}>{path}<small>{owner.inventory.project}</small></button> : <span key={absolute}>{absolute}</span>;
+                        })}{selectedService.sourcePaths.length > memberLimit && <button onClick={() => setMemberLimit(value => value + 24)}>{t("Show more files")}</button>}</div></>
                     : selectedEdge ? <><span className="spatial-eyebrow">{evidenceLabel(selectedEdge.kind)}</span><h3>{servicesById.get(selectedEdge.source)?.name} → {servicesById.get(selectedEdge.target)?.name}</h3><p>{selectedEdge.protocol}</p>
-                        <p className="spatial-muted">{selectedEdge.kind === 'startup' ? 'The deployment declares a startup dependency. This does not establish a network call.' : selectedEdge.kind === 'configuration' ? 'Configuration names this destination. An executed call has not been established.' : 'Static source identifies this destination. The arrow shows the caller, not the direction of every payload.'}</p>
+                        <p className="spatial-muted">{selectedEdge.kind === 'startup' ? t("The deployment declares a startup dependency. This does not establish a network call.") : selectedEdge.kind === 'configuration' ? t("Configuration names this destination. An executed call has not been established.") : t("Static source identifies this destination. The arrow shows the caller, not the direction of every payload.")}</p>
                         <div className="spatial-members">{selectedEdge.evidence.map(evidenceButton)}</div></>
-                        : <><span className="spatial-eyebrow">Service map</span><h3>{topology.services.length} declared services</h3><p>Select a service or connection to inspect its source. Double-click a service to focus its neighbors.</p></>}
-                {source?.key === key && <div className="container-source"><h4>{source.evidence.project} / {source.evidence.path}:{source.evidence.line}</h4><button onClick={() => setSource(undefined)}>Close source</button><pre>{source.error ?? source.text ?? 'Reading source…'}</pre></div>}
+                        : <><span className="spatial-eyebrow">{t("Service map")}</span><h3>{topology.services.length}{t(" declared services")}</h3><p>{t("Select a service or connection to inspect its source. Double-click a service to focus its neighbors.")}</p></>}
+                {source?.key === key && <div className="container-source"><h4>{source.evidence.project} / {source.evidence.path}:{source.evidence.line}</h4><button onClick={() => setSource(undefined)}>{t("Close source")}</button><pre>{source.error ?? source.text ?? t("Reading source…")}</pre></div>}
             </aside></div>
-            <div className="spatial-bottom"><span>{graph.nodes.length} / {topology.services.length} services · {graph.edges.length} connections shown</span>{!!topology.unresolved.length && <span>{topology.unresolved.length} unresolved destinations</span>}</div>
-            <details className="spatial-map-details"><summary>Browse services and connection evidence</summary>
-            <div className="container-service-list" aria-label="All declared services">{topology.services.map(service => <button key={service.id} aria-pressed={selectedService?.id === service.id} onClick={() => selectService(service.id)} onDoubleClick={() => { selectService(service.id); setFocus(service.id); }}>{service.name}<small>{service.project}{service.profiles?.length ? ' · optional' : ''}</small></button>)}</div>
-            {!!layout?.cycles.length && <details className="spatial-coverage"><summary>Dependency cycles · {layout.cycles.length}</summary>{layout.cycles.map(cycle => <p key={cycle.join('|')}>{cycle.map(id => servicesById.get(id)?.name).join(' ↔ ')} · mutually reachable through detected calls or configured destinations</p>)}</details>}
-            <details className="spatial-relationship-list"><summary>All connections · {shownEdges.length}</summary><div>{shownEdges.map(edge => <button key={edge.id} onClick={() => setSelected({ key, edge: edge.id })}>{servicesById.get(edge.source)?.name} → {servicesById.get(edge.target)?.name}<small>{evidenceLabel(edge.kind)} · {edge.protocol}</small></button>)}</div></details>
-            {!!topology.unresolved.length && <details className="spatial-coverage"><summary>Unresolved destinations · {topology.unresolved.length}</summary><div className="spatial-members">{topology.unresolved.map(evidenceButton)}</div></details>}
+            <div className="spatial-bottom"><span>{graph.nodes.length} / {topology.services.length}{t(" services · ")}{graph.edges.length}{t(" connections shown")}</span>{!!topology.unresolved.length && <span>{topology.unresolved.length}{t(" unresolved destinations")}</span>}</div>
+            <details className="spatial-map-details"><summary>{t("Browse services and connection evidence")}</summary>
+            <div className="container-service-list" aria-label={t("All declared services")}>{topology.services.map(service => <button key={service.id} aria-pressed={selectedService?.id === service.id} onClick={() => selectService(service.id)} onDoubleClick={() => { selectService(service.id); setFocus(service.id); }}>{service.name}<small>{service.project}{service.profiles?.length ? t(" · optional") : ''}</small></button>)}</div>
+            {!!layout?.cycles.length && <details className="spatial-coverage"><summary>{t("Dependency cycles · ")}{layout.cycles.length}</summary>{layout.cycles.map(cycle => <p key={cycle.join('|')}>{cycle.map(id => servicesById.get(id)?.name).join(' ↔ ')}{t(" · mutually reachable through detected calls or configured destinations")}</p>)}</details>}
+            <details className="spatial-relationship-list"><summary>{t("All connections · ")}{shownEdges.length}</summary><div>{shownEdges.map(edge => <button key={edge.id} onClick={() => setSelected({ key, edge: edge.id })}>{servicesById.get(edge.source)?.name} → {servicesById.get(edge.target)?.name}<small>{evidenceLabel(edge.kind)} · {edge.protocol}</small></button>)}</div></details>
+            {!!topology.unresolved.length && <details className="spatial-coverage"><summary>{t("Unresolved destinations · ")}{topology.unresolved.length}</summary><div className="spatial-members">{topology.unresolved.map(evidenceButton)}</div></details>}
             </details>
         </>}
-        <details className="spatial-coverage"><summary>Coverage and interpretation{warnings.length ? ` · ${warnings.length} notes` : ''}</summary><p>One selected Compose file per project. Overrides, includes, host environment values, and running-container state are not evaluated. Source grouping is inferred from build inputs, not guaranteed exclusive ownership.</p>
+        <details className="spatial-coverage"><summary>{t("Coverage and interpretation")}{warnings.length ? tr` · ${warnings.length} notes` : ''}</summary><p>{t("One selected Compose file per project. Overrides, includes, host environment values, and running-container state are not evaluated. Source grouping is inferred from build inputs, not guaranteed exclusive ownership.")}</p>
             {warnings.map(warning => <p key={warning}>{warning}</p>)}</details>
     </section>;
 }

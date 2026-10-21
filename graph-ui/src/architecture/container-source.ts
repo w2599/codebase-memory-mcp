@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 import { RpcIntelligenceClient } from '../provider/rpc-client';
 import type { ProjectEntry } from '../provider/rpc-schemas';
 import { loadRouteGraph } from './route-graph-source';
@@ -65,28 +66,28 @@ export async function loadContainerInventory(project: ProjectEntry, client: RpcI
         Number(!/^(?:docker-)?compose\.ya?ml$/.test(a)) - Number(!/^(?:docker-)?compose\.ya?ml$/.test(b)) || a.localeCompare(b));
     return { project: project.name, rootPath: project.root_path ?? '', files, manifests, sourceEnds, sourceSpans,
         warnings: [rows, modules, classes, interfaces].some(result => result.length > 4000)
-            ? ['File and symbol discovery is limited to 4,000 rows per kind for this project.'] : [] };
+            ? [t("File and symbol discovery is limited to 4,000 rows per kind for this project.")] : [] };
 }
 
 /** A partial YAML document must never masquerade as a complete deployment. */
 export async function readContainerSource(inventory: ContainerInventory, path: string, client: RpcIntelligenceClient, signal: AbortSignal): Promise<string> {
     const qn = inventory.files.get(path);
-    if (!qn) throw new Error('File is outside the indexed inventory.');
+    if (!qn) throw new Error(t("File is outside the indexed inventory."));
     // File nodes without a Module span can return a 51-line preview with no truncation flag.
     if (inventory.sourceEnds && !inventory.sourceEnds.has(path)) {
         const spans = isCode(path) ? inventory.sourceSpans?.get(path) : undefined;
-        if (!spans?.length) throw new Error('No complete module span or indexed code range is available.');
+        if (!spans?.length) throw new Error(t("No complete module span or indexed code range is available."));
         if (spans.length > 8 || spans[spans.length - 1].last > 20_000
-            || spans.reduce((total, span) => total + span.last - span.first + 1, 0) > 2000) throw new Error('Indexed code exceeds the source limit.');
+            || spans.reduce((total, span) => total + span.last - span.first + 1, 0) > 2000) throw new Error(t("Indexed code exceeds the source limit."));
         const lines: string[] = [];
         for (const span of spans) {
             const code = await readSourceRange(inventory.project, span.qn, span.first, span.last, client, signal);
             const part = code.split('\n');
             if (part[part.length - 1] === '') part.pop();
-            if (part.length !== span.last - span.first + 1) throw new Error('Indexed code range changed while reading.');
+            if (part.length !== span.last - span.first + 1) throw new Error(t("Indexed code range changed while reading."));
             while (lines.length < span.first - 1) lines.push('');
             lines.push(...part);
-            if (lines.reduce((total, line) => total + line.length + 1, 0) > 160_000) throw new Error('Source exceeds the inspection limit.');
+            if (lines.reduce((total, line) => total + line.length + 1, 0) > 160_000) throw new Error(t("Source exceeds the inspection limit."));
         }
         return lines.join('\n');
     }
@@ -100,18 +101,18 @@ async function readSourceRange(project: string, qn: string, first: number, last:
         const snippet = await client.getCodeSnippet(project, qn, { startLine: next, maxLines: 500 });
         checkAbort(signal);
         if ((snippet.start_line ?? 1) !== next || snippet.source_mode === 'outline'
-            || !snippet.source || snippet.source === '(source not available)') throw new Error('Source page is unavailable.');
+            || !snippet.source || snippet.source === '(source not available)') throw new Error(t("Source page is unavailable."));
         source += (page && !source.endsWith('\n') ? '\n' : '') + snippet.source;
-        if (source.length > 160_000) throw new Error('Source exceeds the inspection limit.');
+        if (source.length > 160_000) throw new Error(t("Source exceeds the inspection limit."));
         if (snippet.next_start_line === undefined) {
             if (snippet.source_clipped || snippet.source_truncated
-                || (last !== undefined && (snippet.end_line ?? 0) < last)) throw new Error('Source is incomplete.');
+                || (last !== undefined && (snippet.end_line ?? 0) < last)) throw new Error(t("Source is incomplete."));
             return source;
         }
-        if (snippet.next_start_line <= next || snippet.next_start_line !== (snippet.end_line ?? 0) + 1) throw new Error('Source pages changed while reading.');
+        if (snippet.next_start_line <= next || snippet.next_start_line !== (snippet.end_line ?? 0) + 1) throw new Error(t("Source pages changed while reading."));
         next = snippet.next_start_line;
     }
-    throw new Error('Source exceeds the 2,000-line inspection limit.');
+    throw new Error(t("Source exceeds the 2,000-line inspection limit."));
 }
 
 /** Round-robin build scopes so one large service cannot consume every inspected file. */
@@ -142,23 +143,23 @@ export async function loadContainerTopology(selections: readonly ContainerSelect
     const projects: ServiceProject[] = selections.slice(0, 4).map(({ inventory, manifest }) => ({
         project: inventory.project, rootPath: inventory.rootPath, manifest, files: [...inventory.files.keys()], sources: new Map<string, string>(),
     }));
-    if (selections.length > 4) warnings.push('Compare at most four indexed projects at once.');
+    if (selections.length > 4) warnings.push(t("Compare at most four indexed projects at once."));
     const read = async (index: number, paths: string[]) => {
         const inventory = selections[index].inventory;
         // Four requests at a time keep a large repo from monopolizing the daemon.
         for (let offset = 0; offset < paths.length; offset += 4) {
             checkAbort(signal);
-            if (sourceChars >= 4_000_000) { warnings.push('Source inspection reached the four-million-character budget.'); break; }
+            if (sourceChars >= 4_000_000) { warnings.push(t("Source inspection reached the four-million-character budget.")); break; }
             await Promise.all(paths.slice(offset, offset + 4).map(async path => {
                 try {
                     const source = await readContainerSource(inventory, path, client, signal);
-                    if (sourceChars + source.length > 4_000_000) { sourceChars = 4_000_000; warnings.push('Source inspection reached the four-million-character budget.'); return; }
+                    if (sourceChars + source.length > 4_000_000) { sourceChars = 4_000_000; warnings.push(t("Source inspection reached the four-million-character budget.")); return; }
                     sourceChars += source.length;
                     (projects[index].sources as Map<string, string>).set(path, source); filesRead++;
                     if (inventory.sourceSpans?.has(path) && !inventory.sourceEnds?.has(path)) rangeFiles.add(`${inventory.project}:${path}`);
                 } catch {
                     checkAbort(signal);
-                    warnings.push(`${inventory.project}: ${path} was unavailable, incomplete, or exceeded the source limit.`);
+                    warnings.push(tr`${inventory.project}: ${path} was unavailable, incomplete, or exceeded the source limit.`);
                 }
             }));
         }
@@ -167,7 +168,7 @@ export async function loadContainerTopology(selections: readonly ContainerSelect
         warnings.push(...selections[index].inventory.warnings);
         if (projects[index].manifest) await read(index, [projects[index].manifest]);
         const dockerfiles = projects[index].files.filter(isDockerfile);
-        if (dockerfiles.length > 32) warnings.push(`${projects[index].project}: Dockerfile inspection is limited to 32 files.`);
+        if (dockerfiles.length > 32) warnings.push(tr`${projects[index].project}: Dockerfile inspection is limited to 32 files.`);
         await read(index, dockerfiles.slice(0, 32));
     }
     const declarations = buildContainerTopology(projects);
@@ -175,13 +176,13 @@ export async function loadContainerTopology(selections: readonly ContainerSelect
         // Candidate ownership is established from declarations before reading application code.
         const candidates = new Set(declarations.services.flatMap(service => service.sourcePaths));
         const paths = fairSourcePaths(projects[index].files.filter(path => candidates.has(normalizeSourcePath(projects[index].rootPath, path)) && isCode(path)), projects[index], declarations.services);
-        if (paths.length > 80) warnings.push(`${projects[index].project}: inspected 80 of ${paths.length} candidate source files.`);
+        if (paths.length > 80) warnings.push(tr`${projects[index].project}: inspected 80 of ${paths.length} candidate source files.`);
         await read(index, paths.slice(0, 80));
         checkAbort(signal);
         projects[index].routeGraph = await loadRouteGraph(projects[index].project, { client, signal });
         warnings.push(...projects[index].routeGraph!.warnings);
     }
     checkAbort(signal);
-    if (rangeFiles.size) warnings.push(`${rangeFiles.size} files were inspected through indexed class/interface ranges; imports and code outside those ranges were not analyzed.`);
+    if (rangeFiles.size) warnings.push(tr`${rangeFiles.size} files were inspected through indexed class/interface ranges; imports and code outside those ranges were not analyzed.`);
     return { topology: buildContainerTopology(projects), projects, warnings: [...new Set(warnings)], filesRead };
 }

@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /**
  * Was in der Galaxie zu sehen ist, in Worten, die der Server deckt.
  *
@@ -179,8 +180,8 @@ export function edgeKindNote(total: number, hidden: number): string {
     if (total <= 0) {
         return '';
     }
-    const head = `${total} edge ${total === 1 ? 'kind' : 'kinds'}`;
-    return hidden <= 0 ? head : `${head}, ${hidden} of ${total} hidden`;
+    const head = tr`${total} edge ${total === 1 ? t("kind") : t("kinds")}`;
+    return hidden <= 0 ? head : tr`${head}, ${hidden} of ${total} hidden`;
 }
 
 /**
@@ -213,48 +214,44 @@ export function galaxyLegendEntries(data: GraphData | undefined): LegendEntry[] 
     const swatches = edgeSwatches(data);
     const edgeDetail =
         swatches.length === 0
-            ? 'one colour per edge type, from the table that draws the lines. The types appear once a layout is loaded.'
-            : 'one colour per edge type, from the table that draws the lines. Counted in this '
-                + 'layout, most frequent first. A soft pulse follows known directed relations from source to target. '
-                + 'Click a kind to take it out; it stays here, dimmed.';
+            ? t("one colour per edge type, from the table that draws the lines. The types appear once a layout is loaded.")
+            : t("one colour per edge type, from the table that draws the lines. Counted in this ")
+                + t("layout, most frequent first. A soft pulse follows known directed relations from source to target. ")
+                + t("Click a kind to take it out; it stays here, dimmed.");
     return [
         {
             key: 'edge-color',
-            title: 'edge colour',
+            title: t("edge colour"),
             detail: edgeDetail,
             swatches,
             filterable: true,
         },
         {
             key: 'node-color',
-            title: 'node colour',
+            title: t("node colour"),
             detail:
-                'the server maps a symbol degree to a stellar spectral colour (layout3d.c, stellar_color): '
-                + 'few edges give a red dwarf, many a blue giant. This panel paints what the layout sent.',
+                t("the server maps a symbol degree to a stellar spectral colour (layout3d.c, stellar_color): few edges give a red dwarf, many a blue giant. This panel paints what the layout sent."),
             swatches: [],
         },
         {
             key: 'node-size',
-            title: 'node size',
+            title: t("node size"),
             detail:
-                'a base size per node label plus a boost from the same degree, both computed by the server. '
-                + 'A bigger dot means more edges, not more importance.',
+                t("a base size per node label plus a boost from the same degree, both computed by the server. A bigger dot means more edges, not more importance."),
             swatches: [],
         },
         {
             key: 'focus',
-            title: 'focus',
+            title: t("focus"),
             detail:
-                'the focused symbol and its direct neighbours stay bright, everything else dims. '
-                + 'The focus follows the twin, and a click in the sky sends it back.',
+                t("the focused symbol and its direct neighbours stay bright, everything else dims. The focus follows the twin, and a click in the sky sends it back."),
             swatches: [],
         },
         {
             key: 'positions',
-            title: 'positions',
+            title: t("positions"),
             detail:
-                'a deterministic layout computed by the server, not by this browser: '
-                + 'the same index gives the same sky.',
+                t("a deterministic layout computed by the server, not by this browser: the same index gives the same sky."),
             swatches: [],
         },
         /*
@@ -271,12 +268,9 @@ export function galaxyLegendEntries(data: GraphData | undefined): LegendEntry[] 
          */
         {
             key: 'agent-trail',
-            title: 'agent trail (dashed)',
+            title: t("agent trail (dashed)"),
             detail:
-                'a dashed line behind a live agent is the path it walked: the last symbols one actor '
-                + 'touched, newest first, drawn UNDER the real edges. It is not a relation in the '
-                + 'code. The solid coloured lines above come from the index and stay; this one comes '
-                + 'from events and fades with the window picked at the timeline.',
+                t("a dashed line behind a live agent is the path it walked: the last symbols one actor touched, newest first, drawn UNDER the real edges. It is not a relation in the code. The solid coloured lines above come from the index and stay; this one comes from events and fades with the window picked at the timeline."),
             swatches: [],
         },
     ];
@@ -302,7 +296,7 @@ export function hierarchyLegendEntries(data: GraphData | undefined, fileRelation
     return [
         {
             key: 'edge-color',
-            title: 'edges',
+            title: t("edges"),
             /*
              * Drei Zeilen, und die Zahl ist gemessen: in der Hierarchie steht
              * ueber diesem Satz eine Zeile mit den Arten, und die Legende
@@ -314,64 +308,50 @@ export function hierarchyLegendEntries(data: GraphData | undefined, fileRelation
              * Punkt selbst (`title`).
              */
             detail: scoped
-                ? 'Every relationship of this scope, its type and an arrow from source to target written at the line. Edge colours keep their types; this is not a runtime trace.'
+                ? t("Every relationship of this scope, its type and an arrow from source to target written at the line. Edge colours keep their types; this is not a runtime trace.")
                 : fileRelationships
-                ? 'Recorded relationships touching the selected file or marked code. Edge colours retain their original types; this is not a complete call trace.'
-                : 'one line per call on this walk, cycles included rather than hidden. '
-                + 'What else the index records between these symbols is drawn in its own colour: '
-                + 'the calls make the columns.',
+                ? t("Recorded relationships touching the selected file or marked code. Edge colours retain their original types; this is not a complete call trace.")
+                : t("one line per call on this walk, cycles included rather than hidden. What else the index records between these symbols is drawn in its own colour: the calls make the columns."),
             swatches,
             filterable: true,
         },
         {
             key: 'positions',
-            title: 'positions',
+            title: t("positions"),
             detail: scoped
-                ? 'Incoming relationships on the left, the root in the middle, outgoing relationships on the right; each column is one layer further in the same direction. '
-                + 'Nodes reached through both directions, such as a callee of a caller, stand in the band below. '
-                + 'Inside a column: by the neighbour that leads there, calls before other types, calls by call-site line.'
+                ? t("Incoming relationships on the left, the root in the middle, outgoing relationships on the right; each column is one layer further in the same direction. Nodes reached through both directions, such as a callee of a caller, stand in the band below. Inside a column: by the neighbour that leads there, calls before other types, calls by call-site line.")
                 : fileRelationships
-                ? 'Incoming relationships on the left, selected definitions in the middle, outgoing relationships on the right. Recorded containment orders the definition columns; source paths and lines order each column.'
-                : 'columns are the call depth from the entry point, and inside a column the symbols '
-                + 'are ordered by name. A deterministic projection of the walk, not the server layout: '
-                + 'the same walk always draws the same picture.',
+                ? t("Incoming relationships on the left, selected definitions in the middle, outgoing relationships on the right. Recorded containment orders the definition columns; source paths and lines order each column.")
+                : t("columns are the call depth from the entry point, and inside a column the symbols are ordered by name. A deterministic projection of the walk, not the server layout: the same walk always draws the same picture."),
             swatches: [],
         },
         {
             key: 'node-color',
-            title: 'node colour',
+            title: t("node colour"),
             detail:
-                'taken from the loaded galaxy layout, where the server maps a symbol degree to a '
-                + 'stellar spectral colour (layout3d.c, stellar_color). A symbol the layout does not '
-                + `carry stays neutral grey (${HIERARCHY_DEFAULT_COLOR}): nothing here knows its degree.`,
-            swatches: [{ label: 'no layout entry', color: HIERARCHY_DEFAULT_COLOR }],
+                tr`taken from the loaded galaxy layout, where the server maps a symbol degree to a stellar spectral colour (layout3d.c, stellar_color). A symbol the layout does not carry stays neutral grey (${HIERARCHY_DEFAULT_COLOR}): nothing here knows its degree.`,
+            swatches: [{ label: t("no layout entry"), color: HIERARCHY_DEFAULT_COLOR }],
         },
         {
             key: 'node-size',
-            title: 'node size',
+            title: t("node size"),
             detail:
-                'from the same layout entry, so a bigger dot means more edges in the whole graph, '
-                + 'not more importance and not a deeper place in this walk. Sizes are held inside a '
-                + 'band, so that one very large dot cannot push its own name into its neighbour\'s.',
+                t("from the same layout entry, so a bigger dot means more edges in the whole graph, not more importance and not a deeper place in this walk. Sizes are held inside a band, so that one very large dot cannot push its own name into its neighbour's."),
             swatches: [],
         },
         {
             key: 'focus',
-            title: 'focus',
+            title: t("focus"),
             detail: fileRelationships
-                ? 'Opening a file shows its definitions, including isolated nodes. Marking code narrows to the matching symbols and their direct relationships; clearing the mark restores the file.'
-                : 'the symbol the reader stands on carries a ring that follows every step of the walk. '
-                + 'Nothing else dims here: the whole subgraph is the answer. A click on a node opens '
-                + 'its file and takes the twin with it, exactly as in the galaxy.',
+                ? t("Opening a file shows its definitions, including isolated nodes. Marking code narrows to the matching symbols and their direct relationships; clearing the mark restores the file.")
+                : t("the symbol the reader stands on carries a ring that follows every step of the walk. Nothing else dims here: the whole subgraph is the answer. A click on a node opens its file and takes the twin with it, exactly as in the galaxy."),
             swatches: [],
         },
         {
             key: 'agent-trail',
-            title: 'agent trail (dashed)',
+            title: t("agent trail (dashed)"),
             detail:
-                'a dashed line behind a live agent is the path it walked, drawn under the real '
-                + 'edges. It is not a relation in the code: the solid lines come from the index, '
-                + 'this one comes from events and fades with the window picked at the timeline.',
+                t("a dashed line behind a live agent is the path it walked, drawn under the real edges. It is not a relation in the code: the solid lines come from the index, this one comes from events and fades with the window picked at the timeline."),
             swatches: [],
         },
     ];

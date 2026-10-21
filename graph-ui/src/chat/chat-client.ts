@@ -1,3 +1,4 @@
+import { tr } from '../i18n/translate';
 /**
  * The one request this product ever sends to a model.
  *
@@ -188,18 +189,18 @@ export async function askModel(request: ChatRequest): Promise<ChatReply> {
     } catch (error) {
         throw new ChatError(
             'unreachable',
-            `the sidecar did not answer: ${error instanceof Error ? error.message : String(error)}`,
+            tr`the sidecar did not answer: ${error instanceof Error ? error.message : String(error)}`,
         );
     }
     const text = await response.text();
     if (!response.ok) {
-        throw new ChatError('http', `the sidecar answered with HTTP ${response.status}: ${text.slice(0, 200)}`);
+        throw new ChatError('http', tr`the sidecar answered with HTTP ${response.status}: ${text.slice(0, 200)}`);
     }
     let payload: unknown;
     try {
         payload = JSON.parse(text);
     } catch {
-        throw new ChatError('malformed', `the sidecar answered with something that is not JSON: ${text.slice(0, 200)}`);
+        throw new ChatError('malformed', tr`the sidecar answered with something that is not JSON: ${text.slice(0, 200)}`);
     }
     const record = asRecord(payload);
     const choices = record['choices'];

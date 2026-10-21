@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 /** Metadata verified against the pinned Hugging Face revision on 2026-09-07. */
 export const BROWSER_MODEL = {
     id: 'onnx-community/Qwen2.5-Coder-0.5B-Instruct',
@@ -87,7 +88,7 @@ export const BROWSER_MODELS: readonly BrowserModel[] = [
 
 export function getBrowserModel(modelId: string = BROWSER_MODEL.id): BrowserModel {
     const model = BROWSER_MODELS.find(candidate => candidate.id === modelId);
-    if (!model) throw new Error('Unknown browser model. Choose a model from the catalog.');
+    if (!model) throw new Error(t("Unknown browser model. Choose a model from the catalog."));
     return model;
 }
 

@@ -1,3 +1,5 @@
+import { formatCount } from '../i18n/count';
+import { t, tr } from '../i18n/translate';
 /*
  * Herkunft: portiert am 2026-08-28 aus CodeAtlasIDE,
  * /Users/bernhard/Desktop/CodeAtlasIDE/theia-extensions/codeatlas-views/src/browser/strings.ts
@@ -71,15 +73,15 @@ import { Facet } from './presentation-profile';
 
 /** `n thing` or `n things`, so a generated sentence never reads as machine output. */
 export function countOf(count: number, singular: string, plural: string): string {
-    return `${count} ${count === 1 ? singular : plural}`;
+    return formatCount(count, singular, plural);
 }
 
 // ---------------------------------------------------------------------------
 // Empty states, one per surface. Never a blank panel.
 // ---------------------------------------------------------------------------
 
-export const TWIN_EMPTY_MESSAGE = 'Place the cursor inside a function, method, or class.';
-export const TWIN_EMPTY_HINT = 'CBM Lens follows the caret and explains whatever it lands in.';
+export const TWIN_EMPTY_MESSAGE = t("Place the cursor inside a function, method, or class.");
+export const TWIN_EMPTY_HINT = t("CBM Lens follows the caret and explains whatever it lands in.");
 
 // ---------------------------------------------------------------------------
 // Twin identity and provenance
@@ -90,17 +92,17 @@ export const TWIN_EMPTY_HINT = 'CBM Lens follows the caret and explains whatever
  * index. This sentence exists to make sure a reader never sees an empty
  * "Called by" list and concludes the symbol has no callers.
  */
-export const TWIN_FILE_NOT_INDEXED = 'This file is not indexed yet.';
+export const TWIN_FILE_NOT_INDEXED = t("This file is not indexed yet.");
 
 /** Says what would change the sentence above. */
 export const TWIN_FILE_NOT_INDEXED_HINT =
-    'CBM Lens is still reading this workspace. Facts about this symbol appear as soon as it has.';
+    t("CBM Lens is still reading this workspace. Facts about this symbol appear as soon as it has.");
 
 /** Shown while the IR for a symbol is being built. */
-export const TWIN_LOADING = 'Reading what the index knows about this symbol.';
+export const TWIN_LOADING = t("Reading what the index knows about this symbol.");
 
 /** Shown when the IR call itself failed, which is a different failure from an empty fact. */
-export const TWIN_LOAD_FAILED = 'CBM Lens could not reach the analysis backend for this symbol.';
+export const TWIN_LOAD_FAILED = t("CBM Lens could not reach the analysis backend for this symbol.");
 
 /**
  * What the flow switch in the twin head says, in both states.
@@ -112,7 +114,7 @@ export const TWIN_LOAD_FAILED = 'CBM Lens could not reach the analysis backend f
  * before it is asked.
  */
 export function twinFoldLabel(open: boolean): string {
-    return open ? 'collapse flow' : 'open flow';
+    return open ? t("collapse flow") : t("open flow");
 }
 
 /**
@@ -126,20 +128,20 @@ export function twinFoldLabel(open: boolean): string {
  * like the legend's mark, because a second wording for the same fact would be a
  * second idiom.
  */
-export const TWIN_MORE_BELOW = 'more below';
-export const TWIN_MORE_ABOVE = 'more above';
+export const TWIN_MORE_BELOW = t("more below");
+export const TWIN_MORE_ABOVE = t("more above");
 
 // ---------------------------------------------------------------------------
 // Section headings and the subjects their absence sentences are about
 // ---------------------------------------------------------------------------
 
-export const SECTION_PURPOSE = 'Purpose';
-export const SECTION_STEPS = 'Steps';
-export const SECTION_CALLERS = 'Called by';
-export const SECTION_STATE = 'State and config';
-export const SECTION_ERRORS = 'Error paths';
-export const SECTION_TESTS = 'Tests';
-export const SECTION_RISKS = 'Risks';
+export const SECTION_PURPOSE = t("Purpose");
+export const SECTION_STEPS = t("Steps");
+export const SECTION_CALLERS = t("Called by");
+export const SECTION_STATE = t("State and config");
+export const SECTION_ERRORS = t("Error paths");
+export const SECTION_TESTS = t("Tests");
+export const SECTION_RISKS = t("Risks");
 
 /**
  * Two sections that exist as headings without facts under them.
@@ -149,8 +151,8 @@ export const SECTION_RISKS = 'Risks';
  * silently renders nothing would read as "there is nothing to see", which is a
  * claim about the code rather than about the panel.
  */
-export const SECTION_RUNTIME = 'Runtime behaviour';
-export const SECTION_CHANGES = 'Recent changes';
+export const SECTION_RUNTIME = t("Runtime behaviour");
+export const SECTION_CHANGES = t("Recent changes");
 
 /**
  * What a symbol does to the world outside its own process.
@@ -160,7 +162,7 @@ export const SECTION_CHANGES = 'Recent changes';
  * section says that rather than rendering an empty list that would read as "this
  * symbol touches nothing".
  */
-export const SECTION_EFFECTS = 'Effects';
+export const SECTION_EFFECTS = t("Effects");
 
 /**
  * What the file around this symbol pulls in.
@@ -171,19 +173,19 @@ export const SECTION_EFFECTS = 'Effects';
  * list is the part CodeAtlas can add: which of those imports this particular
  * symbol demonstrably touches, and which it does not.
  */
-export const SECTION_IMPORTS = 'Pulls in';
+export const SECTION_IMPORTS = t("Pulls in");
 
-export const SUBJECT_PURPOSE = 'The purpose of this symbol';
-export const SUBJECT_STEPS = 'What this symbol does, step by step,';
-export const SUBJECT_CALLERS = 'The list of callers';
-export const SUBJECT_STATE = 'The configuration this symbol reads';
-export const SUBJECT_ERRORS = 'The errors this symbol can raise';
-export const SUBJECT_TESTS = 'The tests covering this symbol';
-export const SUBJECT_RISKS = 'What is risky about this symbol';
-export const SUBJECT_RUNTIME = 'What this symbol does while it runs';
-export const SUBJECT_CHANGES = 'What changed in this symbol recently';
-export const SUBJECT_EFFECTS = 'What this symbol does outside its own process';
-export const SUBJECT_IMPORTS = 'What the file around this symbol pulls in';
+export const SUBJECT_PURPOSE = t("The purpose of this symbol");
+export const SUBJECT_STEPS = t("What this symbol does, step by step,");
+export const SUBJECT_CALLERS = t("The list of callers");
+export const SUBJECT_STATE = t("The configuration this symbol reads");
+export const SUBJECT_ERRORS = t("The errors this symbol can raise");
+export const SUBJECT_TESTS = t("The tests covering this symbol");
+export const SUBJECT_RISKS = t("What is risky about this symbol");
+export const SUBJECT_RUNTIME = t("What this symbol does while it runs");
+export const SUBJECT_CHANGES = t("What changed in this symbol recently");
+export const SUBJECT_EFFECTS = t("What this symbol does outside its own process");
+export const SUBJECT_IMPORTS = t("What the file around this symbol pulls in");
 
 /**
  * Two sections carry their own provenance sentence instead of the generic one.
@@ -195,16 +197,16 @@ export const SUBJECT_IMPORTS = 'What the file around this symbol pulls in';
  * to a question they were right to ask.
  */
 export const PURPOSE_INFERRED_NOTE =
-    'This sentence is generated from the calls, environment values and error types the index recorded. It is not a docstring and nobody wrote it.';
+    t("This sentence is generated from the calls, environment values and error types the index recorded. It is not a docstring and nobody wrote it.");
 
 export const RISKS_INFERRED_NOTE =
-    'These are rules applied to what the index recorded, not findings from running the code.';
+    t("These are rules applied to what the index recorded, not findings from running the code.");
 
 // ---------------------------------------------------------------------------
 // Section bodies
 // ---------------------------------------------------------------------------
 
-export const STEPS_EMPTY = 'This symbol calls nothing that the index resolved.';
+export const STEPS_EMPTY = t("This symbol calls nothing that the index resolved.");
 
 /**
  * What the caller section says when the index resolved no caller.
@@ -222,12 +224,12 @@ export const STEPS_EMPTY = 'This symbol calls nothing that the index resolved.';
  * It now reads like its three neighbours, and that is the point: an absence
  * sentence in this panel says what was looked at, never what is there.
  */
-export const CALLERS_EMPTY = 'No caller of this symbol appears in what the index resolved.';
-export const ENV_READS_LABEL = 'Reads from the environment';
-export const TYPE_REFS_LABEL = 'Uses types';
-export const WRITES_LABEL = 'Writes';
-export const STATE_EMPTY = 'This symbol reads no environment values and names no types.';
-export const ERRORS_EMPTY = 'This symbol raises no error type that the index recorded.';
+export const CALLERS_EMPTY = t("No caller of this symbol appears in what the index resolved.");
+export const ENV_READS_LABEL = t("Reads from the environment");
+export const TYPE_REFS_LABEL = t("Uses types");
+export const WRITES_LABEL = t("Writes");
+export const STATE_EMPTY = t("This symbol reads no environment values and names no types.");
+export const ERRORS_EMPTY = t("This symbol raises no error type that the index recorded.");
 
 // ---------------------------------------------------------------------------
 // The three semantic blocks
@@ -242,9 +244,9 @@ export const ERRORS_EMPTY = 'This symbol raises no error type that the index rec
  * heading underneath keeps saying what the rows actually are, so the eyebrow
  * adds a grouping without replacing a description.
  */
-export const BLOCK_LABEL_DATA = 'DATA';
-export const BLOCK_LABEL_ERRORS = 'ERRORS';
-export const BLOCK_LABEL_EFFECTS = 'EFFECTS';
+export const BLOCK_LABEL_DATA = t("DATA");
+export const BLOCK_LABEL_ERRORS = t("ERRORS");
+export const BLOCK_LABEL_EFFECTS = t("EFFECTS");
 
 /**
  * What the panel says about where an error ends up.
@@ -262,7 +264,7 @@ export const BLOCK_LABEL_EFFECTS = 'EFFECTS';
  * finding about the code and this is not one.
  */
 export const ERRORS_HANDLING_NOT_VISIBLE =
-    'Where these are handled is not visible to the index: it records where an error is raised, not where it is caught.';
+    t("Where these are handled is not visible to the index: it records where an error is raised, not where it is caught.");
 
 /**
  * What the effects block says, given that the index carries no effect relations.
@@ -274,25 +276,24 @@ export const ERRORS_HANDLING_NOT_VISIBLE =
  *
  */
 export const EFFECTS_NOT_IN_INDEX =
-    'No evidence for routes, outbound calls or writes is available in this view for this symbol. '
-    + 'Missing evidence does not establish that the symbol has no effects.';
+    t("No evidence for routes, outbound calls or writes is available in this view for this symbol. Missing evidence does not establish that the symbol has no effects.");
 
 /** Group headings inside the effects block, used once the relations exist. */
-export const EFFECTS_ROUTES_LABEL = 'Exposes routes';
-export const EFFECTS_HTTP_LABEL = 'Calls out';
-export const EFFECTS_WRITES_LABEL = 'Writes';
+export const EFFECTS_ROUTES_LABEL = t("Exposes routes");
+export const EFFECTS_HTTP_LABEL = t("Calls out");
+export const EFFECTS_WRITES_LABEL = t("Writes");
 
 /** Badge on a step whose target is constructed rather than called. */
-export const BADGE_CONSTRUCTION = 'new';
-export const BADGE_CONSTRUCTION_TOOLTIP = 'This step constructs a class rather than calling a function.';
+export const BADGE_CONSTRUCTION = t("new");
+export const BADGE_CONSTRUCTION_TOOLTIP = t("This step constructs a class rather than calling a function.");
 
 /** Badge on a caller the index flagged as test code. */
-export const BADGE_TEST = 'test';
-export const BADGE_TEST_TOOLTIP = 'The index flagged this caller as test code.';
+export const BADGE_TEST = t("test");
+export const BADGE_TEST_TOOLTIP = t("The index flagged this caller as test code.");
 
 /** How the tests section counts what it found. */
 export function testCallerCount(count: number): string {
-    return count === 1 ? '1 test caller' : `${count} test callers`;
+    return count === 1 ? t("1 test caller") : tr`${count} test callers`;
 }
 
 /**
@@ -302,22 +303,22 @@ export function testCallerCount(count: number): string {
  * this is a search through callers that found none, and the sentence says so.
  */
 export const TESTS_EMPTY_INFERRED =
-    'No test callers found (inferred from callers, not from a test relation): decide if this needs a test.';
+    t("No test callers found (inferred from callers, not from a test relation): decide if this needs a test.");
 
 // ---------------------------------------------------------------------------
 // Evidence affordance
 // ---------------------------------------------------------------------------
 
-export const EVIDENCE_BUTTON_LABEL = 'Evidence';
-export const EVIDENCE_BUTTON_TOOLTIP = 'Show what this claim is based on.';
-export const EVIDENCE_POPOVER_TITLE = 'Evidence';
-export const EVIDENCE_CLOSE_LABEL = 'Close';
-export const EVIDENCE_EMPTY = 'No citation was recorded for this claim.';
-export const EVIDENCE_NO_LOCATION = 'no recorded location';
+export const EVIDENCE_BUTTON_LABEL = t("Evidence");
+export const EVIDENCE_BUTTON_TOOLTIP = t("Show what this claim is based on.");
+export const EVIDENCE_POPOVER_TITLE = t("Evidence");
+export const EVIDENCE_CLOSE_LABEL = t("Close");
+export const EVIDENCE_EMPTY = t("No citation was recorded for this claim.");
+export const EVIDENCE_NO_LOCATION = t("no recorded location");
 
 /** Attribution line under one citation: which provider said it and from which index build. */
 export function evidenceAttribution(providerId: string, generation: number): string {
-    return `${providerId}, index generation ${generation}`;
+    return tr`${providerId}, index generation ${generation}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -327,11 +328,11 @@ export function evidenceAttribution(providerId: string, generation: number): str
 /** Short word shown next to a section heading whose fact is not a direct reading. */
 export function stateMarkerLabel(state: KnowledgeState): string {
     switch (state) {
-        case 'inferred': return 'inferred';
-        case 'ambiguous': return 'ambiguous';
-        case 'unsupported': return 'not recorded';
-        case 'notIndexed': return 'not indexed';
-        case 'unknown': return 'no answer';
+        case 'inferred': return t("inferred");
+        case 'ambiguous': return t("ambiguous");
+        case 'unsupported': return t("not recorded");
+        case 'notIndexed': return t("not indexed");
+        case 'unknown': return t("no answer");
         case 'known': return '';
     }
 }
@@ -350,13 +351,13 @@ export function stateMarkerLabel(state: KnowledgeState): string {
 export function absenceSentence(state: KnowledgeState, subject: string): string {
     switch (state) {
         case 'notIndexed':
-            return `${subject} is unknown because this file is not in the index yet.`;
+            return tr`${subject} is unknown because this file is not in the index yet.`;
         case 'unsupported':
-            return `${subject} is unknown because the analyzer does not record this for this language.`;
+            return tr`${subject} is unknown because the analyzer does not record this for this language.`;
         case 'inferred':
-            return `${subject} is derived from indexed callers, not read directly.`;
+            return tr`${subject} is derived from indexed callers, not read directly.`;
         case 'unknown':
-            return `${subject} is unknown because no analysis backend answered.`;
+            return tr`${subject} is unknown because no analysis backend answered.`;
         case 'ambiguous':
         case 'known':
             return '';
@@ -392,17 +393,17 @@ export const SECTION_LABELS_TECHNICAL: Readonly<Record<string, string>> = {
 };
 
 export const SECTION_LABELS_PLAIN: Readonly<Record<string, string>> = {
-    purpose: 'What this is for',
-    steps: 'What it does, in order',
-    callers: 'Who uses it',
-    state: 'What it reads',
-    imports: 'What the file brings in',
-    errors: 'How it can fail',
-    effects: 'What it touches outside',
-    tests: 'What checks it',
-    risks: 'What to watch out for',
-    runtime: 'What happens when it runs',
-    changes: 'What changed recently'
+    purpose: t("What this is for"),
+    steps: t("What it does, in order"),
+    callers: t("Who uses it"),
+    state: t("What it reads"),
+    imports: t("What the file brings in"),
+    errors: t("How it can fail"),
+    effects: t("What it touches outside"),
+    tests: t("What checks it"),
+    risks: t("What to watch out for"),
+    runtime: t("What happens when it runs"),
+    changes: t("What changed recently")
 };
 
 /**
@@ -456,9 +457,7 @@ export const SECTION_ICONS: Readonly<Record<string, string>> = {
  * page, section "What it cannot do").
  */
 export const RUNTIME_NOT_IN_TWIN =
-    'This server hands observed calls to trace and flow answers, not to the twin, so this section stays empty. '
-    + 'Recorded runs show up on the hops of the BUG hunt and in the flow; they get into the index through '
-    + 'ingest_traces on the command line.';
+    t("This server hands observed calls to trace and flow answers, not to the twin, so this section stays empty. Recorded runs show up on the hops of the BUG hunt and in the flow; they get into the index through ingest_traces on the command line.");
 
 /**
  * What the changes lens says.
@@ -470,14 +469,11 @@ export const RUNTIME_NOT_IN_TWIN =
  * surface that does carry it named.
  */
 export const CHANGES_NOT_IN_TWIN =
-    'The twin carries no version history, so this section stays empty. What a change here would reach is '
-    + 'answered by the change scope panel ([c]hange scope), which reads it from detect_changes for the '
-    + 'worktree or against a reference you name.';
+    t("The twin carries no version history, so this section stays empty. What a change here would reach is answered by the change scope panel ([c]hange scope), which reads it from detect_changes for the worktree or against a reference you name.");
 
 /** Why these two sections wear a marker even though nothing is missing from the index. */
 export const LENS_ANSWERED_ELSEWHERE_NOTE =
-    'Nothing is missing from the index here: the twin does not answer this lens, and it says so rather than '
-    + 'showing an empty list.';
+    t("Nothing is missing from the index here: the twin does not answer this lens, and it says so rather than showing an empty list.");
 
 // ---------------------------------------------------------------------------
 // The narrative depth: counts and consequences, in words, with no identifiers
@@ -492,35 +488,32 @@ export const LENS_ANSWERED_ELSEWHERE_NOTE =
  */
 export function plainKind(kind: CodeAtlasSymbolKind): string {
     switch (kind) {
-        case 'function': return 'function';
-        case 'method': return 'method';
-        case 'class': return 'class';
-        case 'interface': return 'contract other code has to satisfy';
-        case 'module': return 'file';
-        case 'variable': return 'value';
-        case 'type': return 'shape';
-        case 'route': return 'endpoint';
-        case 'unknown': return 'piece of code';
+        case 'function': return t("function");
+        case 'method': return t("method");
+        case 'class': return t('Class');
+        case 'interface': return t("contract other code has to satisfy");
+        case 'module': return t("file");
+        case 'variable': return t("value");
+        case 'type': return t("shape");
+        case 'route': return t("endpoint");
+        case 'unknown': return t("piece of code");
     }
 }
 
 export function proseLead(name: string, kind: CodeAtlasSymbolKind): string {
-    return `${name} is a ${plainKind(kind)}.`;
+    return tr`${name} is a ${plainKind(kind)}.`;
 }
 
 export function proseCalls(name: string, callees: readonly string[]): string {
-    return `${name} hands work to ${countOf(callees.length, 'other piece of code', 'other pieces of code')}: `
-        + `${joinNames(callees)}.`;
+    return tr`${name} hands work to ${countOf(callees.length, 'other piece of code', 'other pieces of code')}: ${joinNames(callees)}.`;
 }
 
 export function proseReads(name: string, values: readonly string[]): string {
-    return `${name} reads ${countOf(values.length, 'value', 'values')} from the environment it runs in: `
-        + `${joinNames(values)}.`;
+    return tr`${name} reads ${countOf(values.length, 'value', 'values')} from the environment it runs in: ${joinNames(values)}.`;
 }
 
 export function proseThrows(name: string, errors: readonly string[]): string {
-    return `${name} can stop with ${countOf(errors.length, 'kind of error', 'kinds of error')}: `
-        + `${joinNames(errors)}.`;
+    return tr`${name} can stop with ${countOf(errors.length, 'kind of error', 'kinds of error')}: ${joinNames(errors)}.`;
 }
 
 /** A short English list that never hides its last member. */
@@ -529,32 +522,32 @@ export function joinNames(names: readonly string[]): string {
         return names[0] ?? '';
     }
     if (names.length === 2) {
-        return `${names[0]} and ${names[1]}`;
+        return tr`${names[0]} and ${names[1]}`;
     }
-    return `${names.slice(0, -1).join(', ')}, and ${names[names.length - 1]}`;
+    return tr`${names.slice(0, -1).join(', ')}, and ${names[names.length - 1]}`;
 }
 
 /** Lead-in to the clickable names. The only identifiers the narrative depth shows. */
-export const PROSE_CHIPS_LEAD = 'The parts it leans on, in the order they come up:';
+export const PROSE_CHIPS_LEAD = t("The parts it leans on, in the order they come up:");
 
 export function proseMoreParts(hidden: number): string {
-    return `${countOf(hidden, 'further part is', 'further parts are')} not listed here; the deeper settings show all of them.`;
+    return tr`${countOf(hidden, 'further part is', 'further parts are')} not listed here; the deeper settings show all of them.`;
 }
 
 /** Said out loud, because the sentence above it was assembled rather than written. */
 export const PROSE_GENERATED_NOTE =
-    'Nobody wrote that description. CBM Lens put it together from what the index recorded, so it can be wrong about intent and right about counts.';
+    t("Nobody wrote that description. CBM Lens put it together from what the index recorded, so it can be wrong about intent and right about counts.");
 
 export const PROSE_TESTS_NONE =
-    'Nothing that looks like a test calls this, so no automatic check would notice a change here.';
+    t("Nothing that looks like a test calls this, so no automatic check would notice a change here.");
 
 export function proseTestsSome(count: number): string {
-    return `${countOf(count, 'test calls', 'tests call')} this, so a change here would be noticed.`;
+    return tr`${countOf(count, 'test calls', 'tests call')} this, so a change here would be noticed.`;
 }
 
 /** Plain subjects for the plain absence sentences below. */
-export const PLAIN_SUBJECT_TESTS = 'Whether anything tests this';
-export const PLAIN_SUBJECT_ERRORS = 'How this can fail';
+export const PLAIN_SUBJECT_TESTS = t("Whether anything tests this");
+export const PLAIN_SUBJECT_ERRORS = t("How this can fail");
 
 /**
  * The absence sentences again, without the vocabulary.
@@ -566,13 +559,13 @@ export const PLAIN_SUBJECT_ERRORS = 'How this can fail';
 export function plainAbsence(state: KnowledgeState, subject: string): string {
     switch (state) {
         case 'notIndexed':
-            return `${subject} is unknown: CBM Lens has not read this file yet.`;
+            return tr`${subject} is unknown: CBM Lens has not read this file yet.`;
         case 'unsupported':
-            return `${subject} is unknown: CBM Lens cannot see this for this language.`;
+            return tr`${subject} is unknown: CBM Lens cannot see this for this language.`;
         case 'inferred':
-            return `${subject} was worked out from what calls it, not read from the code itself.`;
+            return tr`${subject} was worked out from what calls it, not read from the code itself.`;
         case 'unknown':
-            return `${subject} is unknown: nothing answered when CBM Lens asked.`;
+            return tr`${subject} is unknown: nothing answered when CBM Lens asked.`;
         case 'ambiguous':
         case 'known':
             return '';
@@ -583,7 +576,7 @@ export function plainAbsence(state: KnowledgeState, subject: string): string {
 // The guided depth
 // ---------------------------------------------------------------------------
 
-export const GUIDED_FACTS_LEAD = 'Start with these:';
+export const GUIDED_FACTS_LEAD = t("Start with these:");
 
 // ---------------------------------------------------------------------------
 // The dense depth: what a reviewer wants appended to every row
@@ -595,11 +588,11 @@ export const GUIDED_FACTS_LEAD = 'Start with these:';
  * part.
  */
 export function confidenceLabel(value: number): string {
-    return `confidence ${value.toFixed(2)}`;
+    return tr`confidence ${value.toFixed(2)}`;
 }
 
 export const CONFIDENCE_SCORED_TOOLTIP =
-    'How sure the resolver was that this is the right target, as the provider recorded it.';
+    t("How sure the resolver was that this is the right target, as the provider recorded it.");
 
 /**
  * The two things a row can say when no figure was recorded.
@@ -612,26 +605,26 @@ export const CONFIDENCE_SCORED_TOOLTIP =
  * that showed a blank where a reviewer expects a number would leave them
  * guessing which of the two they were looking at.
  */
-export const CONFIDENCE_EXACT = 'exact';
+export const CONFIDENCE_EXACT = t("exact");
 export const CONFIDENCE_EXACT_TOOLTIP =
-    'Read directly from the index. There is no score because nothing was guessed.';
+    t("Read directly from the index. There is no score because nothing was guessed.");
 
-export const CONFIDENCE_UNSCORED = 'unscored';
+export const CONFIDENCE_UNSCORED = t("unscored");
 export const CONFIDENCE_UNSCORED_TOOLTIP =
-    'This claim is not a direct reading and the provider recorded no score for it. The marker beside the heading says how it was arrived at.';
+    t("This claim is not a direct reading and the provider recorded no score for it. The marker beside the heading says how it was arrived at.");
 
 /** Which heuristic resolved the row, named the way the provider named it. */
 export function strategyLabel(strategy: string): string {
-    return `via ${strategy}`;
+    return tr`via ${strategy}`;
 }
 
 export function citationCount(count: number): string {
-    return count === 1 ? '1 citation' : `${count} citations`;
+    return count === 1 ? t("1 citation") : tr`${count} citations`;
 }
 
 /** Count beside a section heading, so a long list is readable while collapsed. */
 export function rowCountLabel(count: number): string {
-    return count === 1 ? '1 entry' : `${count} entries`;
+    return count === 1 ? t("1 entry") : tr`${count} entries`;
 }
 
 // ---------------------------------------------------------------------------
@@ -649,11 +642,9 @@ export function rowCountLabel(count: number): string {
  * value beside it names which reader is selected, and each level opens by
  * stating the question it answers.
  */
-export const DEPTH_SLIDER_LABEL = 'Who is reading';
+export const DEPTH_SLIDER_LABEL = t("Who is reading");
 export const DEPTH_SLIDER_TOOLTIP =
-    'The same recorded facts, chosen for one reader. Five readers ask five questions of one symbol: what is '
-    + 'this and why does it matter, in what order does it happen, what is actually written here, what does it '
-    + 'cost me, and what does it sit on. Nothing is invented on the way down and nothing is hidden on the way up.';
+    t("The same recorded facts, chosen for one reader. Five readers ask five questions of one symbol: what is this and why does it matter, in what order does it happen, what is actually written here, what does it cost me, and what does it sit on. Nothing is invented on the way down and nothing is hidden on the way up.");
 
 /**
  * The five readers, indexed by level, in the words the reader chose.
@@ -663,11 +654,11 @@ export const DEPTH_SLIDER_TOOLTIP =
  * sitting down with the code.
  */
 export const DEPTH_LABELS: readonly string[] = [
-    'vibe coder',
-    'junior',
-    'medior',
-    'senior',
-    'architect',
+    t("vibe coder"),
+    t("junior"),
+    t("medior"),
+    t("senior"),
+    t("architect"),
 ];
 
 /**
@@ -679,11 +670,11 @@ export const DEPTH_LABELS: readonly string[] = [
  * level whose body does not answer its own question is a bug anyone can spot.
  */
 export const LEVEL_QUESTIONS: readonly string[] = [
-    'What happens here, and why does it matter to you?',
-    'In what order does it happen, and why?',
-    'What is actually written here?',
-    'What does this cost you?',
-    'What does this sit on, and where does our knowledge end?',
+    t("What happens here, and why does it matter to you?"),
+    t("In what order does it happen, and why?"),
+    t("What is actually written here?"),
+    t("What does this cost you?"),
+    t("What does this sit on, and where does our knowledge end?"),
 ];
 
 // ---------------------------------------------------------------------------
@@ -699,13 +690,13 @@ export const LEVEL_QUESTIONS: readonly string[] = [
  * which is exactly the invention this panel exists to avoid, and it would be
  * invisible as an invention because it reads like grammar.
  */
-export const STEP_CONNECTIVES: readonly string[] = ['First', 'Then', 'After that', 'Next'];
+export const STEP_CONNECTIVES: readonly string[] = [t("First"), t("Then"), t("After that"), t("Next")];
 
 /** The last one, when there is more than one step. */
-export const STEP_CONNECTIVE_LAST = 'And last';
+export const STEP_CONNECTIVE_LAST = t("And last");
 
 export function juniorStep(connective: string, name: string): string {
-    return `${connective} it hands work to ${name}`;
+    return tr`${connective} it hands work to ${name}`;
 }
 
 /** Where that step lands, when the index knows where. */
@@ -714,15 +705,13 @@ export function juniorStepAt(location: string): string {
 }
 
 export const JUNIOR_ORDER_LEAD =
-    'These are the calls in the order the body reaches them. The order is read from the code; why they are in '
-    + 'that order is not recorded anywhere, so nothing below claims it.';
+    t("These are the calls in the order the body reaches them. The order is read from the code; why they are in that order is not recorded anywhere, so nothing below claims it.");
 
 export const JUNIOR_NO_STEPS =
-    'The index resolves no outgoing calls from this symbol, so it records no call order to walk through. '
-    + 'This is only the boundary of the resolved-call reading.';
+    t("The index resolves no outgoing calls from this symbol, so it records no call order to walk through. This is only the boundary of the resolved-call reading.");
 
 /** The heading over the words explained on first sight. */
-export const JUNIOR_TERMS_LEAD = 'Words used above, once each:';
+export const JUNIOR_TERMS_LEAD = t("Words used above, once each:");
 
 /**
  * The glossary, keyed by the word.
@@ -733,95 +722,75 @@ export const JUNIOR_TERMS_LEAD = 'Words used above, once each:';
  */
 export const TERM_EXPLANATIONS: Readonly<Record<string, string>> = {
     'call site':
-        'a place in this code where it hands work to another piece of code. The index records where each one '
-        + 'is and what it points at.',
+        t("a place in this code where it hands work to another piece of code. The index records where each one is and what it points at."),
     caller:
-        'a piece of code that hands work to this one. If you change what this expects, every caller is where '
-        + 'the change lands.',
+        t("a piece of code that hands work to this one. If you change what this expects, every caller is where the change lands."),
     raise:
-        'stopping with an error instead of returning a result. The index records which error types can leave '
-        + 'this symbol, not where they are caught.',
+        t("stopping with an error instead of returning a result. The index records which error types can leave this symbol, not where they are caught."),
     'environment read':
-        'a value this code takes from outside itself, such as a setting or a configuration key, rather than '
-        + 'from what it was handed.',
+        t("a value this code takes from outside itself, such as a setting or a configuration key, rather than from what it was handed."),
     'test caller':
-        'a caller that lives in test code. It is how CBM Lens answers "is this checked", because this index '
-        + 'records no test relation of its own for TypeScript.',
+        t("a caller that lives in test code. It is how CBM Lens answers \"is this checked\", because this index records no test relation of its own for TypeScript."),
     'entry point':
-        'a place the outside world can start this program: a route, a command, a handler. Work arrives here '
-        + 'rather than being handed on from somewhere inside.',
+        t("a place the outside world can start this program: a route, a command, a handler. Work arrives here rather than being handed on from somewhere inside."),
 };
 
 // ---------------------------------------------------------------------------
 // Level 3, senior: what it costs
 // ---------------------------------------------------------------------------
 
-export const COST_TITLE_FAILS = 'How it can fail';
-export const COST_TITLE_UNTESTED = 'What is unchecked';
-export const COST_TITLE_DEPENDS = 'Who depends on it';
-export const COST_TITLE_MOVES = 'What moves with a change';
+export const COST_TITLE_FAILS = t("How it can fail");
+export const COST_TITLE_UNTESTED = t("What is unchecked");
+export const COST_TITLE_DEPENDS = t("Who depends on it");
+export const COST_TITLE_MOVES = t("What moves with a change");
 
 export const COST_LEAD_FAILS =
-    'The error types recorded as leaving this symbol. Where they are caught is not in this index, so the list '
-    + 'is the cost you can see and not the whole cost.';
+    t("The error types recorded as leaving this symbol. Where they are caught is not in this index, so the list is the cost you can see and not the whole cost.");
 export const COST_LEAD_UNTESTED =
-    'What would notice if this broke. This engine records no test relation for TypeScript, so what is listed '
-    + 'here is callers that live in test code.';
+    t("What would notice if this broke. This engine records no test relation for TypeScript, so what is listed here is callers that live in test code.");
 export const COST_LEAD_DEPENDS =
-    'Everything the index records as calling this. Change what it expects or what it returns and this is the '
-    + 'list you have to walk.';
+    t("Everything the index records as calling this. Change what it expects or what it returns and this is the list you have to walk.");
 export const COST_LEAD_MOVES =
-    'What a change here reaches on the way out: the calls it makes, the values it reads and what it touches '
-    + 'outside its own process.';
+    t("What a change here reaches on the way out: the calls it makes, the values it reads and what it touches outside its own process.");
 
 export const COST_EMPTY_FAILS =
-    'No error path was recorded here, so a change cannot break one you have not seen. What is not recorded is '
-    + 'where a raise from further down is caught, and this engine does not read that at all.';
+    t("No error path was recorded here, so a change cannot break one you have not seen. What is not recorded is where a raise from further down is caught, and this engine does not read that at all.");
 export const COST_EMPTY_UNTESTED =
-    'Nothing that looks like a test calls this. A change here would be caught by a reader or by production, '
-    + 'and by nothing in between.';
+    t("Nothing that looks like a test calls this. A change here would be caught by a reader or by production, and by nothing in between.");
 export const COST_EMPTY_DEPENDS =
-    'Nothing in the indexed workspace calls this. Either it is reached from outside the index, or it is dead, '
-    + 'and the index cannot tell you which of the two.';
+    t("Nothing in the indexed workspace calls this. Either it is reached from outside the index, or it is dead, and the index cannot tell you which of the two.");
 export const COST_EMPTY_MOVES =
-    'This reaches nothing outside itself that the index recorded: no call, no environment read, no effect '
-    + 'crossing the process boundary. A change here stays where you put it.';
+    t("This reaches nothing outside itself that the index recorded: no call, no environment read, no effect crossing the process boundary. A change here stays where you put it.");
 
 /** How the senior level names an item's cost in one word beside it. */
 export function costWeight(count: number): string {
-    return `${countOf(count, 'place', 'places')} to check`;
+    return tr`${countOf(count, 'place', 'places')} to check`;
 }
 
 // ---------------------------------------------------------------------------
 // Level 4, architect: the ground, the carriers, the debts, and the limits
 // ---------------------------------------------------------------------------
 
-export const GROUND_TITLE_SITS_ON = 'What it sits on';
-export const GROUND_TITLE_CARRIED = 'What carries it';
-export const GROUND_TITLE_DEBTS = 'What it owes';
-export const GROUND_TITLE_LIMITS = 'Where this index stops';
+export const GROUND_TITLE_SITS_ON = t("What it sits on");
+export const GROUND_TITLE_CARRIED = t("What carries it");
+export const GROUND_TITLE_DEBTS = t("What it owes");
+export const GROUND_TITLE_LIMITS = t("Where this index stops");
 
 export const GROUND_LEAD_SITS_ON =
-    'The modules underneath this symbol, one line each, with how many call sites reach into them. A module '
-    + 'reached from many places is a dependency; a module reached once is a detail.';
+    t("The modules underneath this symbol, one line each, with how many call sites reach into them. A module reached from many places is a dependency; a module reached once is a detail.");
 export const GROUND_LEAD_CARRIED =
-    'What holds this up: the callers, and whether the outside world can reach it directly.';
+    t("What holds this up: the callers, and whether the outside world can reach it directly.");
 export const GROUND_LEAD_DEBTS =
-    'What is owed against this symbol, from the rules CBM Lens applies to the recorded facts. Every line is a '
-    + 'rule over facts and not a fact, which is why they all wear the derived marker.';
+    t("What is owed against this symbol, from the rules CBM Lens applies to the recorded facts. Every line is a rule over facts and not a fact, which is why they all wear the derived marker.");
 export const GROUND_LEAD_LIMITS =
-    'What is not on this page, and why. This is part of the answer and not a footnote: an architect who cannot '
-    + 'see the edge of the index will read a silence as a finding.';
+    t("What is not on this page, and why. This is part of the answer and not a footnote: an architect who cannot see the edge of the index will read a silence as a finding.");
 
 export const GROUND_EMPTY_SITS_ON =
-    'This sits on nothing the index could resolve: no call from here reaches a file it knows. That is either a '
-    + 'leaf or an unresolved edge, and the limits below say which of the two this index can tell apart.';
+    t("This sits on nothing the index could resolve: no call from here reaches a file it knows. That is either a leaf or an unresolved edge, and the limits below say which of the two this index can tell apart.");
 export const GROUND_EMPTY_CARRIED =
-    'Nothing carries this: no recorded caller, and nothing marking it as reachable from outside. A symbol with '
-    + 'no carrier is either an entry the index cannot see or a piece nobody uses.';
+    t("Nothing carries this: no recorded caller, and nothing marking it as reachable from outside. A symbol with no carrier is either an entry the index cannot see or a piece nobody uses.");
 export const GROUND_EMPTY_DEBTS =
-    'No rule fired against this symbol. That is not a clean bill: the rules CBM Lens can apply are the ones '
-    + 'listed under what this index stops at, and the ones it cannot apply stay silent either way.';
+    t("No rule fired against this symbol. That is not a clean bill: the rules CBM Lens can apply are the ones listed under what this index stops at, and the ones it cannot apply stay silent either way.");
 
 /** How many call sites reach into one module. */
 export function groundReach(count: number): string {
@@ -830,27 +799,26 @@ export function groundReach(count: number): string {
 
 /** The architect's word for a symbol the outside world can start. */
 export const GROUND_ENTRY_POINT =
-    'The outside world can start here: this symbol is recorded as an entry point, so a caller list of zero is '
-    + 'not the same as unused.';
+    t("The outside world can start here: this symbol is recorded as an entry point, so a caller list of zero is not the same as unused.");
 export const GROUND_EXPORTED =
-    'Exported from its module, so code outside the index can call it without the index knowing.';
+    t("Exported from its module, so code outside the index can call it without the index knowing.");
 export const GROUND_NOT_EXPORTED =
-    'Not exported, so everything that can call it is inside this module and inside this index.';
+    t("Not exported, so everything that can call it is inside this module and inside this index.");
 
 /** The debts that come from the structural flags rather than from a rule. */
-export const DEBT_RECURSIVE = 'Calls itself. Depth is bounded by whatever the caller passes in, not by the code.';
+export const DEBT_RECURSIVE = t("Calls itself. Depth is bounded by whatever the caller passes in, not by the code.");
 export const DEBT_UNGUARDED_RECURSION =
-    'Recursive with no base case the analyzer could see. If that reading is right, the bound is the stack.';
+    t("Recursive with no base case the analyzer could see. If that reading is right, the bound is the stack.");
 export const DEBT_SCAN_IN_LOOP =
-    'A linear scan runs inside a loop, which is the shape a quadratic hides in.';
-export const DEBT_ALLOC_IN_LOOP = 'Allocates inside a loop, so the cost grows with the iteration count.';
+    t("A linear scan runs inside a loop, which is the shape a quadratic hides in.");
+export const DEBT_ALLOC_IN_LOOP = t("Allocates inside a loop, so the cost grows with the iteration count.");
 
 export function debtLoopDepth(depth: number): string {
-    return `Loops nested ${depth} deep inside this symbol alone.`;
+    return tr`Loops nested ${depth} deep inside this symbol alone.`;
 }
 
 export function debtBranches(count: number): string {
-    return `${count} independent branches through the body, so that many paths have to hold.`;
+    return tr`${count} independent branches through the body, so that many paths have to hold.`;
 }
 
 /** How the limits block words one family the index could not answer. */
@@ -859,72 +827,64 @@ export function limitOfFamily(subject: string, sentence: string): string {
 }
 
 export function limitGeneration(generation: number): string {
-    return `Everything above was read from index generation ${generation}. An edit after that build is not in it, `
-        + 'and this page cannot tell you whether there was one.';
+    return tr`Everything above was read from index generation ${generation}. An edit after that build is not in it, and this page cannot tell you whether there was one.`;
 }
 
 export const LIMIT_NO_TEST_RELATION =
-    'This engine records no test relation for TypeScript at all, so "what checks it" is answered by looking at '
-    + 'callers that live in test files, and never by the index saying so.';
+    t("This engine records no test relation for TypeScript at all, so \"what checks it\" is answered by looking at callers that live in test files, and never by the index saying so.");
 export const LIMIT_NO_HANDLER_SITES =
-    'Raised error types are recorded; the places they are caught are not. A short error list is therefore not '
-    + 'evidence that the failure is contained.';
+    t("Raised error types are recorded; the places they are caught are not. A short error list is therefore not evidence that the failure is contained.");
 export const LIMIT_NO_ROUTES =
-    'Routes for TypeScript are read out of the source text by CBM Lens, not reported by the engine, so an '
-    + 'entry point the engine did not mark can still exist.';
+    t("Routes for TypeScript are read out of the source text by CBM Lens, not reported by the engine, so an entry point the engine did not mark can still exist.");
 export const LIMIT_CALLS_DEDUPLICATED =
-    'Two calls to the same target inside one body are recorded once, with the last site. A count of call sites '
-    + 'is therefore a count of targets and not of calls.';
+    t("Two calls to the same target inside one body are recorded once, with the last site. A count of call sites is therefore a count of targets and not of calls.");
 
 // ---------------------------------------------------------------------------
 // The local model, when it is on: it rewords, it does not add
 // ---------------------------------------------------------------------------
 
 /** The button that asks the model to say the same thing to this reader. */
-export const VOICE_LABEL = 'Say it for this reader';
+export const VOICE_LABEL = t("Say it for this reader");
 export const VOICE_TITLE =
-    'Hand the sentences above to the local model and let it word them for the selected reader. Every name, '
-    + 'number, file and line has to survive, in the same order, or the rewrite is thrown away and you are told.';
-export const VOICE_RUNNING = 'The local model is rewording the sentences above.';
-export const VOICE_RESTORE_LABEL = 'Back to the built text';
+    t("Hand the sentences above to the local model and let it word them for the selected reader. Every name, number, file and line has to survive, in the same order, or the rewrite is thrown away and you are told.");
+export const VOICE_RUNNING = t("The local model is rewording the sentences above.");
+export const VOICE_RESTORE_LABEL = t("Back to the built text");
 export const VOICE_RESTORE_TITLE =
-    'Drop the reworded sentences and show the ones CBM Lens assembled from the index.';
+    t("Drop the reworded sentences and show the ones CBM Lens assembled from the index.");
 
 /** The marker beside a sentence the model worded. Same idiom as the state markers. */
 export const VOICE_MARKER = '[~]';
 export const VOICE_MARKER_NOTE =
-    'Worded by the local model from the sentence CBM Lens built. The facts in it were checked against the '
-    + 'original one by one; the wording is the model.';
+    t("Worded by the local model from the sentence CBM Lens built. The facts in it were checked against the original one by one; the wording is the model.");
 export const VOICE_APPLIED =
-    'The sentences above were reworded by the local model. Every name, number, file and line in them was '
-    + 'checked against the built text.';
+    t("The sentences above were reworded by the local model. Every name, number, file and line in them was checked against the built text.");
 
 export function voiceRefused(reason: string): string {
-    return `The rewrite was thrown away and the built text is what you see. Reason: ${reason}`;
+    return tr`The rewrite was thrown away and the built text is what you see. Reason: ${reason}`;
 }
 
 export const VOICE_UNAVAILABLE =
-    'The local model is off, so these sentences are the ones CBM Lens assembled. Nothing here waits for it.';
+    t("The local model is off, so these sentences are the ones CBM Lens assembled. Nothing here waits for it.");
 
 export const FACET_LABELS: Readonly<Record<Facet, string>> = {
-    [Facet.Logic]: 'Logic',
-    [Facet.Calls]: 'Calls',
-    [Facet.Data]: 'Data',
-    [Facet.Errors]: 'Errors',
-    [Facet.Tests]: 'Tests',
-    [Facet.Runtime]: 'Runtime',
-    [Facet.Changes]: 'Changes'
+    [Facet.Logic]: t("Logic"),
+    [Facet.Calls]: t("Calls"),
+    [Facet.Data]: t("Data"),
+    [Facet.Errors]: t("Errors"),
+    [Facet.Tests]: t("Tests"),
+    [Facet.Runtime]: t("Runtime"),
+    [Facet.Changes]: t("Changes")
 };
 
 export function facetTooltip(label: string, on: boolean): string {
-    return on ? `Hide ${label}` : `Show ${label}`;
+    return on ? tr`Hide ${label}` : tr`Show ${label}`;
 }
 
 // ---------------------------------------------------------------------------
 // The mini understanding panel
 // ---------------------------------------------------------------------------
 
-export const MINI_TITLE = 'Left to understand';
+export const MINI_TITLE = t("Left to understand");
 
 /**
  * What follows the figure in the strip's header.
@@ -934,7 +894,7 @@ export const MINI_TITLE = 'Left to understand';
  * strip with the checklist panel reads a number rather than parsing a sentence,
  * and the sentence a reader sees is still assembled in one place.
  */
-export const MINI_PERCENT_SUFFIX = '% confirmed';
+export const MINI_PERCENT_SUFFIX = t("% confirmed");
 
 export function miniProgress(percent: number): string {
     return `${percent}${MINI_PERCENT_SUFFIX}`;
@@ -948,46 +908,46 @@ export function miniProgress(percent: number): string {
  * not read as a judgement about how much work they have done.
  */
 export const MINI_PROGRESS_NOTE =
-    'That figure counts what you have confirmed, not what you have looked at. Tick items in the Understanding Checklist to move it.';
+    t("That figure counts what you have confirmed, not what you have looked at. Tick items in the Understanding Checklist to move it.");
 
 export function miniReadCalls(count: number): string {
-    return `Read the ${countOf(count, 'function', 'functions')} this calls`;
+    return tr`Read the ${countOf(count, 'function', 'functions')} this calls`;
 }
 
 export function miniErrorPath(types: string[]): string {
     return types.length === 1
-        ? `Check the error path (${types[0]})`
-        : `Check the error paths (${types.join(', ')})`;
+        ? tr`Check the error path (${types[0]})`
+        : tr`Check the error paths (${types.join(', ')})`;
 }
 
 export function miniCallers(count: number): string {
-    return `See the ${countOf(count, 'caller', 'callers')}`;
+    return tr`See the ${countOf(count, 'caller', 'callers')}`;
 }
 
 export function miniConfig(names: string[]): string {
     return names.length === 1
-        ? `Confirm ${names[0]} is set`
-        : `Confirm ${countOf(names.length, 'configuration value is', 'configuration values are')} set`;
+        ? tr`Confirm ${names[0]} is set`
+        : tr`Confirm ${countOf(names.length, 'configuration value is', 'configuration values are')} set`;
 }
 
 export function miniShape(names: string[]): string {
     return names.length === 1
-        ? `Know the shape of ${names[0]}`
-        : `Know the shapes of the ${countOf(names.length, 'type', 'types')} this names`;
+        ? tr`Know the shape of ${names[0]}`
+        : tr`Know the shapes of the ${countOf(names.length, 'type', 'types')} this names`;
 }
 
 export function miniConstructions(count: number): string {
-    return `Read the ${countOf(count, 'class', 'classes')} this constructs`;
+    return tr`Read the ${countOf(count, 'class', 'classes')} this constructs`;
 }
 
 export function miniTests(count: number): string {
     return count === 1
-        ? 'Re-read the 1 test that covers this'
-        : `Re-read the ${count} tests that cover this`;
+        ? t("Re-read the 1 test that covers this")
+        : tr`Re-read the ${count} tests that cover this`;
 }
 
 /** Same finding as TESTS_EMPTY_INFERRED, shortened to fit a checklist line. */
-export const MINI_TESTS_NONE = 'No test callers found: decide if this needs a test';
+export const MINI_TESTS_NONE = t("No test callers found: decide if this needs a test");
 
 /**
  * What the strip promises when a reader hovers a line.
@@ -997,7 +957,7 @@ export const MINI_TESTS_NONE = 'No test callers found: decide if this needs a te
  * walk through the places that answer it, which is the difference between a
  * panel that grades a reader and a panel that takes them somewhere.
  */
-export const MINI_ITEM_TOOLTIP = 'Walk the places that answer this, one stop at a time.';
+export const MINI_ITEM_TOOLTIP = t("Walk the places that answer this, one stop at a time.");
 
 // ---------------------------------------------------------------------------
 // The guided hop
@@ -1013,12 +973,12 @@ export const MINI_ITEM_TOOLTIP = 'Walk the places that answer this, one stop at 
  * list; they are not being told what they will find when they get there.
  */
 export function hopProgress(stop: number, total: number): string {
-    return `Stop ${stop} of ${total}`;
+    return tr`Stop ${stop} of ${total}`;
 }
 
-export const HOP_NEXT_LABEL = 'Next';
-export const HOP_DONE_LABEL = 'Done';
-export const HOP_CLOSE_TOOLTIP = 'End the walk. Everything you have already been taken to stays marked as explored.';
+export const HOP_NEXT_LABEL = t("Next");
+export const HOP_DONE_LABEL = t("Done");
+export const HOP_CLOSE_TOOLTIP = t("End the walk. Everything you have already been taken to stays marked as explored.");
 
 /**
  * Why each stop of a walk is worth the trip, one sentence per checklist family.
@@ -1029,17 +989,17 @@ export const HOP_CLOSE_TOOLTIP = 'End the walk. Everything you have already been
  * user" would be a claim about a function CodeAtlas has not read.
  */
 export const HOP_WHY: Readonly<Record<string, string>> = {
-    'core-logic': 'What this symbol does is mostly what it delegates to. This is one of the places it hands work to.',
-    'error-handling': 'This is where the failure comes from. Reading it is how you find out what a caller has to survive.',
-    callers: 'Someone depends on this. What they expect is the constraint on any change you make here.',
-    config: 'This value comes from the environment, so it is set outside the code and fails only where it is missing.',
-    inputs: 'This is a shape the symbol assumes it was handed. Knowing it is how you tell a valid input from an invalid one.',
-    implementations: 'This class is constructed here rather than called, so reading it is a separate obligation from following a call.',
-    tests: 'A test is the shortest available description of what this is supposed to do.'
+    'core-logic': t("What this symbol does is mostly what it delegates to. This is one of the places it hands work to."),
+    'error-handling': t("This is where the failure comes from. Reading it is how you find out what a caller has to survive."),
+    callers: t("Someone depends on this. What they expect is the constraint on any change you make here."),
+    config: t("This value comes from the environment, so it is set outside the code and fails only where it is missing."),
+    inputs: t("This is a shape the symbol assumes it was handed. Knowing it is how you tell a valid input from an invalid one."),
+    implementations: t("This class is constructed here rather than called, so reading it is a separate obligation from following a call."),
+    tests: t("A test is the shortest available description of what this is supposed to do.")
 };
 
 /** Fallback for a category nobody has written a sentence for yet. */
-export const HOP_WHY_FALLBACK = 'This is one of the places the checklist points at for this question.';
+export const HOP_WHY_FALLBACK = t("This is one of the places the checklist points at for this question.");
 
 export function hopWhy(category: string): string {
     return HOP_WHY[category] ?? HOP_WHY_FALLBACK;
@@ -1049,11 +1009,11 @@ export function hopWhy(category: string): string {
 
 /** The section's own sentence when the store was read and holds nothing for this symbol. */
 export const RUNTIME_SECTION_EMPTY =
-    'A recording has been imported and none of it passes through this symbol.';
+    t("A recording has been imported and none of it passes through this symbol.");
 
 /** Heading text over the observed rows, with the total. */
 export function runtimeObservedCount(calls: number, total: number): string {
-    return `${calls} observed ${calls === 1 ? 'call' : 'calls'}, ${total} ${total === 1 ? 'time' : 'times'} in all.`;
+    return tr`${calls} observed ${calls === 1 ? t("call") : t("calls")}, ${total} ${total === 1 ? t("time") : t("times")} in all.`;
 }
 
 /** One observed row's count, beside the callee's name. */
@@ -1062,22 +1022,22 @@ export function runtimeRowCount(count: number): string {
 }
 
 /** The marker on an observed call the index does not record. */
-export const RUNTIME_UNEXPECTED_BADGE = 'not in the index';
+export const RUNTIME_UNEXPECTED_BADGE = t("not in the index");
 export const RUNTIME_UNEXPECTED_TOOLTIP =
-    'The recording holds this call and the analyzer records no such call from this symbol.';
+    t("The recording holds this call and the analyzer records no such call from this symbol.");
 
 /** Why the runtime section wears its marker: nothing is missing from the index here. */
 export const RUNTIME_SECTION_NOTE =
-    'Read from an imported recording, not from the index. CBM Lens did not watch this run.';
+    t("Read from an imported recording, not from the index. CBM Lens did not watch this run.");
 
 // The runtime badge in the evidence popover ---------------------------------
 
 /** Shown on a citation that came from a recording rather than from the index. */
-export const EVIDENCE_RUNTIME_BADGE = 'runtime';
+export const EVIDENCE_RUNTIME_BADGE = t("runtime");
 export const EVIDENCE_RUNTIME_TOOLTIP =
-    'This citation comes from an imported recording, not from the analyzer.';
+    t("This citation comes from an imported recording, not from the analyzer.");
 
 /** How many times the recording saw it, said under the badge. */
 export function evidenceObservations(count: number): string {
-    return `observed ${count} ${count === 1 ? 'time' : 'times'}`;
+    return tr`observed ${count} ${count === 1 ? t("time") : t("times")}`;
 }

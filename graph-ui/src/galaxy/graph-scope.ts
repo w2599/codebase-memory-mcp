@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 import { RpcIntelligenceClient } from '../provider/rpc-client';
 import { escapeLiteral } from '../provider/cypher';
 import type { QueryGraphResult } from '../provider/rpc-schemas';
@@ -33,7 +34,7 @@ const BATCH_SIZE = 64;
 const number = (value: string | undefined): number | undefined => value !== undefined && value !== '' && Number.isFinite(Number(value)) ? Number(value) : undefined;
 const id = (value: string | undefined): number => {
     const parsed = number(value);
-    if (parsed === undefined || !Number.isSafeInteger(parsed) || parsed < 0) throw new Error('Graph response contains an invalid identity.');
+    if (parsed === undefined || !Number.isSafeInteger(parsed) || parsed < 0) throw new Error(t("Graph response contains an invalid identity."));
     return parsed;
 };
 const nodeColumns = (alias: string, prefix: string) => [`id(${alias}) AS ${prefix}id`, `${alias}.label AS ${prefix}label`, `${alias}.name AS ${prefix}name`, `${alias}.qualified_name AS ${prefix}qn`, `${alias}.file_path AS ${prefix}file`, `${alias}.start_line AS ${prefix}start_line`, `${alias}.end_line AS ${prefix}end_line`].join(', ');
@@ -53,22 +54,22 @@ export async function readGraphPages(client: GraphQueryClient, project: string, 
     for (;;) {
         signal?.throwIfAborted();
         if (JSON.stringify(columns) !== JSON.stringify(page.columns) || page.total !== total
-            || (page.offset !== undefined && page.offset !== records.length)) throw new Error('Graph pagination changed its result snapshot.');
+            || (page.offset !== undefined && page.offset !== records.length)) throw new Error(t("Graph pagination changed its result snapshot."));
         const fresh: Record<string, string>[] = [];
         for (const row of page.rows) {
             const record = Object.fromEntries(columns.map((column, index) => [column, row[index] ?? '']));
             const identity = id(record[key]);
-            if (identities.has(identity)) throw new Error('Graph pagination repeated a row.');
+            if (identities.has(identity)) throw new Error(t("Graph pagination repeated a row."));
             identities.add(identity); records.push(record); fresh.push(record);
         }
         if (onPage?.(fresh) === 'stop') return records;
         if (!page.nextCursor) {
             if (page.hasMore || page.truncated || page.totalRelation === 'gte' || (total !== undefined && records.length < total))
-                throw new Error(`Incomplete graph response (${records.length} relationships read); ${page.truncationReason ?? 'the server did not provide a continuation'}.`);
+                throw new Error(tr`Incomplete graph response (${records.length} relationships read); ${page.truncationReason ?? t("the server did not provide a continuation")}.`);
             return records;
         }
-        if (!page.rows.length || cursors.has(page.nextCursor)) throw new Error('Graph pagination did not advance.');
-        if (page.nextOffset !== undefined && page.nextOffset !== records.length) throw new Error('Graph pagination skipped rows.');
+        if (!page.rows.length || cursors.has(page.nextCursor)) throw new Error(t("Graph pagination did not advance."));
+        if (page.nextOffset !== undefined && page.nextOffset !== records.length) throw new Error(t("Graph pagination skipped rows."));
         cursors.add(page.nextCursor); signal?.throwIfAborted();
         onRequest?.();
         page = await client.queryGraph(project, query, page.nextCursor, SCOPE_PAGE_BUDGET);
@@ -132,7 +133,7 @@ export async function loadGraphScope(project: string, scope: GraphScope, depth: 
     options.signal?.throwIfAborted();
     const client = options.client ?? new RpcIntelligenceClient({ fetch: options.fetch, signal: options.signal });
     const edgeTypes = options.edgeTypes === undefined ? undefined : [...new Set(options.edgeTypes)].sort();
-    if (edgeTypes?.some(type => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(type))) throw new Error('Invalid graph relationship type.');
+    if (edgeTypes?.some(type => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(type))) throw new Error(t("Invalid graph relationship type."));
     const allowedTypes = edgeTypes === undefined ? undefined : new Set(edgeTypes);
     const traversalKey = JSON.stringify([project, scope, direction, graphEdgeTypesKey(edgeTypes)]);
     const relationship = edgeTypes?.length ? `[r:${edgeTypes.join('|')}]` : '[r]';
@@ -142,7 +143,7 @@ export async function loadGraphScope(project: string, scope: GraphScope, depth: 
         if (cachedNode && (!scope.qualifiedName || cachedNode.qualified_name === scope.qualifiedName)) known.set(scope.id, cachedNode);
     }
     if (scope.kind === 'node' && !(scope.qualifiedName ?? known.get(scope.id)?.qualified_name))
-        throw new Error('This node has no indexed qualified identity; its relationships cannot be retrieved reliably.');
+        throw new Error(t("This node has no indexed qualified identity; its relationships cannot be retrieved reliably."));
     const predicate = scope.kind === 'node' ? `n.qualified_name = "${escapeLiteral(scope.qualifiedName ?? known.get(scope.id)?.qualified_name ?? '')}"` : scope.kind === 'symbol' ? `n.qualified_name = "${escapeLiteral(scope.qualifiedName)}"` : scope.kind === 'file' ? `n.file_path = "${escapeLiteral(scope.path)}"`
         : `n.file_path STARTS WITH "${escapeLiteral(scope.path.replace(/\/$/, '') + '/')}"`;
     // A partial layer misses part of its frontier, so it is never the base of the next one.
@@ -195,7 +196,7 @@ export async function loadGraphScope(project: string, scope: GraphScope, depth: 
             for (let at = 0; at < missing.length && !partial; at += batchSize) {
                 const batch = missing.slice(at, at + batchSize), batchIds = new Set(batch);
                 const names = batch.map(value => nodes.get(value)?.qualified_name);
-                if (!useBoundary && names.some(name => !name)) throw new Error('A selected graph node has no qualified identity; its dependencies cannot be loaded completely.');
+                if (!useBoundary && names.some(name => !name)) throw new Error(t("A selected graph node has no qualified identity; its dependencies cannot be loaded completely."));
                 const alias = leg === 'inbound' ? 'b' : 'a';
                 const relation = useBoundary ? scope.kind === 'folder'
                     ? `${alias}.file_path STARTS WITH "${escapeLiteral(scope.path.replace(/\/$/, '') + '/')}"`

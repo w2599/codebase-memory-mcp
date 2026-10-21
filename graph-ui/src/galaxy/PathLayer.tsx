@@ -1,3 +1,4 @@
+import { kindLabel } from '../i18n/presentation';
 /*
  * Der Pfad in der Szene (Review-Befund G5).
  *
@@ -170,7 +171,7 @@ export function PathLayer({ nodes, path, namedRoots }: {
                     ref={(group) => { if (group) groups.current.set(index, group); else groups.current.delete(index); }}>
                     <Html center zIndexRange={[9, 0]} style={{ pointerEvents: 'none' }}>
                         <span className="atlas-galaxy-path-label" data-active={index === path.active}
-                            ref={(label) => { if (label) labels.current.set(index, label); else labels.current.delete(index); }}>{step.edge.type}</span>
+                            ref={(label) => { if (label) labels.current.set(index, label); else labels.current.delete(index); }}>{kindLabel(step.edge.type)}</span>
                     </Html>
                 </group>
             ))}

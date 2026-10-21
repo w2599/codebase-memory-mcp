@@ -1,3 +1,5 @@
+import { formatCount } from '../i18n/count';
+import { t, tr } from '../i18n/translate';
 /**
  * The walk that starts where the maintainer said, and goes forward.
  *
@@ -62,13 +64,13 @@ export function entryTourId(qualifiedName: string): string {
 
 /** `1 call` or `n calls`, so a generated sentence never reads as machine output. */
 function countOf(count: number, singular: string, plural: string): string {
-    return `${count} ${count === 1 ? singular : plural}`;
+    return formatCount(count, singular, plural);
 }
 
 /** The display name of a qualified name, for a sentence that names a caller. */
 function lastSegment(qualifiedName: string | undefined): string {
     if (qualifiedName === undefined || qualifiedName.length === 0) {
-        return 'the previous step';
+        return t("the previous step");
     }
     return qualifiedName.split('.').pop() ?? qualifiedName;
 }
@@ -107,32 +109,32 @@ export function entryWalkTour(closure: ClosureResult): ActiveTour {
 
         const sentences: string[] = [];
         if (node.hop === 0) {
-            sentences.push(`You chose this as the way in, so the walk starts here rather than at the top of the project.`);
+            sentences.push(t("You chose this as the way in, so the walk starts here rather than at the top of the project."));
             sentences.push(
                 outgoing === 0
-                    ? 'The index records no call out of it, so there is nothing further along this direction.'
-                    : `The index records ${countOf(outgoing, 'call', 'calls')} out of it, and the steps after this one are where those calls lead.`,
+                    ? t("The index records no call out of it, so there is nothing further along this direction.")
+                    : tr`The index records ${countOf(outgoing, 'call', 'calls')} out of it, and the steps after this one are where those calls lead.`,
             );
         } else {
             const via = lastSegment(node.via);
             const edge = closure.edges.find(
                 (entry) => entry.to === qualifiedName && entry.from === node.via,
             );
-            const where = edge?.line === undefined ? '' : ` on line ${edge.line}`;
-            sentences.push(`The index records a call from ${via} to ${node.symbol.name}${where}.`);
+            const where = edge?.line === undefined ? '' : tr` on line ${edge.line}`;
+            sentences.push(tr`The index records a call from ${via} to ${node.symbol.name}${where}.`);
             sentences.push(
-                `It sits ${countOf(node.hop, 'hop', 'hops')} out from where you started, in ${location.path}.`,
+                tr`It sits ${countOf(node.hop, 'hop', 'hops')} out from where you started, in ${location.path}.`,
             );
         }
         if (qualifiedName === undefined) {
-            sentences.push('The index could not resolve this name to a symbol of its own, so this step opens the place the call named.');
+            sentences.push(t("The index could not resolve this name to a symbol of its own, so this step opens the place the call named."));
         }
 
         steps.push({
             id,
             title: node.hop === 0
-                ? `Start here: ${node.symbol.name}`
-                : `Hop ${node.hop}: ${node.symbol.name}`,
+                ? tr`Start here: ${node.symbol.name}`
+                : tr`Hop ${node.hop}: ${node.symbol.name}`,
             description: sentences.join(' '),
             order: steps.length,
             primary: qualifiedName === undefined
@@ -155,8 +157,8 @@ export function entryWalkTour(closure: ClosureResult): ActiveTour {
     }
     if (withoutFile > 0) {
         notes.push(
-            `${countOf(withoutFile, 'reached symbol carries', 'reached symbols carry')} no file in the index, `
-            + 'so there is nothing to open for it and it is not a step',
+            tr`${countOf(withoutFile, 'reached symbol carries', 'reached symbols carry')} no file in the index, `
+            + t("so there is nothing to open for it and it is not a step"),
         );
     }
 
@@ -165,7 +167,7 @@ export function entryWalkTour(closure: ClosureResult): ActiveTour {
         document: {
             schemaVersion: TOUR_SCHEMA_VERSION,
             id: entryTourId(closure.root.qualifiedName ?? rootName),
-            title: `Forward from ${rootName}`,
+            title: tr`Forward from ${rootName}`,
             generated: {
                 strategy: 'forward-walk',
                 ...(closure.truncated ? { truncated: true } : {}),

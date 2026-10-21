@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 import type { GraphData, GraphNode } from './types';
 
 export interface OrganicCluster {
@@ -230,14 +231,14 @@ function relax(particles: Particle[], pairs: readonly Pair[], iterations: number
 
 function sharedDirectory(nodes: readonly GraphNode[]): string {
     const paths = nodes.flatMap(node => node.file_path ? [node.file_path.replace(/\\/g, '/').split('/').slice(0, -1)] : []);
-    if (!paths.length) return 'Relationship group';
+    if (!paths.length) return t("Relationship group");
     const common = [...paths[0]!];
     for (const path of paths.slice(1)) {
         let length = 0;
         while (length < common.length && common[length] === path[length]) length++;
         common.length = length;
     }
-    return common.join('/') || 'Relationship group';
+    return common.join('/') || t("Relationship group");
 }
 
 /** Pure deterministic multilevel cloud layout. Fixed iteration budgets keep

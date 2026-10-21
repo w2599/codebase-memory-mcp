@@ -712,7 +712,7 @@ export function buildSections(ir: SemanticIR): TwinSection[] {
         state: ir.purpose.state,
         stateNote: PURPOSE_INFERRED_NOTE,
         factPath: 'purpose',
-        text: ir.purpose.value,
+        text: purposeSummary(ir),
         rows: [],
         emptyText: '',
         populated: ir.purpose.value.length > 0
@@ -728,3 +728,4 @@ export function buildSections(ir: SemanticIR): TwinSection[] {
         risksSection(ir)
     ];
 }
+import { purposeSummary } from '../i18n/presentation';

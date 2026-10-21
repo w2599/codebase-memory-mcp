@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /**
  * Eine Datei fuer den Reader holen, und ehrlich sagen, was davon angekommen ist.
  *
@@ -130,7 +131,7 @@ async function lookupModuleNode(
 }
 
 /** What the server writes in place of source when it cannot read the file. */
-export const SOURCE_UNAVAILABLE = '(source not available)';
+export const SOURCE_UNAVAILABLE = t("(source not available)");
 
 /** The server's page size for full source (MCP_SNIPPET_MAX_LINES). */
 export const SOURCE_PAGE_LINES = 500;
@@ -141,9 +142,9 @@ export const MAX_SOURCE_PAGES = 100;
 /** The note when the server pages source and a page did not arrive. */
 export function pagingNoteFor(lastLine: number, fileLastLine: number | undefined): string {
     if (fileLastLine === undefined) {
-        return `lines after ${lastLine} not loaded: a further page of source did not arrive from the server (get_code_snippet).`;
+        return tr`lines after ${lastLine} not loaded: a further page of source did not arrive from the server (get_code_snippet).`;
     }
-    return `lines ${lastLine + 1}-${fileLastLine} not loaded: a further page of source did not arrive from the server (get_code_snippet).`;
+    return tr`lines ${lastLine + 1}-${fileLastLine} not loaded: a further page of source did not arrive from the server (get_code_snippet).`;
 }
 
 /**
@@ -155,12 +156,12 @@ export function pagingNoteFor(lastLine: number, fileLastLine: number | undefined
  */
 export function truncationNoteFor(lastLine: number, fileLastLine: number | undefined, cap: number | undefined): string {
     const capPart = cap === undefined
-        ? 'server snippet cap'
-        : `server snippet cap of ${cap} lines`;
+        ? t("server snippet cap")
+        : tr`server snippet cap of ${cap} lines`;
     if (fileLastLine === undefined) {
-        return `lines after ${lastLine} not loaded: ${capPart} (get_code_snippet). The index did not record the file length.`;
+        return tr`lines after ${lastLine} not loaded: ${capPart} (get_code_snippet). The index did not record the file length.`;
     }
-    return `lines ${lastLine + 1}-${fileLastLine} not loaded: ${capPart} (get_code_snippet). The window arguments are ignored by this server, so there is nothing to load them with.`;
+    return tr`lines ${lastLine + 1}-${fileLastLine} not loaded: ${capPart} (get_code_snippet). The window arguments are ignored by this server, so there is nothing to load them with.`;
 }
 
 /**
@@ -179,7 +180,7 @@ export async function loadFileDocument(
     if (node === undefined) {
         throw notReadable(
             path,
-            `The index has no module node for ${path}. This server delivers file content only through get_code_snippet on an indexed symbol, so a file the index did not record cannot be read here.`,
+            tr`The index has no module node for ${path}. This server delivers file content only through get_code_snippet on an indexed symbol, so a file the index did not record cannot be read here.`,
         );
     }
 
@@ -189,9 +190,9 @@ export async function loadFileDocument(
         throw notReadable(
             path,
             snippet.source === SOURCE_UNAVAILABLE
-                ? `The server could not read ${path} from the repository (${qualifiedName}): `
-                    + 'the index knows the file, the disk does not have it where the index expects it.'
-                : `get_code_snippet returned no source for ${qualifiedName}.`,
+                ? tr`The server could not read ${path} from the repository (${qualifiedName}): `
+                    + t("the index knows the file, the disk does not have it where the index expects it.")
+                : tr`get_code_snippet returned no source for ${qualifiedName}.`,
         );
     }
 

@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 import { useRef, useState, type JSX, type ReactNode } from 'react';
 import Markdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -18,7 +19,7 @@ function CodeBlock({ children, language, codeText }: { children: ReactNode; lang
         const ticket = ++copyTicket.current;
         setCopy({ text: codeText, status: 'copying' });
         try {
-            if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+            if (!navigator.clipboard?.writeText) throw new Error(t("Clipboard unavailable"));
             await navigator.clipboard.writeText(codeText);
             if (ticket === copyTicket.current) setCopy({ text: codeText, status: 'copied' });
         } catch {
@@ -27,10 +28,10 @@ function CodeBlock({ children, language, codeText }: { children: ReactNode; lang
     };
     return <div className="cbm-chat-code-block">
         <div className="cbm-chat-code-header"><span className="cbm-chat-code-language">{language}</span><div>
-            {status === 'failed' && <span className="cbm-chat-code-copy-error" role="status">Copy unavailable</span>}
-            <button type="button" aria-label="Copy code" disabled={status === 'copying'} onClick={() => { void copyCode(); }}>{status === 'copied' ? 'Copied' : status === 'copying' ? 'Copying…' : 'Copy'}</button>
+            {status === 'failed' && <span className="cbm-chat-code-copy-error" role="status">{t("Copy unavailable")}</span>}
+            <button type="button" aria-label={t("Copy code")} disabled={status === 'copying'} onClick={() => { void copyCode(); }}>{status === 'copied' ? t("Copied") : status === 'copying' ? t("Copying…") : t("Copy")}</button>
         </div></div>
-        <pre tabIndex={0} aria-label={`${language} code`}>{children}</pre>
+        <pre tabIndex={0} aria-label={tr`${language} code`}>{children}</pre>
     </div>;
 }
 
@@ -42,7 +43,7 @@ const components: Components = {
     // An image URL is an explicit link; rendering Markdown never contacts its server.
     img: ({ src, alt }) => {
         const safe = typeof src === 'string' ? safeMarkdownUrl(src) : '';
-        const label = `Image: ${alt || 'open image link'}`;
+        const label = tr`Image: ${alt || t("open image link")}`;
         return safe ? <a href={safe} target="_blank" rel="noopener noreferrer">{label}</a> : <span>{label}</span>;
     },
     pre: ({ children, node }) => {
@@ -53,7 +54,7 @@ const components: Components = {
         const codeText = code?.type === 'element' ? code.children.map(child => child.type === 'text' ? child.value : '').join('') : '';
         return <CodeBlock language={language} codeText={codeText}>{children}</CodeBlock>;
     },
-    table: ({ children }) => <div className="cbm-chat-table-scroll" role="region" aria-label="Markdown table" tabIndex={0}><table>{children}</table></div>,
+    table: ({ children }) => <div className="cbm-chat-table-scroll" role="region" aria-label={t("Markdown table")} tabIndex={0}><table>{children}</table></div>,
 };
 
 export default function ChatMarkdown({ text }: { text: string }): JSX.Element {

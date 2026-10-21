@@ -1,3 +1,5 @@
+import { t, tr } from '../i18n/translate';
+import { kindLabel } from '../i18n/presentation';
 /**
  * Die Galaxie als Panel, und der Fokus, der in beide Richtungen laeuft.
  *
@@ -265,8 +267,8 @@ export const HIERARCHY_DISPLAY: DisplaySettings = {
 };
 
 /** Der Schalter im Panel-Kopf, in beiden Lagen. */
-export const GALAXY_COLLAPSE_TITLE = 'hide the graph panel: the header stays, so it can be brought back';
-export const GALAXY_EXPAND_TITLE = 'show the graph panel again';
+export const GALAXY_COLLAPSE_TITLE = t("hide the graph panel: the header stays, so it can be brought back");
+export const GALAXY_EXPAND_TITLE = t("show the graph panel again");
 
 /**
  * Wie der Zuklapp-Schalter heisst, und warum er ein Wort traegt statt eines
@@ -299,7 +301,7 @@ export function graphFoldLabel(open: boolean, mode: GraphMode): string {
  * ist die Zusicherung, um die es geht.
  */
 export function legendFoldLabel(open: boolean): string {
-    return `${open ? 'hide' : 'show'} legend`;
+    return tr`${open ? t("hide") : t("show")} legend`;
 }
 
 /**
@@ -313,12 +315,12 @@ export function legendFoldLabel(open: boolean): string {
  * was ein Klick jetzt bewirkt.
  */
 export function graphModeActiveTitle(mode: GraphMode): string {
-    return `${mode} is already showing: click to fold the graph away`;
+    return tr`${mode} is already showing: click to fold the graph away`;
 }
 
 /** Was ein Chip sagt, solange die Sektion zugeklappt ist. */
 export function graphModeCollapsedTitle(mode: GraphMode): string {
-    return `open the graph again and show ${mode}`;
+    return tr`open the graph again and show ${mode}`;
 }
 
 /**
@@ -330,10 +332,10 @@ export function graphModeCollapsedTitle(mode: GraphMode): string {
  * zehn Sekunden Ziehen weiss aber niemand mehr, wie es angefangen hat, und
  * genau dafuer ist dieser Knopf da (Nutzerbefund 2026-08-30, AC5).
  */
-export const GALAXY_FIT_LABEL = 'fit view';
+export const GALAXY_FIT_LABEL = t("fit view");
 export const GALAXY_FIT_TITLE =
-    'put the whole graph back in the picture: the camera stands square on its widest side, '
-    + 'far enough away that every node fits';
+    t("put the whole graph back in the picture: the camera stands square on its widest side, ")
+    + t("far enough away that every node fits");
 
 /** Der Griff, an dem der Beweislauf die Projektion anfasst. */
 export interface AtlasHierarchySeam {
@@ -1233,10 +1235,10 @@ export default function GalaxyPanel(props: GalaxyPanelProps): JSX.Element {
     }, [props.workspaceExpanded, scope.scope, traceTypes, kinds, changeTraceTypes]);
 
     const renderLimits = <>
-        <label>Nodes <select aria-label="Rendered node limit" value={nodeBudget} onChange={event => setViewPreferences({ galaxyNodes: Number(event.target.value) })}>
+        <label>{t("Nodes ")}<select aria-label={t("Rendered node limit")} value={nodeBudget} onChange={event => setViewPreferences({ galaxyNodes: Number(event.target.value) })}>
             {GALAXY_NODE_LIMITS.map(value => <option key={value} value={value}>{value.toLocaleString()}</option>)}
         </select></label>
-        <label>Edges <select aria-label="Rendered edge limit" value={edgeBudget} onChange={event => setViewPreferences({ galaxyEdges: Number(event.target.value) })}>
+        <label>{t("Edges ")}<select aria-label={t("Rendered edge limit")} value={edgeBudget} onChange={event => setViewPreferences({ galaxyEdges: Number(event.target.value) })}>
             {GALAXY_EDGE_LIMITS.map(value => <option key={value} value={value}>{value.toLocaleString()}</option>)}
         </select></label>
     </>;
@@ -2159,14 +2161,14 @@ export default function GalaxyPanel(props: GalaxyPanelProps): JSX.Element {
     const headline =
         mode === 'hierarchy'
             ? projection ? readerProjection?.headline ?? hierarchyHeadline(projection, hierarchyOrigin)
-                : readerHierarchyActive ? layoutState === 'loading' ? 'Loading file relationships…'
-                    : layoutState === 'failed' ? `layout unavailable: ${error}`
-                    : `${props.focusFilePath} is not in the loaded graph layout.`
-                : props.focusWalkMessage || 'Choose a symbol to see its outgoing call hierarchy.'
+                : readerHierarchyActive ? layoutState === 'loading' ? t("Loading file relationships…")
+                    : layoutState === 'failed' ? tr`layout unavailable: ${error}`
+                    : tr`${props.focusFilePath} is not in the loaded graph layout.`
+                : props.focusWalkMessage || t("Choose a symbol to see its outgoing call hierarchy.")
             : layoutState === 'failed'
-                ? `layout unavailable: ${error}`
+                ? tr`layout unavailable: ${error}`
                 : layoutState === 'loading'
-                    ? `loading the layout of ${project.length > 0 ? project : 'no project'} ...`
+                    ? tr`loading the layout of ${project.length > 0 ? project : t("no project")} ...`
                     : layoutSummary((data ?? sceneData) as GraphData, LAYOUT_NODE_BUDGET);
 
     /*
@@ -2467,7 +2469,7 @@ export default function GalaxyPanel(props: GalaxyPanelProps): JSX.Element {
         >
             <header className="atlas-galaxy-head">
                 <div className="atlas-galaxy-head-row" data-hint-keep="graph head">
-                    <span className="atlas-galaxy-title">GALAXY</span>
+                    <span className="atlas-galaxy-title">{t("GALAXY")}</span>
                     {/*
                       * Die beiden Ansichten sind ein Paar, und der Rahmen um sie
                       * sagt das, bevor jemand klickt.
@@ -2498,7 +2500,7 @@ export default function GalaxyPanel(props: GalaxyPanelProps): JSX.Element {
                         data-mode={mode}
                         data-open={visible}
                         role="group"
-                        aria-label="which picture the panel shows"
+                        aria-label={t("which picture the panel shows")}
                     >
                         {GRAPH_MODES.map((candidate) => {
                             const available = true;
@@ -2517,11 +2519,11 @@ export default function GalaxyPanel(props: GalaxyPanelProps): JSX.Element {
                                                 : mode === candidate && candidate === 'galaxy' && !props.workspaceExpanded
                                                     ? graphModeActiveTitle(candidate)
                                                     : candidate === 'galaxy'
-                                                        ? 'galaxy: the whole project, laid out by the server'
-                                                        : readerHierarchyActive ? 'hierarchy: incoming relationships, file definitions, and outgoing relationships'
+                                                        ? t("galaxy: the whole project, laid out by the server")
+                                                        : readerHierarchyActive ? t("hierarchy: incoming relationships, file definitions, and outgoing relationships")
                                                         : scopedProjection ? galaxyHierarchyText.hint(scope.direction, { mixed: scopedProjection.band?.count ?? 0, names: scopedNames,
                                                             budget: SCOPED_HIERARCHY_LABEL_BUDGET, neighbours: scopedNeighbours, sides: scopedNamedSides })
-                                                        : 'hierarchy: what the chosen symbol reaches, one column per call depth'
+                                                        : t("hierarchy: what the chosen symbol reaches, one column per call depth")
                                     }
                                 >
                                     <button
@@ -2557,8 +2559,8 @@ export default function GalaxyPanel(props: GalaxyPanelProps): JSX.Element {
                         name="galaxy-legend"
                         text={
                             legendOpen
-                                ? 'hide the legend: what the colours, sizes and positions mean'
-                                : 'show the legend: what the colours, sizes and positions mean'
+                                ? t("hide the legend: what the colours, sizes and positions mean")
+                                : t("show the legend: what the colours, sizes and positions mean")
                         }
                     >
                         <button
@@ -2605,9 +2607,9 @@ export default function GalaxyPanel(props: GalaxyPanelProps): JSX.Element {
                     )}
                 </div>
                 {showCoverage && props.workspaceExpanded && !scope.scope && <span className="atlas-galaxy-coverage-key">
-                    <i aria-hidden="true" />{mode === 'hierarchy' ? 'Coverage shadow is shown in galaxy view' : coverageShadow
-                        ? `Coverage shadow: ${coverageShadow.counts.files} files, ${coverageShadow.counts.folders} folders with index gaps`
-                        : data?.missed_graph ? 'No coverage-shadow nodes reported' : 'Coverage shadow unavailable in this layout'}
+                    <i aria-hidden="true" />{mode === 'hierarchy' ? t("Coverage shadow is shown in galaxy view") : coverageShadow
+                        ? tr`Coverage shadow: ${coverageShadow.counts.files} files, ${coverageShadow.counts.folders} folders with index gaps`
+                        : data?.missed_graph ? t("No coverage-shadow nodes reported") : t("Coverage shadow unavailable in this layout")}
                 </span>}
                 <span
                     className="atlas-galaxy-headline"
@@ -2616,7 +2618,7 @@ export default function GalaxyPanel(props: GalaxyPanelProps): JSX.Element {
                     data-state={state}
                 >
                     {props.workspaceExpanded && mode === 'galaxy' && state === 'ready' && data
-                        ? `${shown?.nodes.length.toLocaleString() ?? 0} of ${data.total_nodes.toLocaleString()} nodes · ${shown?.edges.length.toLocaleString() ?? 0} relationships`
+                        ? tr`${shown?.nodes.length.toLocaleString() ?? 0} of ${data.total_nodes.toLocaleString()} nodes · ${shown?.edges.length.toLocaleString() ?? 0} relationships`
                         : headline}
                 </span>
                 {edgeNote.length > 0 && !scope.scope && (
@@ -2630,7 +2632,7 @@ export default function GalaxyPanel(props: GalaxyPanelProps): JSX.Element {
                     </span>
                 )}
             </header>
-            {(props.workspaceExpanded || scope.scope) && <div className="atlas-graph-exploration" aria-label="Graph scope" ref={explorationBar}
+            {(props.workspaceExpanded || scope.scope) && <div className="atlas-graph-exploration" aria-label={t("Graph scope")} ref={explorationBar}
                 data-scoped={props.workspaceExpanded && scope.scope ? 'true' : undefined}>
                 {historyControls}
                 {props.workspaceExpanded && <GalaxyNavigator embedded nodes={layout?.nodes ?? []} project={project} fetch={fetchImpl} onSelect={handleNodeClick} onSelectScope={next => { props.onClearSelection?.(); setBackgroundCleared(false); clearTrail(); scope.select(next); }} />}
@@ -2647,9 +2649,9 @@ export default function GalaxyPanel(props: GalaxyPanelProps): JSX.Element {
                         ? <button type="button" className="atlas-graph-scope-name" data-fit-whole="" onClick={openRoot} aria-label={galaxyToolbarText.openRootLabel(rootShown)}
                             title={galaxyToolbarText.openRootTitle(rootShown, scopedRoot?.file_path ?? '', scopedRoot?.start_line)}>{rootShown}</button>
                         : <strong className="atlas-graph-scope-name" data-fit-whole="" title={scopeTitle(scope.scope)}>{rootShown}</strong>}
-                    {props.workspaceExpanded && <select aria-label="Trace direction" title={galaxyToolbarText.traceTitle} value={scope.direction}
+                    {props.workspaceExpanded && <select aria-label={t("Trace direction")} title={galaxyToolbarText.traceTitle} value={scope.direction}
                         onChange={event => scope.setDirection(event.target.value as 'both' | 'inbound' | 'outbound')}>
-                        <option value="both">Both directions</option><option value="inbound">Incoming</option><option value="outbound">Outgoing</option>
+                        <option value="both">{t("Both directions")}</option><option value="inbound">{t("Incoming")}</option><option value="outbound">{t("Outgoing")}</option>
                     </select>}
                     {props.workspaceExpanded && <TraceEdgeFilter kinds={traceKinds} availableTypes={kinds.map(kind => kind.type)} selected={traceTypes} onChange={changeTraceTypes} />}
                     {/*
@@ -2659,8 +2661,8 @@ export default function GalaxyPanel(props: GalaxyPanelProps): JSX.Element {
                       */}
                     <button type="button" disabled={scope.depth <= scope.minDepth}
                         title={scope.loading ? galaxyLayerText.cancelLoading(scope.depth) : galaxyLayerText.removeLayer}
-                        onClick={cancelOrRemoveLayer} aria-label="Remove graph layer">−</button>
-                    <span>{scope.depth} {scope.depth === 1 ? 'layer' : 'layers'}</span>
+                        onClick={cancelOrRemoveLayer} aria-label={t("Remove graph layer")}>−</button>
+                    <span>{scope.depth} {scope.depth === 1 ? t("layer") : t("layers")}</span>
                     {/*
                       * G3: die Erklaerung zu Expand ist lang, und als natives
                       * `title` kam sie erst nach der Verzoegerung des Browsers.
@@ -2688,8 +2690,8 @@ export default function GalaxyPanel(props: GalaxyPanelProps): JSX.Element {
                         title={partial ? galaxyLayerText.partialTitle(partial.layer, partial.limit === 'nodes' ? nodeBudget : edgeBudget, partial.limit)
                             : [scopeStatus, scope.loading && scope.progress ? galaxyLayerText.loadingRequest(scope.progress.requests) : groupsText]
                                 .filter(Boolean).join('. ')}>{scopeStatus}</span>
-                    {scope.error && <span className="atlas-graph-scope-warning" title={scope.error}>Some relationships could not be loaded. <button type="button" onClick={scope.retry}>Retry</button></span>}
-                    {!props.workspaceExpanded && scope.complete && <small>All indexed direct dependencies included.</small>}
+                    {scope.error && <span className="atlas-graph-scope-warning" title={scope.error}>{t("Some relationships could not be loaded. ")}<button type="button" onClick={scope.retry}>{t("Retry")}</button></span>}
+                    {!props.workspaceExpanded && scope.complete && <small>{t("All indexed direct dependencies included.")}</small>}
                     {!props.workspaceExpanded && groupCount > 1 && <small className="atlas-graph-scope-groups" title={groupsText}>{galaxyToolbarText.groups(groupCount)}</small>}
                 </> : null}
                 {props.workspaceExpanded && <>
@@ -2713,10 +2715,8 @@ export default function GalaxyPanel(props: GalaxyPanelProps): JSX.Element {
                             {outsideLimits && <small>{outsideLimits}</small>}
                         </div>
                     </details> : renderLimits}
-                    {mode === 'galaxy' && !scope.scope && <label className="atlas-graph-coverage-filter" title="Show files and folders with indexing gaps">
-                        <input type="checkbox" aria-label="Show coverage graph" checked={showCoverage} onChange={event => setViewPreferences({ coverageShadow: event.target.checked })} />
-                        Coverage
-                    </label>}
+                    {mode === 'galaxy' && !scope.scope && <label className="atlas-graph-coverage-filter" title={t("Show files and folders with indexing gaps")}>
+                        <input type="checkbox" aria-label={t("Show coverage graph")} checked={showCoverage} onChange={event => setViewPreferences({ coverageShadow: event.target.checked })} />{t("Coverage")}</label>}
                     {!scope.scope && outsideLimits && <small>{outsideLimits}</small>}
                 </>}
             </div>}
@@ -2764,8 +2764,8 @@ export default function GalaxyPanel(props: GalaxyPanelProps): JSX.Element {
                                                 />
                                             );
                                             const label = swatch.count === undefined
-                                                ? swatch.label
-                                                : `${swatch.label} ${swatch.count}`;
+                                                ? kindLabel(swatch.label)
+                                                : `${kindLabel(swatch.label)} ${swatch.count}`;
                                             /*
                                              * Ein Schalter nur dort, wo es etwas zu
                                              * schalten gibt: der graue Punkt der
@@ -2780,8 +2780,8 @@ export default function GalaxyPanel(props: GalaxyPanelProps): JSX.Element {
                                                     name={`legend-${swatch.label}`}
                                                     text={
                                                         hidden
-                                                            ? `${swatch.label} is hidden: click to draw these edges again`
-                                                            : `hide the ${swatch.label} edges; the kind stays here, dimmed`
+                                                            ? tr`${kindLabel(swatch.label)} is hidden: click to draw these edges again`
+                                                            : tr`hide the ${kindLabel(swatch.label)} edges; the kind stays here, dimmed`
                                                     }
                                                 >
                                                     <button
@@ -2828,7 +2828,7 @@ export default function GalaxyPanel(props: GalaxyPanelProps): JSX.Element {
                             ].filter((part) => part.length > 0).join(' ')}
                             data-edge={legendEdge.below ? 'bottom' : 'top'}
                         >
-                            {legendEdge.below ? '▾ more' : '▴ more'}
+                            {legendEdge.below ? t("▾ more") : t("▴ more")}
                         </span>
                     )}
                 </div>
@@ -2938,10 +2938,10 @@ export default function GalaxyPanel(props: GalaxyPanelProps): JSX.Element {
                         onShadowNodeClick={(node) => {
                             if (coverageShadow) flyTo(coverageShadow.nodes, coverageShadow.ids, node.qualified_name ?? node.name);
                             props.onSelectShadowNode?.(node);
-                            setNote(`${node.file_path ?? node.name}: coverage shadow. Detailed indexing reasons are not included in this layout.`);
+                            setNote(tr`${node.file_path ?? node.name}: coverage shadow. Detailed indexing reasons are not included in this layout.`);
                         }}
                         renderShadowTooltip={(node) => <HoverCardHtml position={[node.x, node.y, node.z]}>
-                            <div className="atlas-coverage-tooltip"><b>{node.file_path ?? node.name}</b><p>Coverage shadow: not fully indexed.</p></div>
+                            <div className="atlas-coverage-tooltip"><b>{node.file_path ?? node.name}</b><p>{t("Coverage shadow: not fully indexed.")}</p></div>
                         </HoverCardHtml>}
                         onBackgroundClick={handleBackgroundClick}
                         renderTooltip={(node) => <NodeTooltipCard node={node} />}
@@ -2957,7 +2957,7 @@ export default function GalaxyPanel(props: GalaxyPanelProps): JSX.Element {
                 {state !== 'ready' && (
                     <p className="atlas-galaxy-placeholder" data-state={state}>
                         {headline}
-                        {mode === 'hierarchy' && state !== 'loading' && <><br /><button type="button" data-testid="atlas-hierarchy-choose-root" onClick={() => setChosenMode('galaxy')}>Choose a symbol in the galaxy</button></>}
+                        {mode === 'hierarchy' && state !== 'loading' && <><br /><button type="button" data-testid="atlas-hierarchy-choose-root" onClick={() => setChosenMode('galaxy')}>{t("Choose a symbol in the galaxy")}</button></>}
                     </p>
                 )}
                 {/*
@@ -3051,14 +3051,14 @@ export default function GalaxyPanel(props: GalaxyPanelProps): JSX.Element {
                     </div>
                 )}
             </div>
-            {selectionContent && <details className="galaxy-selection-evidence atlas-galaxy-selection-details" aria-label="Selection evidence">
-                <summary>Selection details</summary>
+            {selectionContent && <details className="galaxy-selection-evidence atlas-galaxy-selection-details" aria-label={t("Selection evidence")}>
+                <summary>{t("Selection details")}</summary>
                 <div className="atlas-galaxy-selection-details-body">{selectionContent}</div>
             </details>}
             {note.length > 0 && !scope.loading && (
                 <p className="atlas-galaxy-note" data-testid="atlas-galaxy-note">
                     {props.workspaceExpanded && note === GALAXY_NO_FOCUS_NOTE
-                        ? 'Select a node or entry point to attach graph context to chat.' : note}
+                        ? t("Select a node or entry point to attach graph context to chat.") : note}
                 </p>
             )}
         </section>

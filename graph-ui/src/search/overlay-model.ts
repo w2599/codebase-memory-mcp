@@ -1,3 +1,4 @@
+import { tr } from '../i18n/translate';
 /**
  * Was das Suchfenster ueber der Fusszeile zeigt, als reine Rechnung.
  *
@@ -79,12 +80,12 @@ export function searchRows(
 /** Die Kopfzeile des Fensters: was gefunden wurde und was davon zu sehen ist. */
 export function searchHeadline(query: string, total: number, shown: number): string {
     if (total === 0) {
-        return `no symbol answers "${query}"`;
+        return tr`no symbol answers "${query}"`;
     }
     if (total > shown) {
-        return `${total} hits for "${query}", top ${shown}`;
+        return tr`${total} hits for "${query}", top ${shown}`;
     }
-    return total === 1 ? `1 hit for "${query}"` : `${total} hits for "${query}"`;
+    return total === 1 ? tr`1 hit for "${query}"` : tr`${total} hits for "${query}"`;
 }
 
 /** Was eine Taste im Suchfenster bedeutet. */

@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 import { useEffect } from 'react';
 import type { BrowserChatContext } from '../browser-ai/chat-model';
 import { fairShares } from '../browser-ai/galaxy-evidence';
@@ -133,14 +134,14 @@ export interface GalaxyScope {
  * Branch node, round 4, N1); the snapshot keeps the names of the index. */
 export function galaxyScopeEvidence(scope: GalaxyScope): SelectionEvidence {
     const roots = scope.nodes.filter(node => scope.roots.has(node.id));
-    return { project: scope.project, view: 'galaxy', source: 'query_graph scoped indexed relationships', label: scopeDisplayName(scope.identity),
+    return { project: scope.project, view: 'galaxy', source: t("query_graph scoped indexed relationships"), label: scopeDisplayName(scope.identity),
         selected: { scope: scope.identity, rootCount: roots.length, roots: roots.slice(0, ROOTS_LISTED).map(root => ({ ...graphNodeEvidence(root),
             documentation: root.documentation?.slice(0, ROOT_DOCUMENTATION_CHARACTERS) })), omittedRoots: Math.max(0, roots.length - ROOTS_LISTED) },
         scope: { depth: scope.depth, direction: scope.direction, edgeTypes: scope.edgeTypes, nodes: scope.nodes.length, edges: scope.edges.length,
             ...scope.display ? { display: scope.display } : {} },
         relationships: scopeRelationships(scope.nodes, scope.edges, scope.roots),
         limitations: { state: scope.state, error: scope.error, exhausted: scope.exhausted, ...scope.renderLimit ? { renderLimit: scope.renderLimit } : {}, indexCoverage: 'unavailable',
-            interpretation: 'Static indexed relationships, not runtime activity. Scope completeness is relative to the indexed graph and selected depth/types.' } };
+            interpretation: t("Static indexed relationships, not runtime activity. Scope completeness is relative to the indexed graph and selected depth/types.") } };
 }
 
 type Row = Record<string, unknown>;

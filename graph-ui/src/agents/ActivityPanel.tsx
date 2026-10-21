@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 import { useMemo, useState } from 'react';
 import type { JSX } from 'react';
 import type { AgentEvent } from './agent-event';
@@ -40,7 +41,7 @@ export default function ActivityPanel(props: Props): JSX.Element {
                 <button type="button" onClick={props.onToggle}>{props.on ? s.disconnect : s.connect}</button></div>
         </header>
         <AgentSetup api={props.api} project={props.project} port={props.port} />
-        <p className="cbm-activity-source-status">{props.on ? props.status.state === 'connected' ? 'History polling connected' : 'Waiting for daemon history' : 'History polling off'} · {all.length ? <>Latest recorded tool call: <time dateTime={new Date(Math.max(...all.map(row => row.ts))).toISOString()}>{new Date(Math.max(...all.map(row => row.ts))).toLocaleString()}</time>. This does not mean an agent is currently working.</> : 'No recorded tool call has been received for this project.'}</p>
+        <p className="cbm-activity-source-status">{props.on ? props.status.state === 'connected' ? t("History polling connected") : t("Waiting for daemon history") : t("History polling off")} · {all.length ? <>{t("Latest recorded tool call: ")}<time dateTime={new Date(Math.max(...all.map(row => row.ts))).toISOString()}>{new Date(Math.max(...all.map(row => row.ts))).toLocaleString()}</time>{t(". This does not mean an agent is currently working.")}</> : t("No recorded tool call has been received for this project.")}</p>
         <div className="cbm-activity-metrics">
             {[[s.events, props.state.actors.filter((actor) => !actor.you).reduce((sum, actor) => sum + actor.count, 0)], [s.actors, props.state.actors.filter((actor) => !actor.you).length],
                 [s.gaps, props.state.missed], [s.dropped, props.status.drops]].map(([label, value]) =>
@@ -57,7 +58,7 @@ export default function ActivityPanel(props: Props): JSX.Element {
                 <option value="">{s.allRuns}</option>{runs.map((value) => <option key={value}>{value}</option>)}
             </select>
             <select aria-label={s.kind} value={filter.kind} onChange={(event) => set({ kind: event.target.value as ActivityFilter['kind'] })}>
-                <option value="">{s.allKinds}</option>{s.kinds.map((value) => <option key={value}>{value}</option>)}
+                <option value="">{s.allKinds}</option>{s.kinds.map((value) => <option key={value} value={value}>{t(value)}</option>)}
             </select>
             <button type="button" onClick={() => setFilter(emptyFilter)}>{s.clear}</button>
         </div>

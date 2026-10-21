@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /**
  * Was die Galaxie ueber ihre Knoten weiss, ohne dass ein Bild dafuer noetig
  * waere.
@@ -119,22 +120,22 @@ export function targetRefOfNode(node: GraphNode): SymbolRef | undefined {
 export function layoutSummary(data: GraphData, budget: number = LAYOUT_NODE_BUDGET): string {
     const shown = data.nodes.length;
     const total = data.total_nodes;
-    const head = `${shown} nodes, ${data.edges.length} edges from ${LAYOUT_ROUTE}`;
+    const head = tr`${shown} nodes, ${data.edges.length} edges from ${LAYOUT_ROUTE}`;
     if (total > shown) {
-        return `${head}; ${total} nodes indexed, ${shown} fit the ${budget} node budget`;
+        return tr`${head}; ${total} nodes indexed, ${shown} fit the ${budget} node budget`;
     }
     return head;
 }
 
 /** Was das Panel sagt, wenn das gesuchte Symbol nicht in der Wolke liegt. */
 export function missingNodeNote(name: string, budget: number = LAYOUT_NODE_BUDGET): string {
-    return `${name} is not in the loaded layout (${budget} node budget)`;
+    return tr`${name} is not in the loaded layout (${budget} node budget)`;
 }
 
 /** Was das Panel sagt, wenn ein angeklickter Knoten keine Datei hat. */
 export function unopenableNodeNote(node: GraphNode): string {
-    return `${graphNodeName(node)} is a ${node.label} node and carries no file in the index, so there is nothing to open`;
+    return tr`${graphNodeName(node)} is a ${node.label} node and carries no file in the index, so there is nothing to open`;
 }
 
 /** Was das Panel sagt, solange kein Symbol im Fokus steht. */
-export const GALAXY_NO_FOCUS_NOTE = 'Open a file or select a symbol to focus the graph.';
+export const GALAXY_NO_FOCUS_NOTE = t("Open a file or select a symbol to focus the graph.");

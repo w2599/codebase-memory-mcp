@@ -1,35 +1,36 @@
+import { t, tr } from '../i18n/translate';
 import type { DroppedReason } from './explanation-response';
 import { galaxyNodeNameText, type BranchNameWords } from '../galaxy/galaxy-strings';
 
 export const browserAiText = {
-    title: 'Browser AI',
-    subtitle: 'Optional explanations, generated on this device.',
-    close: 'Close browser AI',
-    model: 'Model',
-    download: 'Download & enable',
-    prepare: 'Enable from cache / download',
-    preparing: 'Preparing the browser model...',
-    ready: 'Ready on this device',
-    generating: 'Writing a short explanation...',
-    off: 'Off',
-    cancel: 'Cancel',
-    disable: 'Disable',
-    remove: 'Remove downloaded model',
-    removing: 'Removing the model cache...',
-    explain: 'Explain source',
-    failed: 'Browser AI could not complete this step.',
-    optIn: 'Enabling downloads about 566 MB from Hugging Face if the files are not already cached. Model files stay in this browser. Opening this panel makes no download request.',
-    device: 'Requires WebGPU with shader-f16 and enough free GPU memory. Runtime code is bundled with CBM. The local-model sidecar remains available separately.',
-    privacy: 'Source is processed on this device. It is not sent to Hugging Face or another inference service.',
-    storage: 'Downloads use a dedicated browser cache. Disable stops the worker; Remove also deletes this model cache. Closing the panel disables the model.',
-    excerpt: 'Source to explain',
-    truncated: 'Only the first 6,000 characters of this excerpt will be used.',
-    noSource: 'Open a file or focus a function in Explore, then return here.',
-    output: 'Unverified explanation',
-    outputNote: 'Generated text can be wrong. Check it against the source and indexed evidence.',
-    provenance: 'Model details',
-    revision: 'Pinned revision',
-    format: 'q4f16 · 160 output tokens maximum',
+    title: t("Browser AI"),
+    subtitle: t("Optional explanations, generated on this device."),
+    close: t("Close browser AI"),
+    model: t("Model"),
+    download: t("Download & enable"),
+    prepare: t("Enable from cache / download"),
+    preparing: t("Preparing the browser model..."),
+    ready: t("Ready on this device"),
+    generating: t("Writing a short explanation..."),
+    off: t("Off"),
+    cancel: t("Cancel"),
+    disable: t("Disable"),
+    remove: t("Remove downloaded model"),
+    removing: t("Removing the model cache..."),
+    explain: t("Explain source"),
+    failed: t("Browser AI could not complete this step."),
+    optIn: t("Enabling downloads about 566 MB from Hugging Face if the files are not already cached. Model files stay in this browser. Opening this panel makes no download request."),
+    device: t("Requires WebGPU with shader-f16 and enough free GPU memory. Runtime code is bundled with CBM. The local-model sidecar remains available separately."),
+    privacy: t("Source is processed on this device. It is not sent to Hugging Face or another inference service."),
+    storage: t("Downloads use a dedicated browser cache. Disable stops the worker; Remove also deletes this model cache. Closing the panel disables the model."),
+    excerpt: t("Source to explain"),
+    truncated: t("Only the first 6,000 characters of this excerpt will be used."),
+    noSource: t("Open a file or focus a function in Explore, then return here."),
+    output: t("Unverified explanation"),
+    outputNote: t("Generated text can be wrong. Check it against the source and indexed evidence."),
+    provenance: t("Model details"),
+    revision: t("Pinned revision"),
+    format: t("q4f16 · 160 output tokens maximum"),
     progress: (loaded: number, total: number) => `${(loaded / 1_000_000).toFixed(1)} / ${(total / 1_000_000).toFixed(1)} MB`,
     location: (path: string, line: number) => `${path}:${line}`,
 };
@@ -44,7 +45,7 @@ const GERMAN_KINDS: Readonly<Record<string, readonly [string, string, 'f' | 'm' 
     project: ['Projekt', 'Projekte', 'n'], package: ['Paket', 'Pakete', 'n'], folder: ['Ordner', 'Ordner', 'm'], file: ['Datei', 'Dateien', 'f'],
     module: ['Modul', 'Module', 'n'], class: ['Klasse', 'Klassen', 'f'], function: ['Funktion', 'Funktionen', 'f'], method: ['Methode', 'Methoden', 'f'],
     interface: ['Schnittstelle', 'Schnittstellen', 'f'], enum: ['Aufzählung', 'Aufzählungen', 'f'], type: ['Typ', 'Typen', 'm'], variable: ['Variable', 'Variablen', 'f'],
-    route: ['Route', 'Routen', 'f'], resource: ['Ressource', 'Ressourcen', 'f'], section: ['Abschnitt', 'Abschnitte', 'm'], field: ['Feld', 'Felder', 'n'],
+    route: ["Route", 'Routen', 'f'], resource: ['Ressource', 'Ressourcen', 'f'], section: ['Abschnitt', 'Abschnitte', 'm'], field: ['Feld', 'Felder', 'n'],
     struct: ['Struktur', 'Strukturen', 'f'], trait: ['Trait', 'Traits', 'm'], macro: ['Makro', 'Makros', 'n'], constant: ['Konstante', 'Konstanten', 'f'],
     namespace: ['Namensraum', 'Namensräume', 'm'], property: ['Eigenschaft', 'Eigenschaften', 'f'], decorator: ['Dekorator', 'Dekoratoren', 'm'],
     test: ['Test', 'Tests', 'm'], channel: ['Kanal', 'Kanäle', 'm'], node: ['Knoten', 'Knoten', 'm'], symbol: ['Symbol', 'Symbole', 'n'],
@@ -221,67 +222,62 @@ export const relationshipWords: { en: RelationshipWords; de: RelationshipWords }
 const tokens = (value: number) => value.toLocaleString('en-US');
 const code = (text: string) => `\`${text.replace(/`/g, "'")}\``;
 export const browserChatText = {
-    shortened: 'Token limit reached: the answer was cut short',
+    shortened: t("Token limit reached: the answer was cut short"),
     /** What the expanded token-limit note says, with the limits the answer ran into. */
-    limitReached: (input: number, output: number) => `This answer used all ${tokens(output)} output tokens it was allowed. The input limit is ${tokens(input)} tokens for the question, its source and earlier messages.`,
+    limitReached: (input: number, output: number) => tr`This answer used all ${tokens(output)} output tokens it was allowed. The input limit is ${tokens(input)} tokens for the question, its source and earlier messages.`,
     /** `cap` is what automatic explanations write at most; below it they stop at the reader's own limit,
      * which is no design choice to keep them short (W6). */
-    limitAutomatic: (automaticInput: number, automatic: number, input: number, output: number, cap: number) => `Automatic explanations stop after ${tokens(automatic)} output tokens`
-        + `${automatic < cap ? ', your output limit,' : ' so they stay short,'} and read at most ${tokens(automaticInput)} input tokens of source and facts. `
-        + `A question in the chat may read up to ${tokens(input)} input tokens and answer with up to ${tokens(output)} output tokens.${output > automatic ? ' Ask in the chat for a longer answer.' : ''}`,
-    automaticRoom: (cap: number) => `Raise the output limit in the agent configuration and automatic explanations can use up to ${tokens(cap)} output tokens.`,
-    outputRoom: (output: number, max: number) => output < max ? `You can raise the output limit up to ${tokens(max)} tokens in the agent configuration.`
-        : `The output limit is at its maximum of ${tokens(max)} tokens.`,
+    limitAutomatic: (automaticInput: number, automatic: number, input: number, output: number, cap: number) => tr`Automatic explanations stop after ${tokens(automatic)} output tokens${automatic < cap ? t(", your output limit,") : t(" so they stay short,")} and read at most ${tokens(automaticInput)} input tokens of source and facts. A question in the chat may read up to ${tokens(input)} input tokens and answer with up to ${tokens(output)} output tokens.${output > automatic ? t(" Ask in the chat for a longer answer.") : ''}`,
+    automaticRoom: (cap: number) => tr`Raise the output limit in the agent configuration and automatic explanations can use up to ${tokens(cap)} output tokens.`,
+    outputRoom: (output: number, max: number) => output < max ? tr`You can raise the output limit up to ${tokens(max)} tokens in the agent configuration.`
+        : tr`The output limit is at its maximum of ${tokens(max)} tokens.`,
     /** At the maximum a larger model writes no longer answer: every model stops at the same limit (W6). */
-    narrower: (sameForLarger: boolean) => `${sameForLarger ? 'Larger models have the same limit. ' : ''}Ask about one part of the code, or ask for the rest of the answer.`,
-    changeOutputLimit: 'Change the output limit',
-    largerModels: (sameLimit: boolean) => `A larger model may stay closer to the question${sameLimit ? ', but its output limit is the same' : ''}. `
-        + 'Each is a one-time download and needs more memory than its download size:',
-    modelDownload: (name: string, size: string) => `${name} · ${size} download`,
-    newConversation: 'New conversation',
+    narrower: (sameForLarger: boolean) => tr`${sameForLarger ? t("Larger models have the same limit. ") : ''}Ask about one part of the code, or ask for the rest of the answer.`,
+    changeOutputLimit: t("Change the output limit"),
+    largerModels: (sameLimit: boolean) => tr`A larger model may stay closer to the question${sameLimit ? t(", but its output limit is the same") : ''}. Each is a one-time download and needs more memory than its download size:`,
+    modelDownload: (name: string, size: string) => tr`${name} · ${size} download`,
+    newConversation: t("New conversation"),
     /** The model's state in the agent configuration (K10). */
-    cached: 'Cached',
-    loadCached: 'Load model (cached, no download)',
-    autoLoad: 'Load the chosen model on start when it is cached',
-    autoLoadNote: 'Only from this browser\'s cache; nothing is downloaded on start. A project switch stays in this page and keeps a loaded model without loading it again, so this option only matters when the page is opened or reloaded.',
-    resumeFailed: 'The cached model could not be loaded without a download. Load it in the agent configuration.',
+    cached: t("Cached"),
+    loadCached: t("Load model (cached, no download)"),
+    autoLoad: t("Load the chosen model on start when it is cached"),
+    autoLoadNote: t("Only from this browser's cache; nothing is downloaded on start. A project switch stays in this page and keeps a loaded model without loading it again, so this option only matters when the page is opened or reloaded."),
+    resumeFailed: t("The cached model could not be loaded without a download. Load it in the agent configuration."),
     /** Under an answer that names what its source and graph facts do not contain (K12). */
     /** Six names and the rest counted; with many unknown names the answer is most likely invented (W7). */
     unsupportedNames: (names: readonly string[]) => {
         const listed = `${names.slice(0, 6).join(', ')}${names.length > 6 ? `, +${(names.length - 6).toLocaleString('en-US')} more` : ''}`;
-        return names.length >= 8 ? `${names.length.toLocaleString('en-US')} names in this answer are not in the source or graph facts it was given: ${listed}. The answer is likely made up; do not rely on it.`
-            : `Not in the source or graph facts this answer was given: ${listed}. Check these names before relying on them.`;
+        return names.length >= 8 ? tr`${names.length.toLocaleString('en-US')} names in this answer are not in the source or graph facts it was given: ${listed}. The answer is likely made up; do not rely on it.`
+            : tr`Not in the source or graph facts this answer was given: ${listed}. Check these names before relying on them.`;
     },
     /** Who wrote which part of a grounded automatic explanation (K7). */
-    factsAndSentence: 'Facts listed from the indexed graph; the last sentence is generated by the model.',
-    factsOnly: 'Listed from the indexed graph; not generated by the model.',
+    factsAndSentence: t("Facts listed from the indexed graph; the last sentence is generated by the model."),
+    factsOnly: t("Listed from the indexed graph; not generated by the model."),
     /** What the left out sentence claimed or named, and what it was checked against (W5). */
-    sentenceDropped: (reason?: DroppedReason) => `Listed from the indexed graph. The model's sentence ${!reason ? 'was not supported by the source or the facts'
-        : reason.kind === 'claim' ? `claimed something the source does not show (here: "${reason.text}")`
-            : `named something that is in neither the source nor the facts (here: ${code(reason.text)})`} and was left out.`,
-    explanationDropped: (reason?: DroppedReason) => `The model's explanation ${!reason ? 'was not supported by the source'
-        : `${reason.kind === 'claim' ? 'claimed' : 'named'} something the source does not show (here: ${reason.kind === 'claim' ? `"${reason.text}"` : code(reason.text)})`}`
-        + ' and was left out. Ask a question about the code instead.',
+    sentenceDropped: (reason?: DroppedReason) => tr`Listed from the indexed graph. The model's sentence ${!reason ? t("was not supported by the source or the facts")
+        : reason.kind === 'claim' ? tr`claimed something the source does not show (here: "${reason.text}")`
+            : tr`named something that is in neither the source nor the facts (here: ${code(reason.text)})`} and was left out.`,
+    explanationDropped: (reason?: DroppedReason) => tr`The model's explanation ${!reason ? t("was not supported by the source")
+        : tr`${reason.kind === 'claim' ? t("claimed") : t("named")} something the source does not show (here: ${reason.kind === 'claim' ? `"${reason.text}"` : code(reason.text)})`} and was left out. Ask a question about the code instead.`,
     /** The same for facts read from an open workflow file (K12). */
-    fileFactsAndSentence: 'Facts read from the file; the text after them is generated by the model.',
-    fileFactsOnly: 'Read from the file; not generated by the model.',
-    fileSentenceDropped: (reason?: DroppedReason) => `Read from the file. The model's text ${!reason ? 'was not supported by the file'
-        : `${reason.kind === 'claim' ? 'claimed' : 'named'} something the file does not show (here: ${reason.kind === 'claim' ? `"${reason.text}"` : code(reason.text)})`}`
-        + ' and was left out.',
-    writingSentence: 'Reading the source; the model is adding one sentence…',
-    readingFacts: 'Listing the facts…',
+    fileFactsAndSentence: t("Facts read from the file; the text after them is generated by the model."),
+    fileFactsOnly: t("Read from the file; not generated by the model."),
+    fileSentenceDropped: (reason?: DroppedReason) => tr`Read from the file. The model's text ${!reason ? t("was not supported by the file")
+        : tr`${reason.kind === 'claim' ? t("claimed") : t("named")} something the file does not show (here: ${reason.kind === 'claim' ? `"${reason.text}"` : code(reason.text)})`} and was left out.`,
+    writingSentence: t("Reading the source; the model is adding one sentence…"),
+    readingFacts: t("Listing the facts…"),
     /** Above the first question about another file or selection (K17); topicText has it in both languages (W8). */
-    topicBreak: (label: string) => `New topic: ${label}. Earlier messages are not sent with these questions.`,
+    topicBreak: (label: string) => tr`New topic: ${label}. Earlier messages are not sent with these questions.`,
     capacity: (nodes: number, edges: number, model: string, shown: number) =>
-        `${nodes} nodes / ${edges} edges: too large for the local ${model} model; showing ${shown}`,
-    historyTrimmed: (count: number) => `${count} earlier ${count === 1 ? 'message was' : 'messages were'} left out to fit the input limit.`,
-    waitingForScope: 'Waiting for the complete scope before explaining…',
-    partialScope: 'This scope did not load completely, so it is not explained automatically.',
-    tokenLimits: (model: string) => `Token limits for ${model}`,
-    inputLimit: 'Input (context)',
-    outputLimit: 'Output (answer)',
-    limitRange: (min: number, max: number) => `${min.toLocaleString('en-US')} to ${max.toLocaleString('en-US')} tokens`,
-    limitsNote: (input: number, output: number) => `Stored in this browser for each model. Automatic explanations use at most ${input.toLocaleString('en-US')} input and ${output.toLocaleString('en-US')} output tokens.`,
+        tr`${nodes} nodes / ${edges} edges: too large for the local ${model} model; showing ${shown}`,
+    historyTrimmed: (count: number) => tr`${count} earlier ${count === 1 ? t("message was") : t("messages were")} left out to fit the input limit.`,
+    waitingForScope: t("Waiting for the complete scope before explaining…"),
+    partialScope: t("This scope did not load completely, so it is not explained automatically."),
+    tokenLimits: (model: string) => tr`Token limits for ${model}`,
+    inputLimit: t("Input (context)"),
+    outputLimit: t("Output (answer)"),
+    limitRange: (min: number, max: number) => tr`${min.toLocaleString('en-US')} to ${max.toLocaleString('en-US')} tokens`,
+    limitsNote: (input: number, output: number) => tr`Stored in this browser for each model. Automatic explanations use at most ${input.toLocaleString('en-US')} input and ${output.toLocaleString('en-US')} output tokens.`,
 };
 
 /** The divider above the first question about another file or selection, in the language of that question (K17, W8). */

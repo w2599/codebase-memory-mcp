@@ -1,3 +1,4 @@
+import { tr } from '../i18n/translate';
 /**
  * One question, end to end: classify, fetch, compile, ask, check.
  *
@@ -240,7 +241,7 @@ export async function askAtlas(input: AskInput, id = 0): Promise<ChatTurn> {
         return {
             ...turn,
             status: 'failed',
-            message: `the cards could not be compiled: ${error instanceof Error ? error.message : String(error)}`,
+            message: tr`the cards could not be compiled: ${error instanceof Error ? error.message : String(error)}`,
         };
     }
 

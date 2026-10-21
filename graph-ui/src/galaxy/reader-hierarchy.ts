@@ -1,3 +1,4 @@
+import { tr } from '../i18n/translate';
 import { hierarchyBlockPositions } from './hierarchy-blocks';
 import {
     HIERARCHY_COLUMN_WIDTH, HIERARCHY_LABEL_BUDGET, HIERARCHY_LANE_SPACING,
@@ -105,17 +106,17 @@ export function projectReaderHierarchy(
             return lane === 0 ? edge : { ...edge, offset: lane * HIERARCHY_LANE_SPACING };
         });
     const missing = roots.length + context.length - nodes.length;
-    const scope = range ? `selected code in ${filePath.split('/').pop()}` : filePath.split('/').pop() ?? filePath;
+    const scope = range ? tr`selected code in ${filePath.split('/').pop()}` : filePath.split('/').pop() ?? filePath;
     const bounds = layout.total_nodes > layout.nodes.length
-        ? ` · ${layout.nodes.length} of ${layout.total_nodes} indexed nodes loaded` : '';
-    const omitted = missing > 0 ? ` · ${missing} related nodes omitted at the ${limit}-node limit` : '';
+        ? tr` · ${layout.nodes.length} of ${layout.total_nodes} indexed nodes loaded` : '';
+    const omitted = missing > 0 ? tr` · ${missing} related nodes omitted at the ${limit}-node limit` : '';
     return {
         data: { nodes, edges: projectedEdges, total_nodes: roots.length + context.length },
         rootId: -1, rootKey: filePath, rootName: scope, symbols: nodes.length,
         depth: columns.size, truncated: missing > 0 || layout.total_nodes > layout.nodes.length,
         cap: limit, walkDepth: 1, missing, placements,
-        headline: `File relationships · ${scope} · ${nodes.length} nodes`,
-        edgeNote: `${projectedEdges.length} recorded relationships from the loaded graph${bounds}${omitted}`,
+        headline: tr`File relationships · ${scope} · ${nodes.length} nodes`,
+        edgeNote: tr`${projectedEdges.length} recorded relationships from the loaded graph${bounds}${omitted}`,
         message: focus.message,
     };
 }

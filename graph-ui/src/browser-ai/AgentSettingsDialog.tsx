@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import './agent-settings.css';
@@ -19,8 +20,8 @@ export default function AgentSettingsDialog({ children, onClose }: { children: R
             const bounds = event.currentTarget.getBoundingClientRect();
             if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) onClose();
         }}>
-        <header><div><h2 id="cbm-agent-settings-title">Agent configuration</h2><p>Runs locally in this browser.</p></div>
-            <button type="button" aria-label="Close agent configuration" onClick={onClose}>×</button></header>
+        <header><div><h2 id="cbm-agent-settings-title">{t("Agent configuration")}</h2><p>{t("Runs locally in this browser.")}</p></div>
+            <button type="button" aria-label={t("Close agent configuration")} onClick={onClose}>×</button></header>
         <div className="cbm-agent-settings-body">{children}</div>
     </dialog>, document.body);
 }

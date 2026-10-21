@@ -1,0 +1,16 @@
+.atlas-language-select {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-inline: 0.4rem;
+    white-space: nowrap;
+    font-size: 0.75rem;
+}
+.atlas-language-select select {
+    font: inherit;
+    color: inherit;
+    background: var(--atlas-panel);
+    border: 1px solid var(--atlas-line);
+    border-radius: 3px;
+    padding: 0.2rem;
+}

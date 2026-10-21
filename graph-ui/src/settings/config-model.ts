@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /** The daemon owns the registry, validation, provenance and apply timing. */
 export interface ConfigSetting {
     key: string;
@@ -31,7 +32,7 @@ const record = (value: unknown): value is Record<string, unknown> => !!value && 
 const nullableString = (value: unknown): value is string | null => value === null || typeof value === 'string';
 
 export function readConfigSnapshot(value: unknown): ConfigSnapshot {
-    if (!record(value) || typeof value.revision !== 'string' || !Array.isArray(value.settings)) throw new Error('The daemon returned an invalid configuration snapshot.');
+    if (!record(value) || typeof value.revision !== 'string' || !Array.isArray(value.settings)) throw new Error(t("The daemon returned an invalid configuration snapshot."));
     const keys = new Set<string>();
     for (const item of value.settings) {
         if (!record(item) || typeof item.key !== 'string' || !item.key || ['__proto__', 'constructor', 'prototype'].includes(item.key) || keys.has(item.key)
@@ -43,7 +44,7 @@ export function readConfigSnapshot(value: unknown): ConfigSnapshot {
             || (item.options !== undefined && (!Array.isArray(item.options) || item.options.some(option => typeof option !== 'string')))
             || (item.type === 'enum' && (!Array.isArray(item.options) || !item.options.length))
             || ['minimum', 'maximum'].some(key => item[key] !== undefined && (typeof item[key] !== 'number' || !Number.isFinite(item[key])))) {
-            throw new Error('The daemon returned an invalid setting. Configuration was not changed.');
+            throw new Error(t("The daemon returned an invalid setting. Configuration was not changed."));
         }
         keys.add(item.key);
     }
@@ -52,16 +53,16 @@ export function readConfigSnapshot(value: unknown): ConfigSnapshot {
 
 export function configValueError(setting: ConfigSetting, value: string | null): string | undefined {
     if (value === null) return;
-    if (!setting.editable) return 'This setting is controlled outside the running daemon.';
-    if (setting.type === 'boolean' && !['true', 'false'].includes(value)) return 'Choose on or off.';
-    if (setting.type === 'enum' && !setting.options?.includes(value)) return 'Choose a listed value.';
+    if (!setting.editable) return t('This setting is controlled outside the running daemon.');
+    if (setting.type === 'boolean' && !['true', 'false'].includes(value)) return t('Choose on or off.');
+    if (setting.type === 'enum' && !setting.options?.includes(value)) return t('Choose a listed value.');
     if (setting.type === 'integer' || setting.type === 'number') {
-        if (!value.trim() || (setting.type === 'integer' && !/^-?\d+$/.test(value)) || !Number.isFinite(Number(value))) return 'Enter a valid number.';
+        if (!value.trim() || (setting.type === 'integer' && !/^-?\d+$/.test(value)) || !Number.isFinite(Number(value))) return t('Enter a valid number.');
         const number = Number(value);
-        if (setting.type === 'integer' && !Number.isSafeInteger(number)) return 'Enter a safe whole number.';
-        if (setting.minimum !== undefined && number < setting.minimum) return `Minimum: ${setting.minimum}.`;
-        if (setting.maximum !== undefined && number > setting.maximum) return `Maximum: ${setting.maximum}.`;
+        if (setting.type === 'integer' && !Number.isSafeInteger(number)) return t('Enter a safe whole number.');
+        if (setting.minimum !== undefined && number < setting.minimum) return tr`Minimum: ${setting.minimum}.`;
+        if (setting.maximum !== undefined && number > setting.maximum) return tr`Maximum: ${setting.maximum}.`;
     }
 }
 
-export const CONFIG_TEXT = { title: 'Config', open: 'Open configuration', close: 'Close configuration' } as const;
+export const CONFIG_TEXT = { title: t('Config'), open: t('Open configuration'), close: t('Close configuration') } as const;

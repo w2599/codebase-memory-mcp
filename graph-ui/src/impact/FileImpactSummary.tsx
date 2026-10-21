@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 import { useEffect, useId, useMemo, useState } from 'react';
 import type { JSX } from 'react';
 import { evidenceTarget, fetchSelectionImpact } from './selection-impact';
@@ -59,7 +60,7 @@ type Reading = { key: string } & (
 );
 
 function countLabel(count: number, noun: string, incomplete = false): string {
-    return `${incomplete ? 'at least ' : ''}${count} ${noun}${count === 1 ? '' : 's'}`;
+    return `${incomplete ? t("at least ") : ''}${count} ${noun}${count === 1 ? '' : 's'}`;
 }
 
 export default function FileImpactSummary({ project, target, onOpen, expectedGeneration,
@@ -109,7 +110,7 @@ export default function FileImpactSummary({ project, target, onOpen, expectedGen
                 attempts++;
                 if (reply.status === 'ready') {
                     if (reply.project !== project || reply.file_path !== file)
-                        throw new Error('The response belongs to another selection.');
+                        throw new Error(t("The response belongs to another selection."));
                     setReading({ key: requestKey, status: 'ready', data: reply });
                     setLastReady({ key: selectionKey, data: reply });
                 } else if (reply.status === 'failed') {
@@ -117,7 +118,7 @@ export default function FileImpactSummary({ project, target, onOpen, expectedGen
                 } else if (attempts < 80) {
                     setReading({ key: requestKey, status: reply.status });
                     timer = setTimeout(() => { void read(); }, 500);
-                } else setReading({ key: requestKey, status: 'failed', error: 'Still waiting for the local analysis.' });
+                } else setReading({ key: requestKey, status: 'failed', error: t("Still waiting for the local analysis.") });
             } catch (cause) {
                 if (!controller.signal.aborted) setReading({ key: requestKey, status: 'failed',
                     error: cause instanceof Error ? cause.message : String(cause) });
@@ -134,65 +135,64 @@ export default function FileImpactSummary({ project, target, onOpen, expectedGen
 
     const notes: string[] = [];
     if (data && aggregate) {
-        if (expectedGeneration && expectedGeneration !== data.snapshot.generation) notes.push('Index snapshot differs');
-        else if (data.snapshot.index_revision === 'unknown') notes.push('Index freshness unverified');
-        if (aggregate.filesIncomplete && data.structural.available) notes.push('Graph sample limited');
-        if (data.snapshot.coverage.some(row => row.count > 0)) notes.push('Index gaps');
-        else if (data.snapshot.coverage_recording !== 'complete') notes.push('Coverage incomplete');
-        if (data.history.available && (data.history.truncated || data.history.shallow || data.history.cochanges_omitted > 0)) notes.push('Git sample limited');
-        if (data.history.selection_uncommitted) notes.push('File has uncommitted changes');
-        if (data.scope === 'file' && (qualifiedName || id !== undefined)) notes.push('File-level evidence');
+        if (expectedGeneration && expectedGeneration !== data.snapshot.generation) notes.push(t("Index snapshot differs"));
+        else if (data.snapshot.index_revision === 'unknown') notes.push(t("Index freshness unverified"));
+        if (aggregate.filesIncomplete && data.structural.available) notes.push(t("Graph sample limited"));
+        if (data.snapshot.coverage.some(row => row.count > 0)) notes.push(t("Index gaps"));
+        else if (data.snapshot.coverage_recording !== 'complete') notes.push(t("Coverage incomplete"));
+        if (data.history.available && (data.history.truncated || data.history.shallow || data.history.cochanges_omitted > 0)) notes.push(t("Git sample limited"));
+        if (data.history.selection_uncommitted) notes.push(t("File has uncommitted changes"));
+        if (data.scope === 'file' && (qualifiedName || id !== undefined)) notes.push(t("File-level evidence"));
     }
-    const scope = qualifiedName || id !== undefined ? target?.name ?? qualifiedName ?? 'Selected symbol' : 'File';
-    return <section className="file-impact-summary" aria-label="File impact summary"
+    const scope = qualifiedName || id !== undefined ? target?.name ?? qualifiedName ?? t("Selected symbol") : 'File';
+    return <section className="file-impact-summary" aria-label={t("File impact summary")}
         data-status={file ? current?.status ?? 'loading' : 'idle'}>
         <div className="file-impact-summary-row">
-            <span className="file-impact-summary-label" title={file}>{scope} impact</span>
-            {!file && <span className="file-impact-summary-muted">Select a file to see its dependents.</span>}
+            <span className="file-impact-summary-label" title={file}>{scope}{t(" impact")}</span>
+            {!file && <span className="file-impact-summary-muted">{t("Select a file to see its dependents.")}</span>}
             {file && waiting && !kept
-                && <span role="status" className="file-impact-summary-muted">{current?.status === 'busy' ? 'Waiting for local analysis…' : 'Reading dependencies…'}</span>}
+                && <span role="status" className="file-impact-summary-muted">{current?.status === 'busy' ? t("Waiting for local analysis…") : t("Reading dependencies…")}</span>}
             {current?.status === 'failed' && <><span role="alert" className="file-impact-summary-warning"
-                title={current.error}>Impact unavailable</span><button type="button" onClick={retryNow}>Retry</button></>}
+                title={current.error}>{t("Impact unavailable")}</span><button type="button" onClick={retryNow}>{t("Retry")}</button></>}
             {data && aggregate && <>
                 <div className="file-impact-summary-metrics">
                     {data.structural.available ? <>
-                        <span title="Indexed caller and importer nodes; not a runtime count.">{countLabel(data.structural.direct, 'direct dependent', data.structural.truncated)}</span>
-                        <span>{countLabel(aggregate.files.length, 'affected file', aggregate.filesIncomplete)}</span>
-                        <span title="Distinct returned files with a test-candidate dependency. File-path classification does not prove test coverage.">{countLabel(aggregate.testFiles, 'test file', aggregate.filesIncomplete)}</span>
-                    </> : <span className="file-impact-summary-warning" title={data.structural.error}>Graph unavailable</span>}
-                    {data.history.available ? <span title={`Local Git sample: ${data.history.commits_scanned} commits, up to ${data.history.window_days} days. Historical association is not a dependency.`}>
-                        Git: {countLabel(data.history.selection_commits, 'sampled commit')} · {countLabel(aggregate.cochanges.length, 'co-changed file', data.history.cochanges_omitted > 0)}
-                    </span> : <span className="file-impact-summary-muted" title={data.history.error}>Git unavailable</span>}
+                        <span title={t("Indexed caller and importer nodes; not a runtime count.")}>{countLabel(data.structural.direct, t("direct dependent"), data.structural.truncated)}</span>
+                        <span>{countLabel(aggregate.files.length, t("affected file"), aggregate.filesIncomplete)}</span>
+                        <span title={t("Distinct returned files with a test-candidate dependency. File-path classification does not prove test coverage.")}>{countLabel(aggregate.testFiles, t("test file"), aggregate.filesIncomplete)}</span>
+                    </> : <span className="file-impact-summary-warning" title={data.structural.error}>{t("Graph unavailable")}</span>}
+                    {data.history.available ? <span title={tr`Local Git sample: ${data.history.commits_scanned} commits, up to ${data.history.window_days} days. Historical association is not a dependency.`}>{t("Git: ")}{countLabel(data.history.selection_commits, t("sampled commit"))} · {countLabel(aggregate.cochanges.length, t("co-changed file"), data.history.cochanges_omitted > 0)}
+                    </span> : <span className="file-impact-summary-muted" title={data.history.error}>{t("Git unavailable")}</span>}
                 </div>
                 <button type="button" className="file-impact-summary-toggle" aria-expanded={expanded} aria-controls={detailsId}
-                    onClick={() => setExpandedKey(expanded ? '' : selectionKey)}>{expanded ? 'Less' : 'Details'} <span aria-hidden="true">{expanded ? '▴' : '▾'}</span></button>
+                    onClick={() => setExpandedKey(expanded ? '' : selectionKey)}>{expanded ? t("Less") : t("Details")} <span aria-hidden="true">{expanded ? '▴' : '▾'}</span></button>
             </>}
         </div>
         {notes.length > 0 && <p className="file-impact-summary-note">{notes.join(' · ')}</p>}
         {data?.structural.available && data.structural.reachable === 0
-            && <p className="file-impact-summary-note">No dependents found in this index; this does not establish safety.</p>}
+            && <p className="file-impact-summary-note">{t("No dependents found in this index; this does not establish safety.")}</p>}
         {expanded && data && aggregate && <div className="file-impact-summary-details" id={detailsId}>
             <div className="file-impact-summary-detail-grid">
-                <section aria-label="Affected files"><h4>Affected files</h4>
-                    {!data.structural.available ? <p>{data.structural.error ?? 'No usable graph evidence for this selection.'}</p>
-                        : aggregate.files.length === 0 ? <p>No file paths returned by this graph walk.</p>
+                <section aria-label={t("Affected files")}><h4>{t("Affected files")}</h4>
+                    {!data.structural.available ? <p>{data.structural.error ?? t("No usable graph evidence for this selection.")}</p>
+                        : aggregate.files.length === 0 ? <p>{t("No file paths returned by this graph walk.")}</p>
                             : <ul>{aggregate.files.slice(0, fileLimit).map(row => <li key={row.filePath}>
                                 <button type="button" onClick={() => onOpen(row.target)} title={row.filePath}>{row.filePath}</button>
-                                <span>{row.distance === 1 ? 'direct' : `${row.distance} hops`} · {countLabel(row.symbols, 'symbol')}{row.testCandidate ? ' · test candidate' : ''}</span>
+                                <span>{row.distance === 1 ? t("direct") : tr`${row.distance} hops`} · {countLabel(row.symbols, 'symbol')}{row.testCandidate ? t(" · test candidate") : ''}</span>
                             </li>)}</ul>}
-                    {aggregate.files.length > fileLimit && <button type="button" onClick={() => setLimits({ key: selectionKey, files: fileLimit + 6, history: historyLimit })}>More files ({aggregate.files.length - fileLimit})</button>}
+                    {aggregate.files.length > fileLimit && <button type="button" onClick={() => setLimits({ key: selectionKey, files: fileLimit + 6, history: historyLimit })}>{t("More files (")}{aggregate.files.length - fileLimit})</button>}
                 </section>
-                <section aria-label="Files changed together"><h4>Changed together <span>· Git sample</span></h4>
-                    {!data.history.available ? <p>{data.history.error ?? 'Local Git history is unavailable.'}</p>
-                        : aggregate.cochanges.length === 0 ? <p>No co-changed files in this sample.</p>
+                <section aria-label={t("Files changed together")}><h4>{t("Changed together ")}<span>{t("· Git sample")}</span></h4>
+                    {!data.history.available ? <p>{data.history.error ?? t("Local Git history is unavailable.")}</p>
+                        : aggregate.cochanges.length === 0 ? <p>{t("No co-changed files in this sample.")}</p>
                             : <ul>{aggregate.cochanges.slice(0, historyLimit).map(row => <li key={row.file_path}>
                                 <button type="button" onClick={() => onOpen({ filePath: row.file_path })} title={row.file_path}>{row.file_path}</button>
-                                <span>{countLabel(row.shared_commits, 'shared commit')}</span>
+                                <span>{countLabel(row.shared_commits, t("shared commit"))}</span>
                             </li>)}</ul>}
-                    {aggregate.cochanges.length > historyLimit && <button type="button" onClick={() => setLimits({ key: selectionKey, files: fileLimit, history: historyLimit + 4 })}>More co-changed files ({aggregate.cochanges.length - historyLimit})</button>}
+                    {aggregate.cochanges.length > historyLimit && <button type="button" onClick={() => setLimits({ key: selectionKey, files: fileLimit, history: historyLimit + 4 })}>{t("More co-changed files (")}{aggregate.cochanges.length - historyLimit})</button>}
                 </section>
             </div>
-            <footer><span>Indexed calls/imports · up to {data.structural.max_depth} hops. Test files are candidates; Git co-changes are associations.</span>
+            <footer><span>{t("Indexed calls/imports · up to ")}{data.structural.max_depth}{t(" hops. Test files are candidates; Git co-changes are associations.")}</span>
                 <RefreshControl labels={FILE_IMPACT_REFRESH} feedback={refresh.feedback} onRefresh={() => { refresh.begin(); retryNow(); }} /></footer>
         </div>}
     </section>;

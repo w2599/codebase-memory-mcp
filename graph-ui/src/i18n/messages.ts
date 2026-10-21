@@ -1,45 +1,8 @@
-/**
- * Der typisierte Katalog der sichtbaren Chrome-Strings.
- *
- * Die Mechanik ist die des PR-Frontends: EIN Objekt,
- * `as const`, nach Bereichen geordnet, und alles, was eine Zahl oder einen Namen
- * einsetzen muss, ist eine Funktion statt einer Zeichenkette mit Platzhaltern.
- * Eine Funktion kann der Uebersetzer nicht falsch zusammensetzen, und der
- * Aufrufer bekommt die Stelligkeit vom Typ gesagt.
- *
- * ## Was hier steht und was ausdruecklich nicht
- *
- * Hier stehen die Saetze des RAHMENS: Kopfzeile, Menue, Tabs, Statusleiste,
- * Explorer, Kommandozeile, Reader-Notizen, Suchfenster, Why-Karten, Tour-Karte
- * und die Rahmen von Einstiegsdialog, BUG-Assistent, Impact-Ansicht,
- * Sidecar-Karte und Chat.
- *
- * Hier stehen NICHT die Fachtexte der portierten Module. `src/twin/strings.ts`,
- * `src/pseudocode/pseudocode-strings.ts`, `src/impact/impact-strings.ts`,
- * `src/traces/bug-wizard-strings.ts`, `src/chat/chat-strings.ts`,
- * `src/llm/strings.ts`, `src/app/coverage-strings.ts` und `src/why/why-model.ts`
- * bleiben die Quelle ihrer eigenen Saetze. Das ist kein Versaeumnis, sondern der
- * Standard, aus dem dieses Muster kommt: ein Fachtext gehoert neben die Regel,
- * die ihn begruendet, und ein zweiter Ort fuer denselben Satz waere ein zweiter
- * Ort, an dem ihn jemand schaerft.
- *
- * ## Ein Baum, eine Sprache, und keine erfundene zweite
- *
- * Es gibt genau `en`. Ein `zh`-Baum mit maschinell erzeugten Saetzen waere eine
- * unuebersetzte Luege in einer Struktur, die behauptet, uebersetzt zu sein. Die
- * Struktur ist erweiterbar: ein zweiter Baum derselben Form neben `messages` und
- * eine Wahl darueber, und keine Aufrufstelle aendert sich.
- *
- * ## Der eine Satz, der hier nicht englisch war
- *
- * `llm.readFrom` lautete "gelesen aus ...", als einziger Eintrag des Katalogs.
- * W6a hat ihn hierher verschoben und ausdruecklich nicht umgeschrieben, weil
- * jener Zyklus Saetze verschob; aufgefallen ist er, weil der Katalog ihn neben
- * seine Nachbarn stellte, und genau dafuer ist ein Katalog da. Das unabhaengige
- * Audit hat ihn als Befund 14 aufgeschrieben, und seit dem 2026-08-29 heisst er
- * "read from ...". Der Katalog ist jetzt in einer Sprache, was die Voraussetzung
- * dafuer ist, dass ein zweiter Baum daneben eine Uebersetzung waere und nicht
- * eine zweite Mischung.
+import { t, tr } from './translate';
+
+/** Shared UI copy. Domain catalogs remain beside their panels.
+ * Literal UI strings use t; templates use tr so inserted source data stays intact.
+ * The locale is resolved before these modules are imported by main.tsx.
  */
 
 /** Ein Menuepunkt: sein Buchstaben-Kuerzel und der Rest des Wortes. */
@@ -53,28 +16,28 @@ export interface MenuItemMessage {
  * genau einmal hier. Sie zweimal auszuschreiben waere zweimal die Gelegenheit,
  * einen davon zu schaerfen, bis die beiden verschieden sind.
  */
-const NO_PROJECT = 'no project';
-const CLOSE = 'close';
-const TOUR_FAILED_TEXT = 'the walk could not be prepared';
+const NO_PROJECT = t("no project");
+const CLOSE = t("close");
+const TOUR_FAILED_TEXT = t("the walk could not be prepared");
 
 export const messages = {
     browserChat: {
-        menuLabel: '[l]ocal chat',
-        menuTitle: 'Open local browser chat',
-        subtitle: 'Graph display and local browser models',
-        title: 'Browser models',
-        detail: 'Choose or download an optional model in chat settings. Answers run locally in this browser; code exploration works without a model.',
-        open: 'Open local chat',
+        menuLabel: t("[l]ocal chat"),
+        menuTitle: t("Open local browser chat"),
+        subtitle: t("Graph display and local browser models"),
+        title: t("Browser models"),
+        detail: t("Choose or download an optional model in chat settings. Answers run locally in this browser; code exploration works without a model."),
+        open: t("Open local chat"),
     },
     /** Die Kopfzeile und die Flaechen, die zu keinem Panel gehoeren. */
     app: {
         brand: 'CBM LENS',
-        releaseLabel: 'Beta',
+        releaseLabel: t("Beta"),
         /** Steht in der Tab-Leiste und im Breadcrumb, wenn nichts offen ist. */
-        noFileOpen: 'no file open',
+        noFileOpen: t("no file open"),
         /** Der Name, den eine Oberflaeche ohne Projekt traegt. */
         noProject: NO_PROJECT,
-        closeTab: (name: string): string => `close ${name}`,
+        closeTab: (name: string): string => tr`close ${name}`,
     },
 
     /**
@@ -96,10 +59,10 @@ export const messages = {
      * (src/app/shortcuts.ts, Test src/app/shortcuts.test.ts).
      */
     menu: {
-        ariaLabel: 'main menu',
+        ariaLabel: t("main menu"),
         items: [
-            { key: 'a', rest: 'tlas' },
-            { key: '?', rest: 'help' },
+            { key: 'a', rest: t("tlas") },
+            { key: '?', rest: t("help") },
         ] as readonly MenuItemMessage[],
         /**
          * Was die Klammer um den Buchstaben bedeutet, in der Zeile selbst.
@@ -110,22 +73,20 @@ export const messages = {
          * der Zeile und nicht nur in der Hilfe, weil sie dort gebraucht wird, wo
          * die Klammern stehen.
          */
-        legend: 'alt + letter',
-        atlasHide: 'atlas: hide the galaxy panel (alt+a)',
-        atlasShow: 'atlas: show the galaxy panel (alt+a)',
-        settings: 'atlas: which model answers, and everything that costs computing time (alt+s)',
+        legend: t("alt + letter"),
+        atlasHide: t("atlas: hide the galaxy panel (alt+a)"),
+        atlasShow: t("atlas: show the galaxy panel (alt+a)"),
+        settings: t("atlas: which model answers, and everything that costs computing time (alt+s)"),
         agentsOn:
-            'atlas: live mode is on. The bridge is being read and the actors are drawn on the graph '
-            + '(alt+g)',
+            t("atlas: live mode is on. The bridge is being read and the actors are drawn on the graph (alt+g)"),
         agentsOff:
-            'atlas: live mode is off, and not one request goes to the bridge. Turn it on to see the '
-            + 'agents working in this repository (alt+g)',
-        why: 'atlas: put the question again and pick a way in (alt+w)',
-        bug: 'atlas: compare the expected path into a symbol with the observed one (alt+b)',
-        impact: 'atlas: what a change would reach, and what covers it (alt+c)',
-        helpOpen: 'help: what this reads, what it cannot do, and every key it listens to (?)',
-        helpClose: 'help: close this page (?)',
-        projects: 'atlas: what this server has indexed, index more, and what the server is doing (alt+p)',
+            t("atlas: live mode is off, and not one request goes to the bridge. Turn it on to see the agents working in this repository (alt+g)"),
+        why: t("atlas: put the question again and pick a way in (alt+w)"),
+        bug: t("atlas: compare the expected path into a symbol with the observed one (alt+b)"),
+        impact: t("atlas: what a change would reach, and what covers it (alt+c)"),
+        helpOpen: t("help: what this reads, what it cannot do, and every key it listens to (?)"),
+        helpClose: t("help: close this page (?)"),
+        projects: t("atlas: what this server has indexed, index more, and what the server is doing (alt+p)"),
     },
 
     /**
@@ -148,76 +109,61 @@ export const messages = {
      *    Repository.
      */
     help: {
-        title: 'CBM LENS HELP',
-        subtitle: 'a reading surface over an indexed repository',
-        close: '[esc] close',
+        title: t("CBM LENS HELP"),
+        subtitle: t("a reading surface over an indexed repository"),
+        close: t("[esc] close"),
         closeLabel: CLOSE,
 
-        whatTitle: 'What this is',
+        whatTitle: t("What this is"),
         what: [
-            'CBM Lens reads a repository that the analysis server has indexed and explains it: '
-            + 'the tree and the source, a twin of the symbol under the caret, a walk along the calls, '
-            + 'the scope of a change, and the answers of a local model.',
-            'Everything on this screen comes from that index or from a file the server handed over, '
-            + 'and every panel says which of the two it is.',
+            t("CBM Lens reads a repository that the analysis server has indexed and explains it: the tree and the source, a twin of the symbol under the caret, a walk along the calls, the scope of a change, and the answers of a local model."),
+            t("Everything on this screen comes from that index or from a file the server handed over, and every panel says which of the two it is."),
         ],
 
-        limitsTitle: 'What it cannot do',
+        limitsTitle: t("What it cannot do"),
         limits: [
-            'The reader is read-only: you cannot edit a file here, and what you type into it changes nothing.',
-            'It cannot run code, and there is no terminal: no build, no test run, no shell. '
-            + 'The one job it can ask for is an index run, and the analysis server does that in its '
-            + 'own process, from the [p]rojects panel.',
-            'It reaches no cloud. The only model it can use is a sidecar on this machine, '
-            + 'started by hand, and it stays off until it answers.',
+            t("The reader is read-only: you cannot edit a file here, and what you type into it changes nothing."),
+            t("It cannot run code, and there is no terminal: no build, no test run, no shell. The one job it can ask for is an index run, and the analysis server does that in its own process, from the [p]rojects panel."),
+            t("It reaches no cloud. The only model it can use is a sidecar on this machine, started by hand, and it stays off until it answers."),
         ],
         limitsWhy:
-            'That is the shape of the product and not a missing release: this surface has no backend of '
-            + 'its own. Apart from the three requests the [p]rojects panel makes (index a repository, '
-            + 'remove an index, store a decision record), the analysis server offers it a read-only '
-            + 'surface, and everything that writes, builds or executes happens where the repository '
-            + 'lives, on the command line.',
+            t("That is the shape of the product and not a missing release: this surface has no backend of its own. Apart from the three requests the [p]rojects panel makes (index a repository, remove an index, store a decision record), the analysis server offers it a read-only surface, and everything that writes, builds or executes happens where the repository lives, on the command line."),
 
-        panelsTitle: 'The panels, and what each one answers',
+        panelsTitle: t("The panels, and what each one answers"),
         panels: [
-            { name: 'explorer and reader', answers: 'what is in this project, and what does this file say' },
-            { name: 'twin', answers: 'what does the symbol under the caret hold, call, raise and touch' },
-            { name: 'flow', answers: 'in what order does this symbol call what it calls' },
-            { name: '[w]hy am I here', answers: 'where do I start, and what is the walk from there' },
-            { name: '[b]ug hunt', answers: 'how does the expected path into a symbol differ from the observed one' },
-            { name: '[c]hange scope', answers: 'what would a change here reach, and what covers it' },
-            { name: '[a]tlas', answers: 'where does this symbol sit among the others' },
-            { name: '[l]ocal llm', answers: 'is a local model answering, and out of which context' },
+            { name: t("explorer and reader"), answers: t("what is in this project, and what does this file say") },
+            { name: t("twin"), answers: t("what does the symbol under the caret hold, call, raise and touch") },
+            { name: t("flow"), answers: t("in what order does this symbol call what it calls") },
+            { name: t("[w]hy am I here"), answers: t("where do I start, and what is the walk from there") },
+            { name: t("[b]ug hunt"), answers: t("how does the expected path into a symbol differ from the observed one") },
+            { name: t("[c]hange scope"), answers: t("what would a change here reach, and what covers it") },
+            { name: t("[a]tlas"), answers: t("where does this symbol sit among the others") },
+            { name: t("[l]ocal llm"), answers: t("is a local model answering, and out of which context") },
             {
-                name: '[s]ettings',
+                name: t("[s]ettings"),
                 answers:
-                    'which model in your cache answers, how to get another one, and what the drawing '
-                    + 'of the graph costs on this machine',
+                    t("which model in your cache answers, how to get another one, and what the drawing of the graph costs on this machine"),
             },
             {
-                name: '[p]rojects',
+                name: t("[p]rojects"),
                 answers:
-                    'what this server has indexed, how to index or remove a repository, the decision '
-                    + 'record of the open project, and what the server is doing',
+                    t("what this server has indexed, how to index or remove a repository, the decision record of the open project, and what the server is doing"),
             },
             {
-                name: 'command line',
+                name: t("command line"),
                 answers:
-                    'which symbol means this: the words are matched against symbol names and their paths '
-                    + 'while you type. A line that ends with a question mark builds an answer from indexed '
-                    + 'cards and their source lines. Use the visible AI button on that answer only if you want an '
-                    + 'optional local-model wording. This line runs no commands.',
+                    t("which symbol means this: the words are matched against symbol names and their paths while you type. A line that ends with a question mark builds an answer from indexed cards and their source lines. Use the visible AI button on that answer only if you want an optional local-model wording. This line runs no commands."),
             },
         ],
 
-        shortcutsTitle: 'Every key this window listens to',
+        shortcutsTitle: t("Every key this window listens to"),
         shortcutsNote:
-            'Menu shortcuts work across the workspace. Cmd/Ctrl+K opens the dedicated node and cluster search in Galaxy.',
+            t("Menu shortcuts work across the workspace. Cmd/Ctrl+K opens the dedicated node and cluster search in Galaxy."),
         typingNote:
-            'Typing stays in the field you focused. Menu shortcuts use Alt (Option on an Apple keyboard).',
-        columnKey: 'key',
-        columnWhere: 'where it counts',
-        columnDoes: 'what it does',
+            t("Typing stays in the field you focused. Menu shortcuts use Alt (Option on an Apple keyboard)."),
+        columnKey: t("key"),
+        columnWhere: t("where it counts"),
+        columnDoes: t("what it does"),
 
         /*
          * Der Tastentest.
@@ -229,52 +175,47 @@ export const messages = {
          * an einer Ursache zu raten, zeigt die Seite, was am Geraet des Lesers
          * wirklich ankommt, und was diese Oberflaeche daraus gemacht haette.
          */
-        keyProbeTitle: 'Test a key combination',
+        keyProbeTitle: t("Test a key combination"),
         keyProbeIntro:
-            'Press a combination now, with this page open, and read below what arrived. This is not a '
-            + 'simulation: it is the same reading the window handler makes, from the same event.',
-        keyProbeIdle: 'nothing pressed yet',
+            t("Press a combination now, with this page open, and read below what arrived. This is not a simulation: it is the same reading the window handler makes, from the same event."),
+        keyProbeIdle: t("nothing pressed yet"),
         keyProbeFields: {
-            code: 'physical key (code)',
+            code: t("physical key (code)"),
             key: 'character produced (key)',
-            modifiers: 'modifiers',
-            defaultPrevented: 'already consumed',
-            consumedBy: 'consumed by',
-            target: 'arrived at',
-            shortcut: 'recognised as a menu key',
+            modifiers: t("modifiers"),
+            defaultPrevented: t("already consumed"),
+            consumedBy: t("consumed by"),
+            target: t("arrived at"),
+            shortcut: t("recognised as a menu key"),
         } as Readonly<Record<string, string>>,
         keyProbeConsumers: {
-            nobody: 'nobody: it arrived untouched',
-            'this-window': 'this window: its own shortcut handler took it',
+            nobody: t("nobody: it arrived untouched"),
+            'this-window': t("this window: its own shortcut handler took it"),
             'something-else':
-                'something else, before this window saw it: a browser extension, the keyboard layout, '
-                + 'or another handler on the page',
+                t("something else, before this window saw it: a browser extension, the keyboard layout, or another handler on the page"),
         } as Readonly<Record<string, string>>,
-        keyProbeNoShortcut: 'no: this combination is not a menu key',
-        keyProbeShortcut: (letter: string): string => `yes: the menu key for [${letter}]`,
+        keyProbeNoShortcut: t("no: this combination is not a menu key"),
+        keyProbeShortcut: (letter: string): string => tr`yes: the menu key for [${letter}]`,
         keyProbeNone: '-',
-        keyProbeNoModifier: 'none',
+        keyProbeNoModifier: t("none"),
         keyProbeNote:
-            'What to look for: a menu key needs alt (option) and a code of the form KeyW. On an Apple '
-            + 'keyboard option+w produces a different character, which is why the wiring reads the code '
-            + 'and not the character. If nothing appears here at all when you press, the combination '
-            + 'never reached this page, and the cause is outside it.',
+            t("What to look for: a menu key needs alt (option) and a code of the form KeyW. On an Apple keyboard option+w produces a different character, which is why the wiring reads the code and not the character. If nothing appears here at all when you press, the combination never reached this page, and the cause is outside it."),
 
         /** Der Modifikator vor einem Menuekuerzel. Auf Apple-Tastaturen: option. */
         altPrefix: 'alt+',
         scopes: {
-            mnemonic: 'anywhere, also while you type',
-            bare: 'outside text fields',
-            galaxy: 'anywhere',
-            walk: 'during a walk',
+            mnemonic: t("anywhere, also while you type"),
+            bare: t("outside text fields"),
+            galaxy: t("anywhere"),
+            walk: t("during a walk"),
         },
         keyNames: {
             Enter: 'enter',
             Escape: 'esc',
-            ArrowUp: 'up',
-            ArrowDown: 'down',
-            ArrowLeft: 'left',
-            ArrowRight: 'right',
+            ArrowUp: t("up"),
+            ArrowDown: t("down"),
+            ArrowLeft: t("left"),
+            ArrowRight: t("right"),
         } as Readonly<Record<string, string>>,
         /**
          * Was eine Taste tut, je Bereich und Taste (`bereich:taste`).
@@ -284,63 +225,57 @@ export const messages = {
          * oeffnet im Suchfenster den Treffer.
          */
         shortcutDoes: {
-            'mnemonic:a': 'show or hide the galaxy',
-            'mnemonic:w': 'ask again where to start, and walk from there',
-            'mnemonic:b': 'open the BUG hunt on the symbol in the twin',
-            'mnemonic:l': 'turn the local model on or off',
-            'mnemonic:r': 'put every zone back to the width and height it starts with',
-            'mnemonic:s': 'open or close the settings: the model, and what the drawing costs',
-            'mnemonic:g': 'turn the live agent mode on or off. Off asks the bridge nothing at all',
-            'mnemonic:p': 'add a project index or return to its indexing progress',
-            'bare:?': 'open or close this page',
-            'galaxy:Cmd/Ctrl+K': 'open Galaxy and focus node or cluster search',
-            'walk:Enter': 'go to the next step of the walk, and finish it on the last one',
-            'walk:ArrowLeft': 'go back one step',
-            'walk:q': 'leave the walk',
-            'walk:d': 'draw the flow of this step, when the step has a symbol',
+            'mnemonic:a': t("show or hide the galaxy"),
+            'mnemonic:w': t("ask again where to start, and walk from there"),
+            'mnemonic:b': t("open the BUG hunt on the symbol in the twin"),
+            'mnemonic:l': t("turn the local model on or off"),
+            'mnemonic:r': t("put every zone back to the width and height it starts with"),
+            'mnemonic:s': t("open or close the settings: the model, and what the drawing costs"),
+            'mnemonic:g': t("turn the live agent mode on or off. Off asks the bridge nothing at all"),
+            'mnemonic:p': t("add a project index or return to its indexing progress"),
+            'bare:?': t("open or close this page"),
+            'galaxy:Cmd/Ctrl+K': t("open Galaxy and focus node or cluster search"),
+            'walk:Enter': t("go to the next step of the walk, and finish it on the last one"),
+            'walk:ArrowLeft': t("go back one step"),
+            'walk:q': t("leave the walk"),
+            'walk:d': t("draw the flow of this step, when the step has a symbol"),
         } as Readonly<Record<string, string>>,
 
-        operationsTitle: 'Running it',
+        operationsTitle: t("Running it"),
         operations: [
-            'Index a project from the [p]rojects panel (alt+p) or with the CLI of the analysis server, '
-            + 'then open it from that panel or with the project name in the address (?project=<name>). '
-            + 'The server indexes; this window asks.',
-            'Start the local model with llm/start.sh class-a. It listens on the loopback address of this '
-            + 'machine; the [l]lm card turns green as soon as it answers, and says why when it does not.',
-            'Bring recorded runs in with ingest_traces on the command line. There is no importer on this '
-            + 'surface, and the twin does not carry them: they show up on the BUG hunt hops and in the flow.',
+            t("Index a project from the [p]rojects panel (alt+p) or with the CLI of the analysis server, then open it from that panel or with the project name in the address (?project=<name>). The server indexes; this window asks."),
+            t("Start the local model with llm/start.sh class-a. It listens on the loopback address of this machine; the [l]lm card turns green as soon as it answers, and says why when it does not."),
+            t("Bring recorded runs in with ingest_traces on the command line. There is no importer on this surface, and the twin does not carry them: they show up on the BUG hunt hops and in the flow."),
         ],
 
-        honestyTitle: 'The rules this surface holds itself to',
+        honestyTitle: t("The rules this surface holds itself to"),
         honesty: [
-            'Every claim comes from the index or from the file the server sent, and the panel names which.',
-            'What the index does not record is named as a gap, never filled in with a plausible guess.',
-            'An affordance that does nothing does not exist here: a button or a key either acts, or it is '
-            + 'not on the screen.',
+            t("Every claim comes from the index or from the file the server sent, and the panel names which."),
+            t("What the index does not record is named as a gap, never filled in with a plausible guess."),
+            t("An affordance that does nothing does not exist here: a button or a key either acts, or it is not on the screen."),
         ],
 
-        referencesTitle: 'Where to read further, in this repository',
+        referencesTitle: t("Where to read further, in this repository"),
         references: [
-            { path: 'README.md', about: 'exploration, local inference and development setup' },
-            { path: 'CONFIGURATION.md', about: 'settings, precedence and the local configuration API' },
-            { path: 'THIRD_PARTY.md', about: 'source provenance, dependencies and model licenses' },
-            { path: 'docs/adr/0001-modellwahl.md', about: 'local inference choices and model evidence' },
+            { path: 'README.md', about: t("exploration, local inference and development setup") },
+            { path: 'CONFIGURATION.md', about: t("settings, precedence and the local configuration API") },
+            { path: 'THIRD_PARTY.md', about: t("source provenance, dependencies and model licenses") },
+            { path: 'docs/adr/0001-modellwahl.md', about: t("local inference choices and model evidence") },
         ],
         referencesNote:
-            'Paths in this repository, not links. This window is offline by design, so a link into the '
-            + 'web would be a button that leads nowhere.',
+            t("Paths in this repository, not links. This window is offline by design, so a link into the web would be a button that leads nowhere."),
     },
 
     /** Die Chips der Kopfzeile und der Statusleiste. */
     statusbar: {
-        chipProject: 'project',
-        chipSymbols: 'sym',
-        chipEdges: 'edg',
-        chipServer: 'server',
-        chipPort: 'port',
-        chipTree: 'tree',
-        chipSource: 'source',
-        chipGalaxy: 'galaxy',
+        chipProject: t("project"),
+        chipSymbols: t("sym"),
+        chipEdges: t("edg"),
+        chipServer: t("server"),
+        chipPort: t("port"),
+        chipTree: t("tree"),
+        chipSource: t("source"),
+        chipGalaxy: t("galaxy"),
         /*
          * Nutzerwunsch vom 2026-08-29: das Ding heisst ueberall gleich.
          *
@@ -350,33 +285,33 @@ export const messages = {
          * an allen drei Stellen "local llm"; der Buchstabe des Kuerzels bleibt
          * `l` (src/llm/strings.ts).
          */
-        chipLlm: 'local llm',
-        chipCoverage: 'coverage',
-        chipExplored: 'explored',
-        chipWalk: 'walk',
+        chipLlm: t("local llm"),
+        chipCoverage: t("coverage"),
+        chipExplored: t("explored"),
+        chipWalk: t("walk"),
         /** Der Wert eines Chips, dessen Zahl der Server nicht genannt hat. */
-        noCount: 'no count',
-        serverContacting: 'contacting',
-        serverReady: 'ready',
-        serverUnreachable: 'unreachable',
-        noFileLoaded: 'no file loaded',
-        noProjectIndexed: 'no project: this server has nothing indexed. alt+p opens the projects panel to index one',
-        noProjectError: (detail: string): string => `no project: ${detail}`,
+        noCount: t("no count"),
+        serverContacting: t("contacting"),
+        serverReady: t("ready"),
+        serverUnreachable: t("unreachable"),
+        noFileLoaded: t("no file loaded"),
+        noProjectIndexed: t("no project: this server has nothing indexed. alt+p opens the projects panel to index one"),
+        noProjectError: (detail: string): string => tr`no project: ${detail}`,
     },
 
     /** Der Explorer: seine Ueberschrift und die eine Zeile seiner Ordner-Legende. */
     explorer: {
-        title: 'EXPLORER',
-        folderLabel: 'folder',
-        folderDescription: 'the worst stage of anything below it',
+        title: t("EXPLORER"),
+        folderLabel: t("folder"),
+        folderDescription: t("the worst stage of anything below it"),
     },
 
     /** Die Notizen um den Editor herum. */
     reader: {
         /** Die Marke vor der Kappungszeile unter dem Editor. */
-        incompleteLabel: 'incomplete: ',
-        pickFile: 'pick a file in the explorer',
-        loading: (path: string, tool: string): string => `loading ${path} over ${tool} ...`,
+        incompleteLabel: t("incomplete: "),
+        pickFile: t("pick a file in the explorer"),
+        loading: (path: string, tool: string): string => tr`loading ${path} over ${tool} ...`,
     },
 
     /**
@@ -408,10 +343,10 @@ export const messages = {
 
     /** Das Suchfenster ueber der Kommandozeile. */
     search: {
-        resultsLabel: 'search results',
-        searching: (query: string): string => `searching for "${query}" ...`,
-        failed: 'the search could not be answered',
-        noFile: 'this hit carries no file in the index, so there is nothing to open',
+        resultsLabel: t("search results"),
+        searching: (query: string): string => tr`searching for "${query}" ...`,
+        failed: t("the search could not be answered"),
+        noFile: t("this hit carries no file in the index, so there is nothing to open"),
         /**
          * Was im Trefferfenster steht, solange erst ein Zeichen getippt ist.
          *
@@ -422,7 +357,7 @@ export const messages = {
          * Schweigen. Jetzt steht der Satz an der Stelle, an der die Antwort
          * erwartet wird.
          */
-        oneMoreLetter: 'one more letter, then CBM Lens searches by meaning',
+        oneMoreLetter: t("one more letter, then CBM Lens searches by meaning"),
         /*
          * Die Sofort-Vorschlaege, und dass sie vorlaeufig sind.
          *
@@ -435,14 +370,14 @@ export const messages = {
          */
         provisionalHeadline: (query: string, shown: number): string =>
             shown === 1
-                ? `1 suggestion for "${query}" from what is already loaded, the index is answering ...`
-                : `${shown} suggestions for "${query}" from what is already loaded, the index is answering ...`,
+                ? tr`1 suggestion for "${query}" from what is already loaded, the index is answering ...`
+                : tr`${shown} suggestions for "${query}" from what is already loaded, the index is answering ...`,
         provisionalEmpty: (query: string): string =>
-            `nothing loaded answers "${query}" yet, asking the index ...`,
+            tr`nothing loaded answers "${query}" yet, asking the index ...`,
         /** Die Marke an einer vorlaeufigen Zeile. Kurz, weil sie an jeder steht. */
-        provisionalMark: 'loaded',
+        provisionalMark: t("loaded"),
         provisionalMarkTitle:
-            'from the tree and the graph this window already holds, not from an answer of the index',
+            t("from the tree and the graph this window already holds, not from an answer of the index"),
     },
 
     /** Die Frage nach dem Warum. Die Karten selbst stehen in why/why-model.ts. */
@@ -453,15 +388,15 @@ export const messages = {
 
     /** Die Schrittkarte einer Fuehrung. */
     tour: {
-        prev: '[<-] prev',
-        prevUnavailable: 'this is the first step, so there is no previous step to return to',
+        prev: t("[<-] prev"),
+        prevUnavailable: t("this is the first step, so there is no previous step to return to"),
         nextPrefix: '[Enter] ',
-        next: 'next',
-        finish: 'finish',
-        exit: '[q] exit',
+        next: t("next"),
+        finish: t("finish"),
+        exit: t("[q] exit"),
         /** Die vierte Aktion der Karte (PLAN Abschnitt 4, Audit-Befund 13). */
-        diagram: '[d] diagram',
-        diagramTitle: 'draw the flow of this step: what it calls, in order, and what each call raises',
+        diagram: t("[d] diagram"),
+        diagramTitle: t("draw the flow of this step: what it calls, in order, and what each call raises"),
         /**
          * Was dort steht, wenn dieser Schritt kein Symbol hat.
          *
@@ -470,76 +405,76 @@ export const messages = {
          * ueber den Schritt.
          */
         diagramUnavailable:
-            'this step points at a file, not at a symbol, so there is no call flow to draw',
+            t("this step points at a file, not at a symbol, so there is no call flow to draw"),
         failed: TOUR_FAILED_TEXT,
         failedNoFile: (name: string): string =>
-            `${TOUR_FAILED_TEXT}: the index names no file for ${name}`,
+            tr`${TOUR_FAILED_TEXT}: the index names no file for ${name}`,
     },
 
     /** Der Einstiegsdialog. */
     entry: {
-        title: 'Where do you want to start?',
+        title: t("Where do you want to start?"),
         subline:
-            'The walk starts at what you pick here and goes forward over the calls the index recorded.',
-        searchPlaceholder: 'or search for a name ...',
-        searchLabel: 'search for a symbol by meaning',
-        close: '[esc] close',
+            t("The walk starts at what you pick here and goes forward over the calls the index recorded."),
+        searchPlaceholder: t("or search for a name ..."),
+        searchLabel: t("search for a symbol by meaning"),
+        close: t("[esc] close"),
         closeLabel: CLOSE,
-        searching: 'searching ...',
-        notOpenable: 'the index names this way in but no file for it, so there is nothing to open',
-        startWalkAt: (name: string): string => `start the walk at ${name}`,
+        searching: t("searching ..."),
+        notOpenable: t("the index names this way in but no file for it, so there is nothing to open"),
+        startWalkAt: (name: string): string => tr`start the walk at ${name}`,
         overviewFailed: (detail: string): string =>
-            `the summary of ways in could not be read: ${detail}`,
-        noAnswer: (query: string): string => `no symbol answers "${query}"`,
+            tr`the summary of ways in could not be read: ${detail}`,
+        noAnswer: (query: string): string => tr`no symbol answers "${query}"`,
     },
 
     /** Der Rahmen des BUG-Assistenten. Seine Saetze stehen in bug-wizard-strings.ts. */
     wizard: {
         closeLabel: CLOSE,
         unresolvedHop: (name: string): string =>
-            `the index does not resolve "${name}", so there is nothing to open.`,
+            tr`the index does not resolve "${name}", so there is nothing to open.`,
     },
 
     /** Der Rahmen der Aenderungsansicht. Ihre Saetze stehen in impact-strings.ts. */
     impact: {
-        close: '[esc] close',
+        close: t("[esc] close"),
         closeLabel: CLOSE,
-        openRow: (name: string): string => `open ${name}`,
-        rowNotOpenable: 'the index names no file for this row, so there is nothing to open',
-        tileChangedFiles: 'changed files',
-        tileDirectSymbols: 'symbols in them',
-        tileEndpoints: 'endpoints',
-        tileTestsAffected: 'tests affected',
-        tileUntestedAffected: 'untested affected',
+        openRow: (name: string): string => tr`open ${name}`,
+        rowNotOpenable: t("the index names no file for this row, so there is nothing to open"),
+        tileChangedFiles: t("changed files"),
+        tileDirectSymbols: t("symbols in them"),
+        tileEndpoints: t("endpoints"),
+        tileTestsAffected: t("tests affected"),
+        tileUntestedAffected: t("untested affected"),
         /** Ein Abstandsband, ein- und mehrzahlig. */
         stepsOut: (distance: number): string =>
-            distance === 1 ? 'one step out' : `${distance} steps out`,
-        noTestCaller: 'no test caller found',
+            distance === 1 ? t("one step out") : tr`${distance} steps out`,
+        noTestCaller: t("no test caller found"),
     },
 
     /** Die Karte des lokalen Modells. Ihre Zustandssaetze stehen in llm/strings.ts. */
     llm: {
-        panelLabel: 'local model',
-        on: 'on',
-        off: 'off',
-        toggleBlocked: 'denied by the project policy: this switch has no effect',
-        toggleOff: 'turn the local model off',
-        toggleOn: 'turn the local model on',
+        panelLabel: t("local model"),
+        on: t("on"),
+        off: t("off"),
+        toggleBlocked: t("denied by the project policy: this switch has no effect"),
+        toggleOff: t("turn the local model off"),
+        toggleOn: t("turn the local model on"),
         /** Siehe Kopf dieser Datei: bis zum 2026-08-29 der eine deutsche Eintrag. */
-        readFrom: (source: string): string => `read from ${source}`,
-        rowModel: 'model',
-        rowContext: 'context',
-        rowWeights: 'weights',
-        rowSlots: 'slots',
+        readFrom: (source: string): string => tr`read from ${source}`,
+        rowModel: t("model"),
+        rowContext: t("context"),
+        rowWeights: t("weights"),
+        rowSlots: t("slots"),
         sourceModel: 'GET /props (model_path, model_ftype)',
         sourceContext: 'GET /props (n_ctx), GET /v1/models (n_ctx_train)',
         sourceWeights: 'GET /v1/models (meta.size, meta.n_params)',
-        sourceSlots: 'GET /props (total_slots), Port aus llm/start.sh',
+        sourceSlots: t("GET /props (total_slots), Port aus llm/start.sh"),
         contextValue: (tokens: number, trained: number | undefined): string =>
-            trained === undefined ? `${tokens} tokens` : `${tokens} of ${trained} trained tokens`,
+            trained === undefined ? tr`${tokens} tokens` : tr`${tokens} of ${trained} trained tokens`,
         weightsValue: (size: string, billions: string | undefined): string =>
-            billions === undefined ? size : `${size} for ${billions}B parameters`,
-        slotsValue: (slots: number, port: number): string => `${slots} on 127.0.0.1:${port}`,
+            billions === undefined ? size : tr`${size} for ${billions}B parameters`,
+        slotsValue: (slots: number, port: number): string => tr`${slots} on 127.0.0.1:${port}`,
     },
 
     /**
@@ -560,56 +495,50 @@ export const messages = {
      *    "ist mein Verlauf noch da?". Seit W8 gilt sie fuer jeden Reiter.
      */
     layout: {
-        explainLabel: 'explain',
-        explainTabsLabel: 'what explains the code in front of you',
-        explainEmptyLabel: 'nothing to explain here yet',
-        collapse: '[esc] fold',
+        explainLabel: t("explain"),
+        explainTabsLabel: t("what explains the code in front of you"),
+        explainEmptyLabel: t("nothing to explain here yet"),
+        collapse: t("[esc] fold"),
         collapseTooltip:
-            'fold this area away. Nothing in it is lost: the chat keeps its history, the walk its '
-            + 'step and the flow its place. Only "clear" in the chat deletes anything.',
-        expand: 'unfold',
-        expandTooltip: 'unfold this area again, on the tab that was open last',
+            t("fold this area away. Nothing in it is lost: the chat keeps its history, the walk its step and the flow its place. Only \"clear\" in the chat deletes anything."),
+        expand: t("unfold"),
+        expandTooltip: t("unfold this area again, on the tab that was open last"),
         tab: {
-            flow: 'flow',
-            walk: 'walk',
-            chat: 'chat',
-            bug: 'bug hunt',
-            change: 'change impact',
+            flow: t("flow"),
+            walk: t("walk"),
+            chat: t("chat"),
+            bug: t("bug hunt"),
+            change: t("change impact"),
         },
         tabTitle: {
-            flow: 'the recorded calls of the symbol in the twin, as a sequence and as steps',
-            walk: 'the walk in front of you: one step, what it is, and where it sits',
-            chat: 'what was asked in this session, with the cards each answer was given',
-            bug: 'the expected path into a symbol against the observed one',
-            change: 'what a change would reach, and what covers it',
+            flow: t("the recorded calls of the symbol in the twin, as a sequence and as steps"),
+            walk: t("the walk in front of you: one step, what it is, and where it sits"),
+            chat: t("what was asked in this session, with the cards each answer was given"),
+            bug: t("the expected path into a symbol against the observed one"),
+            change: t("what a change would reach, and what covers it"),
         },
         disabled: {
             flow:
-                'No symbol in the twin yet, so there is no sequence to draw. Open a file and put '
-                + 'the caret in a function; the twin follows it, and this tab follows the twin.',
+                t("No symbol in the twin yet, so there is no sequence to draw. Open a file and put the caret in a function; the twin follows it, and this tab follows the twin."),
             walk:
-                'No walk is running. Start one from the atlas menu ("Choose a starting point") and its steps '
-                + 'appear here.',
+                t("No walk is running. Start one from the atlas menu (\"Choose a starting point\") and its steps appear here."),
             chat:
-                'Nothing was asked in this session yet. Type a question in the command line and '
-                + 'press enter; the answer and the cards it was given show up here.',
+                t("Nothing was asked in this session yet. Type a question in the command line and press enter; the answer and the cards it was given show up here."),
             bug:
-                'No project is open, and this assistant reads a project index. Open one and the '
-                + 'expected path against the observed one is drawn here.',
+                t("No project is open, and this assistant reads a project index. Open one and the expected path against the observed one is drawn here."),
             change:
-                'No project is open, and this view reads a project index. Open one and the reach '
-                + 'of a change is drawn here.',
+                t("No project is open, and this view reads a project index. Open one and the reach of a change is drawn here."),
         },
         note: {
-            flow: (subject: string): string => `flow of ${subject}`,
-            flowIdle: 'no symbol in the twin',
-            walk: (step: number, steps: number): string => `walk, step ${step} of ${steps}`,
-            walkIdle: 'no walk running',
+            flow: (subject: string): string => tr`flow of ${subject}`,
+            flowIdle: t("no symbol in the twin"),
+            walk: (step: number, steps: number): string => tr`walk, step ${step} of ${steps}`,
+            walkIdle: t("no walk running"),
             chat: (turns: number): string =>
-                turns === 1 ? '1 question in this session' : `${turns} questions in this session`,
-            chatIdle: 'nothing asked yet',
-            bug: 'bug hunt',
-            change: 'change impact',
+                turns === 1 ? t("1 question in this session") : tr`${turns} questions in this session`,
+            chatIdle: t("nothing asked yet"),
+            bug: t("bug hunt"),
+            change: t("change impact"),
         },
         /**
          * Die vier Griffe.
@@ -627,11 +556,11 @@ export const messages = {
          * Inhalt. Der Grund steht ausfuehrlich im Kopf von src/layout/Splitter.tsx.
          */
         splitter: {
-            left: 'width of the explorer',
-            explain: 'height of the explain area',
-            right: 'width of the understanding column',
-            twin: 'height of the twin against the graph',
-            value: (pixels: number): string => `${pixels} pixels`,
+            left: t("width of the explorer"),
+            explain: t("height of the explain area"),
+            right: t("width of the understanding column"),
+            twin: t("height of the twin against the graph"),
+            value: (pixels: number): string => tr`${pixels} pixels`,
         },
         /**
          * Der Weg zurueck.
@@ -640,16 +569,16 @@ export const messages = {
          * zwei Wege, die dasselbe TUN sollen, aber es getrennt tun, sind zwei
          * Wege, die auseinanderlaufen koennen.
          */
-        reset: 'reset layout',
-        resetMenuLabel: '[r]eset layout',
-        resetTooltip: 'atlas: put every zone back to the width and height it starts with (alt+r)',
-        resetCommandHint: 'press enter to put every zone back to its default size',
+        reset: t("reset layout"),
+        resetMenuLabel: t("[r]eset layout"),
+        resetTooltip: t("atlas: put every zone back to the width and height it starts with (alt+r)"),
+        resetCommandHint: t("press enter to put every zone back to its default size"),
     },
 
     /** Der Rahmen des Antwort-Panels. Seine Saetze stehen in chat-strings.ts. */
     chat: {
-        panelLabel: 'CBM Lens chat',
-        depthGroupLabel: 'neighbourhood depth',
+        panelLabel: t("CBM Lens chat"),
+        depthGroupLabel: t("neighbourhood depth"),
         /*
          * `clear` bleibt der einzige Knopf, der loescht, und sagt es.
          *
@@ -663,25 +592,23 @@ export const messages = {
          * dieser eine Knopf hier loescht, und er steht als einziger im Kopf des
          * Chats.
          */
-        clear: 'clear',
+        clear: t("clear"),
         clearTooltip:
-            'forget this session: every question and every answer in this panel is deleted. '
-            + 'The history is in memory and nowhere else, so this cannot be undone. Folding the '
-            + 'explain area away costs nothing; only this button deletes.',
-        readPrefix: 'read: ',
+            t("forget this session: every question and every answer in this panel is deleted. The history is in memory and nowhere else, so this cannot be undone. Folding the explain area away costs nothing; only this button deletes."),
+        readPrefix: t("read: "),
         openCard: (path: string, line: number | undefined): string =>
-            `open ${path}${line === undefined ? '' : `:${line}`}`,
+            tr`open ${path}${line === undefined ? '' : `:${line}`}`,
         /** Die Ueberschrift ueber der Kandidatenliste. Ihr Satz steht in chat-strings.ts. */
-        candidatesLabel: 'symbols this name reached',
+        candidatesLabel: t("symbols this name reached"),
     },
 
     /** Was die Statusleiste ueber das Graph-Panel sagt. */
     galaxy: {
-        noLayout: 'no layout',
+        noLayout: t("no layout"),
         /** The label of a coverage-only selection: a file the graph knows about, not a symbol. */
-        coverageSelection: (name: string): string => `Coverage · ${name}`,
+        coverageSelection: (name: string): string => tr`Coverage · ${name}`,
         nodeCount: (nodes: number, hidden: boolean): string =>
-            `${nodes} nodes${hidden ? ' (hidden)' : ''}`,
+            tr`${nodes} nodes${hidden ? t(" (hidden)") : ''}`,
     },
 
     /**
@@ -706,27 +633,25 @@ export const messages = {
      *    das wurde am 2026-08-29 gemessen, und der Satz sagt es so.
      */
     settings: {
-        title: 'CBM LENS SETTINGS',
-        subtitle: 'which model answers, and everything that costs computing time',
-        panelLabel: 'settings',
-        close: '[esc] close',
+        title: t("CBM LENS SETTINGS"),
+        subtitle: t("which model answers, and everything that costs computing time"),
+        panelLabel: t("settings"),
+        close: t("[esc] close"),
         closeLabel: CLOSE,
         /** Der Eintrag in der Atlas-Zeile. Der Buchstabe steht in Klammern. */
-        menuLabel: '[s]ettings',
+        menuLabel: t("[s]ettings"),
         /** Was die Kommandozeile am rechten Rand sagt, wenn `settings` dasteht. */
-        commandHint: 'press enter to open the settings',
+        commandHint: t("press enter to open the settings"),
 
         /* ------------------------------------------------- das laufende Modell */
 
-        modelTitle: 'The model that answers',
+        modelTitle: t("The model that answers"),
         modelIntro:
-            'Every number in this block comes from the process that loaded the file. Point at one and '
-            + 'it says which request it came from. A table of model sizes kept in this code would be '
-            + 'right for a month and a claim about a file somebody swapped out after that.',
-        rowName: 'name',
-        rowQuantization: 'quantisation',
-        rowContext: 'context',
-        rowWeights: 'weights',
+            t("Every number in this block comes from the process that loaded the file. Point at one and it says which request it came from. A table of model sizes kept in this code would be right for a month and a claim about a file somebody swapped out after that."),
+        rowName: t("name"),
+        rowQuantization: t("quantisation"),
+        rowContext: t("context"),
+        rowWeights: t("weights"),
         sourceName: 'GET /props (model_path)',
         sourceQuantization: 'GET /props (model_ftype)',
         sourceContext: 'GET /props (n_ctx), GET /v1/models (meta.n_ctx_train)',
@@ -735,235 +660,179 @@ export const messages = {
         sourceQuantizationRouter: 'GET /props?model=<id> (model_ftype)',
         sourceContextRouter: 'GET /props?model=<id> (n_ctx), GET /v1/models (meta.n_ctx_train)',
         contextValue: (tokens: number, trained: number | undefined): string =>
-            trained === undefined ? `${tokens} tokens` : `${tokens} of ${trained} trained tokens`,
+            trained === undefined ? tr`${tokens} tokens` : tr`${tokens} of ${trained} trained tokens`,
         weightsValue: (size: string, billions: string | undefined): string =>
-            billions === undefined ? size : `${size} for ${billions}B parameters`,
+            billions === undefined ? size : tr`${size} for ${billions}B parameters`,
         /** Wenn der Prozess eine Angabe schuldig bleibt. Kein Platzhalter, ein Satz. */
-        valueUnreported: 'the process did not report this',
+        valueUnreported: t("the process did not report this"),
 
-        offTitle: 'The local model is off, and this panel asks it nothing',
+        offTitle: t("The local model is off, and this panel asks it nothing"),
         offText:
-            'Not one request goes to the sidecar while the model is off, not even to find out whether '
-            + 'one is running. That is the whole meaning of the switch: an opt-out and not a different '
-            + 'colour. Turn it on in the atlas menu with [l]ocal llm, and this block fills with the '
-            + 'models in your cache, which one is answering, and a click to switch between them.',
+            t("Not one request goes to the sidecar while the model is off, not even to find out whether one is running. That is the whole meaning of the switch: an opt-out and not a different colour. Turn it on in the atlas menu with [l]ocal llm, and this block fills with the models in your cache, which one is answering, and a click to switch between them."),
         offStillWorks:
-            'Everything below about drawing works either way. It has nothing to do with a model.',
-        notRunningTitle: 'The local model is on and nothing is listening',
+            t("Everything below about drawing works either way. It has nothing to do with a model."),
+        notRunningTitle: t("The local model is on and nothing is listening"),
         notRunningText:
-            'This page has no backend and cannot start a process, so the sidecar is started from a '
-            + 'shell. Without an argument it runs over your cache directory, and then the list below '
-            + 'is a choice:',
-        startingText: 'A sidecar is loading its model. The numbers appear as soon as it answers.',
+            t("This page has no backend and cannot start a process, so the sidecar is started from a shell. Without an argument it runs over your cache directory, and then the list below is a choice:"),
+        startingText: t("A sidecar is loading its model. The numbers appear as soon as it answers."),
         blockedText:
-            'The committed policy of the indexed project denies the local model. This panel shows what '
-            + 'it would show and asks nothing.',
+            t("The committed policy of the indexed project denies the local model. This panel shows what it would show and asks nothing."),
 
         /* ------------------------------------------------- die Modelle im Cache */
 
-        cacheTitle: 'The models in your cache',
+        cacheTitle: t("The models in your cache"),
         cacheIntro:
-            'What the running process lists in its cache directory. It is read every time this panel '
-            + 'opens, and again when you ask for it.',
-        cacheEmpty: 'the process lists no model in its cache directory',
+            t("What the running process lists in its cache directory. It is read every time this panel opens, and again when you ask for it."),
+        cacheEmpty: t("the process lists no model in its cache directory"),
         cacheCount: (count: number): string =>
-            count === 1 ? '1 model in the cache' : `${count} models in the cache`,
-        modelAnswering: 'answering now',
-        modelLoaded: 'loaded',
-        modelUnloaded: 'in the cache, not loaded',
+            count === 1 ? t("1 model in the cache") : tr`${count} models in the cache`,
+        modelAnswering: t("answering now"),
+        modelLoaded: t("loaded"),
+        modelUnloaded: t("in the cache, not loaded"),
         selectTitle: (name: string): string =>
-            `send the next questions to ${name}. It stays chosen after a reload.`,
-        selectedTitle: (name: string): string => `${name} is the model the next question goes to`,
-        refresh: 'read the list again',
+            tr`send the next questions to ${name}. It stays chosen after a reload.`,
+        selectedTitle: (name: string): string => tr`${name} is the model the next question goes to`,
+        refresh: t("read the list again"),
         refreshTitle:
-            'ask the process for its model list once more. This is the only request this panel sends '
-            + 'on its own, and it counts in the same probe counter as the card in the sidebar.',
+            t("ask the process for its model list once more. This is the only request this panel sends on its own, and it counts in the same probe counter as the card in the sidebar."),
 
-        noRouterTitle: 'This sidecar serves one fixed file, so there is nothing to switch',
+        noRouterTitle: t("This sidecar serves one fixed file, so there is nothing to switch"),
         noRouterText:
-            'It was started with -m and a path. A sidecar in that shape ignores a different "model" '
-            + 'field in a request SILENTLY: measured on 2026-08-29 against this build, a request naming '
-            + 'another model came back with a normal answer from the loaded one, no error and no '
-            + 'warning. A list to click here would therefore do nothing and say nothing about it, '
-            + 'which is worse than no list.',
+            t("It was started with -m and a path. A sidecar in that shape ignores a different \"model\" field in a request SILENTLY: measured on 2026-08-29 against this build, a request naming another model came back with a normal answer from the loaded one, no error and no warning. A list to click here would therefore do nothing and say nothing about it, which is worse than no list."),
         noRouterHow:
-            'Start it over your cache directory instead. Then /v1/models lists what lies there, the '
-            + '"model" field really chooses, and this block becomes a choice:',
+            t("Start it over your cache directory instead. Then /v1/models lists what lies there, the \"model\" field really chooses, and this block becomes a choice:"),
 
         /* ------------------------------------------------- eins dazuholen */
 
-        fetchTitle: 'Getting another model',
+        fetchTitle: t("Getting another model"),
         honesty:
-            'This line goes out to the network: it downloads from huggingface.co and writes the file '
-            + 'into the model cache of this project, models/ next to the repository (ATLAS_MODELS_DIR '
-            + 'or LLAMA_CACHE move it elsewhere). This application downloads nothing itself. It has no '
-            + 'backend, it starts no process and it writes no file; what it can do is hand you the '
-            + 'line and read the cache again afterwards.',
+            t("This line goes out to the network: it downloads from huggingface.co and writes the file into the model cache of this project, models/ next to the repository (ATLAS_MODELS_DIR or LLAMA_CACHE move it elsewhere). This application downloads nothing itself. It has no backend, it starts no process and it writes no file; what it can do is hand you the line and read the cache again afterwards."),
         noProgressBar:
-            'There is no progress bar here because this window cannot see the download. A bar over a '
-            + 'transfer that another process is running would be an animation, not a measurement.',
-        suggestionsTitle: 'The six this project measured',
+            t("There is no progress bar here because this window cannot see the download. A bar over a transfer that another process is running would be an animation, not a measurement."),
+        suggestionsTitle: t("The six this project measured"),
         suggestionsIntro:
-            'Six files, 44 questions, temperature 0, seed 42, one machine, one day '
-            + '(verification/w5/eval.json, the table in docs/adr/0001-modellwahl.md). That is what is '
-            + 'known about these six and it is not a statement about any other model or any other '
-            + 'machine. The field below takes any repository.',
-        columnModel: 'model',
-        columnClass: 'class',
-        columnPass: 'questions passed',
-        columnCitation: 'citations kept',
-        columnSpeed: 'speed',
-        columnSize: 'size',
+            t("Six files, 44 questions, temperature 0, seed 42, one machine, one day (verification/w5/eval.json, the table in docs/adr/0001-modellwahl.md). That is what is known about these six and it is not a statement about any other model or any other machine. The field below takes any repository."),
+        columnModel: t("model"),
+        columnClass: t("class"),
+        columnPass: t("questions passed"),
+        columnCitation: t("citations kept"),
+        columnSpeed: t("speed"),
+        columnSize: t("size"),
         classValue: (label: string): string =>
-            label === 'B' ? 'B, 8192 tokens of context' : 'A, 3072 tokens of context',
-        passValue: (percent: string, questions: number): string => `${percent} of ${questions}`,
-        citationValue: (percent: string): string => `${percent} of the answers`,
+            label === 'B' ? t("B, 8192 tokens of context") : t("A, 3072 tokens of context"),
+        passValue: (percent: string, questions: number): string => tr`${percent} of ${questions}`,
+        citationValue: (percent: string): string => tr`${percent} of the answers`,
         unmeasuredValue: (count: number): string =>
             count === 1
-                ? '1 answer could not be measured for citations'
-                : `${count} answers could not be measured for citations`,
+                ? t("1 answer could not be measured for citations")
+                : tr`${count} answers could not be measured for citations`,
         /*
          * Der Fall, den es heute wirklich gibt: verification/w5/eval.json stammt
          * von vor der Aenderung an der Zitatpruefung (W10, AC8) und fuehrt das
          * Feld nicht. Eine Null waere hier die Behauptung, es habe keine
          * ungemessene Antwort gegeben, und genau das weiss niemand.
          */
-        unmeasuredMissing: 'the recorded run does not report unmeasured answers',
-        speedValue: (tokens: string): string => `${tokens} tokens/s`,
-        repoTitle: (repo: string): string => `on Hugging Face: ${repo}`,
-        copy: 'copy',
-        copying: 'copying...',
-        copyTitle: 'copy this line to the clipboard',
-        copied: 'copied to the clipboard',
-        copyFailed: 'the clipboard refused. The line stands above as text and can be selected.',
+        unmeasuredMissing: t("the recorded run does not report unmeasured answers"),
+        speedValue: (tokens: string): string => tr`${tokens} tokens/s`,
+        repoTitle: (repo: string): string => tr`on Hugging Face: ${repo}`,
+        copy: t("copy"),
+        copying: t("copying..."),
+        copyTitle: t("copy this line to the clipboard"),
+        copied: t("copied to the clipboard"),
+        copyFailed: t("the clipboard refused. The line stands above as text and can be selected."),
 
-        freeTitle: 'Any other repository',
+        freeTitle: t("Any other repository"),
         freeIntro:
-            'The shape is user/repo, with an optional :quant behind it. Only the shape is checked '
-            + 'here. Whether the repository exists is something only huggingface.co knows, and this '
-            + 'window does not talk to it.',
-        freeLabel: 'a Hugging Face repository',
-        freePlaceholder: 'user/repo or user/repo:quant',
-        freeEmpty: 'type a repository, for example unsloth/Qwen3.5-9B-GGUF',
+            t("The shape is user/repo, with an optional :quant behind it. Only the shape is checked here. Whether the repository exists is something only huggingface.co knows, and this window does not talk to it."),
+        freeLabel: t("a Hugging Face repository"),
+        freePlaceholder: t("user/repo or user/repo:quant"),
+        freeEmpty: t("type a repository, for example unsloth/Qwen3.5-9B-GGUF"),
         freeShape:
-            'that is not the shape of a repository id. It is user/repo, with an optional :quant '
-            + 'behind it, and letters, digits, dots, dashes and underscores in the two names.',
-        freeOk: 'the shape is right. Whether it exists is decided by huggingface.co, not by this field.',
+            t("that is not the shape of a repository id. It is user/repo, with an optional :quant behind it, and letters, digits, dots, dashes and underscores in the two names."),
+        freeOk: t("the shape is right. Whether it exists is decided by huggingface.co, not by this field."),
 
         /* ------------------------------------------------- Darstellung und Leistung */
 
-        displayTitle: 'Drawing, and what it costs',
+        displayTitle: t("Drawing, and what it costs"),
         displayIntro:
-            'Everything that costs computing time is in this block and only here. Each switch says '
-            + 'what it does to the scene, and once you use it, what it did on THIS machine: frames per '
-            + 'second before, frames per second after, on the scene that was on the screen. No switch '
-            + 'here promises anything.',
-        displayStored: (key: string): string => `kept in this browser under ${key}`,
-        liveValue: (fps: string): string => `${fps} frames/s right now`,
+            t("Everything that costs computing time is in this block and only here. Each switch says what it does to the scene, and once you use it, what it did on THIS machine: frames per second before, frames per second after, on the scene that was on the screen. No switch here promises anything."),
+        displayStored: (key: string): string => tr`kept in this browser under ${key}`,
+        liveValue: (fps: string): string => tr`${fps} frames/s right now`,
         liveIdle:
-            'the graph is not drawing right now, so there is nothing to measure. Open the graph panel '
-            + 'with [a]tlas and the counter starts.',
-        liveScene: (nodes: number, edges: number): string => `${nodes} nodes, ${edges} edges`,
+            t("the graph is not drawing right now, so there is nothing to measure. Open the graph panel with [a]tlas and the counter starts."),
+        liveScene: (nodes: number, edges: number): string => tr`${nodes} nodes, ${edges} edges`,
 
-        measureIdle: 'not measured yet',
-        measureRunning: 'measuring, one window before and one after',
+        measureIdle: t("not measured yet"),
+        measureRunning: t("measuring, one window before and one after"),
         measureNotDrawing:
-            'nothing was drawn while this changed, so nothing was measured: the graph panel is folded '
-            + 'away and its render loop stands still.',
+            t("nothing was drawn while this changed, so nothing was measured: the graph panel is folded away and its render loop stands still."),
         measureNoDifference: (before: string, after: string, band: string): string =>
-            `before ${before} frames/s, after ${after} frames/s. That is inside the spread this `
-            + `machine shows without any change at all (${band} frames/s), so there is no measurable `
-            + 'difference here.',
+            tr`before ${before} frames/s, after ${after} frames/s. That is inside the spread this machine shows without any change at all (${band} frames/s), so there is no measurable difference here.`,
         measureHigher: (before: string, after: string, band: string): string =>
-            `before ${before} frames/s, after ${after} frames/s, past the ${band} frames/s this `
-            + 'machine wobbles by on its own.',
+            tr`before ${before} frames/s, after ${after} frames/s, past the ${band} frames/s this machine wobbles by on its own.`,
         measureLower: (before: string, after: string, band: string): string =>
-            `before ${before} frames/s, after ${after} frames/s, past the ${band} frames/s this `
-            + 'machine wobbles by on its own.',
+            tr`before ${before} frames/s, after ${after} frames/s, past the ${band} frames/s this machine wobbles by on its own.`,
         measureScene: (nodes: number, edges: number, at: string): string =>
-            `measured on ${nodes} nodes and ${edges} edges at ${at}`,
+            tr`measured on ${nodes} nodes and ${edges} edges at ${at}`,
 
-        settingProjection: 'view',
+        settingProjection: t("view"),
         settingProjectionDetail:
-            'the flat view is an orthographic camera looking down the z axis. It drops the third axis '
-            + 'instead of foreshortening it, and the controls lose their rotation; panning and zooming '
-            + 'stay.',
+            t("the flat view is an orthographic camera looking down the z axis. It drops the third axis instead of foreshortening it, and the controls lose their rotation; panning and zooming stay."),
         valueSpatial: '3D',
         valueFlat: '2D',
-        settingHalos: 'landmark halos',
+        settingHalos: t("landmark halos"),
         settingHalosDetail:
-            'the glow around the biggest hubs. It is an extra sprite layer drawn over the cloud.',
-        settingBloom: 'bloom',
+            t("the glow around the biggest hubs. It is an extra sprite layer drawn over the cloud."),
+        settingBloom: t("bloom"),
         settingBloomDetail:
-            'the post-processing pass that makes bright points glow. It renders the scene a second '
-            + 'time into a smaller buffer and blurs it.',
-        settingEdges: 'edges',
+            t("the post-processing pass that makes bright points glow. It renders the scene a second time into a smaller buffer and blurs it."),
+        settingEdges: t("edges"),
         settingEdgesDetail:
-            'none does not draw the edge layer at all. Dimming it to nothing would cost the same and '
-            + 'only look cheaper.',
-        valueEdgesFull: 'all',
-        valueEdgesDim: 'dim',
-        valueEdgesOff: 'none',
-        settingLabels: 'labels',
+            t("none does not draw the edge layer at all. Dimming it to nothing would cost the same and only look cheaper."),
+        valueEdgesFull: t("all"),
+        valueEdgesDim: t("dim"),
+        valueEdgesOff: t("none"),
+        settingLabels: t("labels"),
         settingLabelsDetail:
-            'names beyond this distance from the camera are not drawn. Each name carries its own '
-            + 'texture and its own draw call. Until now their visibility depended on node size alone '
-            + 'and the camera did not come into it.',
-        valueLabelsAll: 'all of them',
-        valueLabelsFar: 'within twice the scene radius',
-        valueLabelsNear: 'within the scene radius',
-        settingFrameCap: 'frame ceiling',
+            t("names beyond this distance from the camera are not drawn. Each name carries its own texture and its own draw call. Until now their visibility depended on node size alone and the camera did not come into it."),
+        valueLabelsAll: t("all of them"),
+        valueLabelsFar: t("within twice the scene radius"),
+        valueLabelsNear: t("within the scene radius"),
+        settingFrameCap: t("frame ceiling"),
         settingFrameCapDetail:
-            'with a ceiling the render loop is driven by a clock instead of by the screen, so a '
-            + 'machine that cannot reach 60 stops trying. Without one it runs exactly as it did '
-            + 'before this panel existed.',
-        valueCapOff: 'none',
-        valueCap: (fps: number): string => `${fps} per second`,
-        settingAgents: 'live agent layer',
+            t("with a ceiling the render loop is driven by a clock instead of by the screen, so a machine that cannot reach 60 stops trying. Without one it runs exactly as it did before this panel existed."),
+        valueCapOff: t("none"),
+        valueCap: (fps: number): string => tr`${fps} per second`,
+        settingAgents: t("live agent layer"),
         settingAgentsDetail:
-            'the glowing bodies that orbit the symbol an agent is working on, and their search pings '
-            + 'and test lines. Each actor is one element that is placed again in every frame. Off '
-            + 'draws none of it; the instrument in the corner stays and says so.',
-        settingAgentTails: 'agent comet tails',
+            t("the glowing bodies that orbit the symbol an agent is working on, and their search pings and test lines. Each actor is one element that is placed again in every frame. Off draws none of it; the instrument in the corner stays and says so."),
+        settingAgentTails: t("agent comet tails"),
         settingAgentTailsDetail:
-            'the short trail right behind a body while it flies from one symbol to the next. One '
-            + 'line of twelve points per actor, refilled in every frame of the flight. Off leaves '
-            + 'the flight itself untouched.',
-        settingAgentTrails: 'agent trails',
+            t("the short trail right behind a body while it flies from one symbol to the next. One line of twelve points per actor, refilled in every frame of the flight. Off leaves the flight itself untouched."),
+        settingAgentTrails: t("agent trails"),
         settingAgentTrailsDetail:
-            'the dashed line through the last symbols an actor touched, drawn under the real edges. '
-            + 'Up to ten nodes per actor and 120 segments in total; a dashed line needs its own '
-            + 'length computation per point. It is the reading that shows whether someone follows a '
-            + 'call path or jumps across the repository, so it is the last one to switch off.',
-        settingAgentWaves: 'agent write waves',
+            t("the dashed line through the last symbols an actor touched, drawn under the real edges. Up to ten nodes per actor and 120 segments in total; a dashed line needs its own length computation per point. It is the reading that shows whether someone follows a call path or jumps across the repository, so it is the last one to switch off."),
+        settingAgentWaves: t("agent write waves"),
         settingAgentWavesDetail:
-            'one concentric wave per burst of writes on the same symbol. One per burst, not one per '
-            + 'event: a wave per event would be a firework and say nothing.',
-        settingAgentTimeline: 'agent timeline',
+            t("one concentric wave per burst of writes on the same symbol. One per burst, not one per event: a wave per event would be a firework and say nothing."),
+        settingAgentTimeline: t("agent timeline"),
         settingAgentTimelineDetail:
-            'the strip under the graph: one track per actor, one tick per event, redrawn on every '
-            + 'tick of the instrument clock. It only appears when the graph area is at least 600 px '
-            + 'wide; narrower than that, one tick cannot be told from the next.',
-        switchOn: 'on',
-        switchOff: 'off',
+            t("the strip under the graph: one track per actor, one tick per event, redrawn on every tick of the instrument clock. It only appears when the graph area is at least 600 px wide; narrower than that, one tick cannot be told from the next."),
+        switchOn: t("on"),
+        switchOff: t("off"),
 
-        profileTitle: 'Both at once',
-        profileThrifty: 'thrifty profile',
+        profileTitle: t("Both at once"),
+        profileThrifty: t("thrifty profile"),
         profileThriftyDetail:
-            'sets the flat view, no halos, no bloom, dim edges, labels within the scene radius, a '
-            + 'ceiling of 30 and no agent tails, trails, waves or timeline, in one step. Fullscreen '
-            + 'keeps working after it, only quieter.',
-        profileDefault: 'back to the default',
-        profileDefaultDetail: 'puts every switch in this block back to what it starts with.',
-        profileIsDefault: 'every switch is on its default',
-        profileChanged: 'this differs from the default',
+            t("sets the flat view, no halos, no bloom, dim edges, labels within the scene radius, a ceiling of 30 and no agent tails, trails, waves or timeline, in one step. Fullscreen keeps working after it, only quieter."),
+        profileDefault: t("back to the default"),
+        profileDefaultDetail: t("puts every switch in this block back to what it starts with."),
+        profileIsDefault: t("every switch is on its default"),
+        profileChanged: t("this differs from the default"),
 
-        keepsTitle: 'What stays where it is',
+        keepsTitle: t("What stays where it is"),
         keepsText:
-            'Switches that only change what you see and cost nothing to draw stay in their own '
-            + 'panels: the detail level of the twin, the legend, the galaxy and hierarchy switch, and '
-            + 'the edge-kind filters inside the legend. The point was to bundle the expensive things, '
-            + 'not to build a menu that everything disappears into.',
+            t("Switches that only change what you see and cost nothing to draw stay in their own panels: the detail level of the twin, the legend, the galaxy and hierarchy switch, and the edge-kind filters inside the legend. The point was to bundle the expensive things, not to build a menu that everything disappears into."),
     },
 
     /**
@@ -974,135 +843,130 @@ export const messages = {
      * not about one subject area.
      */
     projects: {
-        title: 'CBM LENS PROJECTS',
-        subtitle: 'what this server has indexed, and how to give it more',
-        panelLabel: 'projects',
-        close: '[esc] close',
+        title: t("CBM LENS PROJECTS"),
+        subtitle: t("what this server has indexed, and how to give it more"),
+        panelLabel: t("projects"),
+        close: t("[esc] close"),
         closeLabel: CLOSE,
         /** The entry in the atlas row. The letter sits in brackets. */
-        menuLabel: '[p]rojects',
+        menuLabel: t("[p]rojects"),
         /** The atlas row entry that opens this panel to index a repository; alt+p opens it as well. */
-        addIndexLabel: 'Add project index',
-        addIndexTitle: 'Choose a repository folder to index',
+        addIndexLabel: t("Add project index"),
+        addIndexTitle: t("Choose a repository folder to index"),
 
         /* ------------------------------------------------------- the list */
 
-        listTitle: 'Projects on this server',
-        listSource: 'read from list_projects over /rpc',
-        listLoading: 'asking the server ...',
+        listTitle: t("Projects on this server"),
+        listSource: t("read from list_projects over /rpc"),
+        listLoading: t("asking the server ..."),
         listEmpty:
-            'nothing is indexed yet. Index a repository below, or on the command line: '
-            + 'codebase-memory-mcp cli index_repository',
-        listError: (detail: string): string => `the list did not arrive: ${detail}`,
-        refresh: 'refresh',
-        openNow: 'open now',
-        open: 'open',
-        openTitle: (name: string): string => `open ${name}: the page reloads with ?project=${name}`,
-        counts: (nodes: number, edges: number): string => `${nodes} sym, ${edges} edg`,
-        countsUnknown: 'counts not sent',
-        check: 'check',
-        checkTitle: 'GET /api/project-health: does the index file open, and what does it hold',
+            t("nothing is indexed yet. Index a repository below, or on the command line: codebase-memory-mcp cli index_repository"),
+        listError: (detail: string): string => tr`the list did not arrive: ${detail}`,
+        refresh: t("refresh"),
+        openNow: t("open now"),
+        open: t("open"),
+        openTitle: (name: string): string => tr`open ${name}: the page reloads with ?project=${name}`,
+        counts: (nodes: number, edges: number): string => tr`${nodes} sym, ${edges} edg`,
+        countsUnknown: t("counts not sent"),
+        check: t("check"),
+        checkTitle: t("GET /api/project-health: does the index file open, and what does it hold"),
         healthHealthy: (nodes: number, edges: number, mb: string): string =>
-            `healthy: ${nodes} symbols, ${edges} edges, ${mb} MB on disk`,
-        healthMissing: 'missing: the server has no index file under this name',
-        healthCorrupt: (reason: string): string => `corrupt: ${reason}`,
-        healthUnknown: 'the server answered with a verdict this panel does not know',
-        reindex: 'reindex',
-        reindexTitle: (root: string): string => `POST /api/index for ${root}: rebuilds the index in the background`,
-        noRoot: 'root path not sent by the server; reindex from the form below',
-        remove: 'delete',
-        removeTitle: 'DELETE /api/project: removes the index file, never the repository',
+            tr`healthy: ${nodes} symbols, ${edges} edges, ${mb} MB on disk`,
+        healthMissing: t("missing: the server has no index file under this name"),
+        healthCorrupt: (reason: string): string => tr`corrupt: ${reason}`,
+        healthUnknown: t("the server answered with a verdict this panel does not know"),
+        reindex: t("reindex"),
+        reindexTitle: (root: string): string => tr`POST /api/index for ${root}: rebuilds the index in the background`,
+        noRoot: t("root path not sent by the server; reindex from the form below"),
+        remove: t("delete"),
+        removeTitle: t("DELETE /api/project: removes the index file, never the repository"),
         removeArmed: (name: string): string =>
-            `delete the index of ${name}? The repository on disk stays as it is.`,
-        removeConfirm: 'yes, delete the index',
-        cancel: 'cancel',
-        removed: (name: string): string => `${name}: index deleted`,
-        removeError: (detail: string): string => `not deleted: ${detail}`,
+            tr`delete the index of ${name}? The repository on disk stays as it is.`,
+        removeConfirm: t("yes, delete the index"),
+        cancel: t("cancel"),
+        removed: (name: string): string => tr`${name}: index deleted`,
+        removeError: (detail: string): string => tr`not deleted: ${detail}`,
 
         /* ------------------------------------------------------- the form */
 
-        indexTitle: 'Index a repository',
+        indexTitle: t("Index a repository"),
         indexIntro:
-            'The server does the indexing; this window only asks. The path has to be a folder the '
-            + 'server may read (its workspace boundary applies), and the job runs in the background '
-            + 'while you keep reading.',
-        pathLabel: 'repository path',
+            t("The server does the indexing; this window only asks. The path has to be a folder the server may read (its workspace boundary applies), and the job runs in the background while you keep reading."),
+        pathLabel: t("repository path"),
         pathPlaceholder: '/absolute/path/to/repository',
-        browse: 'browse',
-        browseTitle: 'GET /api/browse: list the folders under this path',
-        browseClose: 'close browser',
-        browseAt: (path: string): string => `folders in ${path}`,
-        browseUp: 'up one level',
-        browseUse: 'use this folder',
-        browseEmpty: 'no folders here',
-        browseError: (detail: string): string => `browsing failed: ${detail}`,
-        nameLabel: 'project name',
-        nameHint: 'suggested from the last path segment; change it if you like',
-        start: 'index',
-        startTitle: 'POST /api/index: start a background job for this path',
-        started: (path: string): string => `job accepted for ${path}; its state appears below`,
-        startError: (detail: string): string => `the server refused: ${detail}`,
-        jobsTitle: 'Index jobs since the server started',
+        browse: t("browse"),
+        browseTitle: t("GET /api/browse: list the folders under this path"),
+        browseClose: t("close browser"),
+        browseAt: (path: string): string => tr`folders in ${path}`,
+        browseUp: t("up one level"),
+        browseUse: t("use this folder"),
+        browseEmpty: t("no folders here"),
+        browseError: (detail: string): string => tr`browsing failed: ${detail}`,
+        nameLabel: t("project name"),
+        nameHint: t("suggested from the last path segment; change it if you like"),
+        start: t("index"),
+        startTitle: t("POST /api/index: start a background job for this path"),
+        started: (path: string): string => tr`job accepted for ${path}; its state appears below`,
+        startError: (detail: string): string => tr`the server refused: ${detail}`,
+        jobsTitle: t("Index jobs since the server started"),
         jobsSource: (seconds: string): string =>
-            `read from GET /api/index-status, asked again every ${seconds} s while a job runs`,
-        jobsNone: 'no job has run yet',
-        jobIndexing: 'indexing',
-        jobDone: 'done',
-        jobError: (error: string): string => `failed: ${error}`,
-        jobUnknown: 'state not known to this panel',
+            tr`read from GET /api/index-status, asked again every ${seconds} s while a job runs`,
+        jobsNone: t("no job has run yet"),
+        jobIndexing: t("indexing"),
+        jobDone: t("done"),
+        jobError: (error: string): string => tr`failed: ${error}`,
+        jobUnknown: t("state not known to this panel"),
 
         /* -------------------------------------------------------- the adr */
 
-        adrTitle: 'Decision record',
-        adrOpen: 'Open ADR',
+        adrTitle: t("Decision record"),
+        adrOpen: t("Open ADR"),
         adrIntro: (project: string): string =>
-            `The architecture decision record the server keeps for ${project}, as markdown. Saving `
-            + 'stores it in the project index; a reindex keeps it.',
-        adrNoProject: 'open a project to read or write its decision record',
-        adrLoading: 'reading ...',
-        adrNone: 'no record yet; what you save here becomes the first one',
-        adrUpdated: (at: string): string => `last saved ${at}`,
-        adrLabel: 'decision record, markdown',
-        adrSave: 'save',
-        adrSaveTitle: 'POST /api/adr: store this text for the open project',
-        adrSaved: 'saved',
-        adrBusy: 'the project is being indexed right now; save again when the job is done',
-        adrError: (detail: string): string => `not saved: ${detail}`,
-        adrReadError: (detail: string): string => `the record did not arrive: ${detail}`,
+            tr`The architecture decision record the server keeps for ${project}, as markdown. Saving stores it in the project index; a reindex keeps it.`,
+        adrNoProject: t("open a project to read or write its decision record"),
+        adrLoading: t("reading ..."),
+        adrNone: t("no record yet; what you save here becomes the first one"),
+        adrUpdated: (at: string): string => tr`last saved ${at}`,
+        adrLabel: t("decision record, markdown"),
+        adrSave: t("save"),
+        adrSaveTitle: t("POST /api/adr: store this text for the open project"),
+        adrSaved: t("saved"),
+        adrBusy: t("the project is being indexed right now; save again when the job is done"),
+        adrError: (detail: string): string => tr`not saved: ${detail}`,
+        adrReadError: (detail: string): string => tr`the record did not arrive: ${detail}`,
 
         /* ----------------------------------------------------- the server */
 
-        serverTitle: 'This server',
-        processesSource: 'read from GET /api/processes',
-        processesSelf: (pid: number, mb: string): string => `serving this page: pid ${pid}, ${mb} MB resident`,
+        serverTitle: t("This server"),
+        processesSource: t("read from GET /api/processes"),
+        processesSelf: (pid: number, mb: string): string => tr`serving this page: pid ${pid}, ${mb} MB resident`,
         processesOthers: (count: number): string =>
-            count === 1 ? 'one other codebase-memory-mcp process' : `${count} other codebase-memory-mcp processes`,
-        processesNone: 'no other codebase-memory-mcp process is running',
+            count === 1 ? t("one other codebase-memory-mcp process") : tr`${count} other codebase-memory-mcp processes`,
+        processesNone: t("no other codebase-memory-mcp process is running"),
         processRow: (pid: number, cpu: string, mb: string, elapsed: string): string =>
-            `pid ${pid}: ${cpu}% cpu, ${mb} MB, up ${elapsed}`,
-        processesError: (detail: string): string => `the process list did not arrive: ${detail}`,
-        logsTitle: 'Log tail',
-        logsSource: (shown: number, total: number): string => `read from GET /api/logs: ${shown} of ${total} lines`,
-        logsEmpty: 'the log ring is empty',
-        logsError: (detail: string): string => `the log did not arrive: ${detail}`,
-        uiLogTitle: 'Frontend log',
+            tr`pid ${pid}: ${cpu}% cpu, ${mb} MB, up ${elapsed}`,
+        processesError: (detail: string): string => tr`the process list did not arrive: ${detail}`,
+        logsTitle: t("Log tail"),
+        logsSource: (shown: number, total: number): string => tr`read from GET /api/logs: ${shown} of ${total} lines`,
+        logsEmpty: t("the log ring is empty"),
+        logsError: (detail: string): string => tr`the log did not arrive: ${detail}`,
+        uiLogTitle: t("Frontend log"),
         uiLogSource: (shown: number, total: number, path: string): string =>
-            `read from GET /api/ui-log: ${shown} of ${total} lines of ${path}`,
-        uiLogPrevious: (path: string): string => `Local compatibility export archive: ${path}; retained history is read from SQLite.`,
+            tr`read from GET /api/ui-log: ${shown} of ${total} lines of ${path}`,
+        uiLogPrevious: (path: string): string => tr`Local compatibility export archive: ${path}; retained history is read from SQLite.`,
         uiLogAbout:
-            'This page records console output, uncaught errors and failed requests in the daemon’s local SQLite journal. '
-            + 'The JSONL file remains a bounded compatibility export. Review any content before sharing it; nothing is published automatically.',
-        uiLogEmpty: 'nothing recorded yet',
-        uiLogError: (detail: string): string => `the frontend log did not arrive: ${detail}`,
-        reload: 'reload',
+            t("This page records console output, uncaught errors and failed requests in the daemon’s local SQLite journal. The JSONL file remains a bounded compatibility export. Review any content before sharing it; nothing is published automatically."),
+        uiLogEmpty: t("nothing recorded yet"),
+        uiLogError: (detail: string): string => tr`the frontend log did not arrive: ${detail}`,
+        reload: t("reload"),
     },
 
     /** Der Rahmen des Twins. Seine Fakten-Saetze stehen in twin/strings.ts. */
     twin: {
         /** Das Etikett des Leseprofils, mit dem dieses Produkt startet. */
-        profileLabel: 'CBM Lens Twin',
+        profileLabel: t("CBM Lens Twin"),
         /** Der Kopf des Panels, solange kein Symbol vor dem Leser steht. */
-        noSymbol: 'no symbol',
+        noSymbol: t("no symbol"),
     },
 } as const;
 

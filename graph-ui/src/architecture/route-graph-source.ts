@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 import type { GraphNode } from '../galaxy/types';
 import { RpcIntelligenceClient, rowsToObjects } from '../provider/rpc-client';
 import type { RpcClientOptions } from '../provider/rpc-client';
@@ -73,7 +74,7 @@ export async function loadRouteGraph(project: string, options: RouteGraphOptions
                 const page = await client.queryGraph(project, queryText(query), cursor);
                 if (first && (page.offset !== rowCount || page.total !== first.total
                     || JSON.stringify(page.columns) !== JSON.stringify(first.columns) || page.rows.length === 0)) {
-                    throw new Error('Query continuation changed its snapshot.');
+                    throw new Error(t("Query continuation changed its snapshot."));
                 }
                 first ??= page;
                 const rows = rowsToObjects(page.columns, page.rows);
@@ -84,7 +85,7 @@ export async function loadRouteGraph(project: string, options: RouteGraphOptions
                     if (!source || !target || !['HTTP_CALLS', 'ASYNC_CALLS', 'HANDLES'].includes(type)
                         || !query.relations.split('|').includes(type)) {
                         truncated = true;
-                        warnings.push('Some route relationship rows had incomplete identities and were omitted.');
+                        warnings.push(t("Some route relationship rows had incomplete identities and were omitted."));
                         continue;
                     }
                     relationships.push({ source, target, type: type as RouteRelationship['type'],
@@ -98,7 +99,7 @@ export async function loadRouteGraph(project: string, options: RouteGraphOptions
                 if (rowCount >= ROW_CAP || !page.nextCursor || seenCursors.has(page.nextCursor)
                     || seenCursors.size >= 20 || (page.nextOffset !== undefined && page.nextOffset !== rowCount)) {
                     truncated = true;
-                    warnings.push(`Route relationship lookup was limited to ${Math.min(rowCount, ROW_CAP)} rows for ${query.source} → ${query.target} (${query.relations}).`);
+                    warnings.push(tr`Route relationship lookup was limited to ${Math.min(rowCount, ROW_CAP)} rows for ${query.source} → ${query.target} (${query.relations}).`);
                     break;
                 }
                 seenCursors.add(page.nextCursor);
@@ -107,7 +108,7 @@ export async function loadRouteGraph(project: string, options: RouteGraphOptions
         } catch (error) {
             if (options.signal?.aborted || (error instanceof Error && error.name === 'AbortError')) throw error;
             truncated = true;
-            warnings.push(`Could not finish ${query.source} → ${query.target} (${query.relations}): ${error instanceof Error ? error.message : 'query unavailable'}`);
+            warnings.push(tr`Could not finish ${query.source} → ${query.target} (${query.relations}): ${error instanceof Error ? error.message : t("query unavailable")}`);
         }
         return { relationships, truncated, warnings };
     }));

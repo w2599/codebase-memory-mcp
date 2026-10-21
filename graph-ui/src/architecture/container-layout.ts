@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 import type { ContainerTopology } from './container-topology';
 import type { SemanticGraph } from './semantic-graph';
 import { SCENE_PALETTE } from './scene-palette';
@@ -47,12 +48,12 @@ export function layoutContainers(topology: ContainerTopology): { graph: Semantic
         offsetX += (columns - 1) * 28 + 34;
     }
     const graph: SemanticGraph = {
-        view: 'routes', scopeKey: services.map(service => service.id).join('|'), title: 'Container service map',
-        positionMeaning: 'Squares represent declared services. Dependency layers advance left to right; peers and cycles share compact regions.',
+        view: 'routes', scopeKey: services.map(service => service.id).join('|'), title: t("Container service map"),
+        positionMeaning: t("Squares represent declared services. Dependency layers advance left to right; peers and cycles share compact regions."),
         nodes: services.map(service => ({ id: service.id, kind: 'area', label: service.name,
-            detail: `${service.project} · ${service.image ?? 'built from source'}`, position: positions.get(service.id)!,
+            detail: `${service.project} · ${service.image ?? t("built from source")}`, position: positions.get(service.id)!,
             count: service.sourcePaths.length, members: [], footprint: [18, 18],
-            tint: service.sourcePaths.length ? SCENE_PALETTE.serviceSource : SCENE_PALETTE.serviceImage, kindLabel: 'Declared service' })),
+            tint: service.sourcePaths.length ? SCENE_PALETTE.serviceSource : SCENE_PALETTE.serviceImage, kindLabel: t("Declared service") })),
         edges: [...topology.connections].sort((a, b) => a.id.localeCompare(b.id)).map(edge => {
             const type = edge.kind === 'startup' ? 'STARTUP_DEPENDENCY' : edge.kind === 'configuration' ? 'CONFIGURES'
                 : /redis|postgres|mysql|database|sql/i.test(edge.protocol) ? 'SERVICE_CALLS'

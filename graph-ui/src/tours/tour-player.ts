@@ -1,3 +1,4 @@
+import { tr } from '../i18n/translate';
 /**
  * The arithmetic and the key meanings of the step card, without a card.
  *
@@ -32,7 +33,7 @@ export function progressLabel(index: number, total: number): string {
         return 'STEP 0/0';
     }
     const at = Math.min(Math.max(index, 0), total - 1);
-    return `STEP ${at + 1}/${total}`;
+    return tr`STEP ${at + 1}/${total}`;
 }
 
 /**
@@ -113,5 +114,5 @@ export function capNote(truncated: boolean, cap: number, depth: number): string 
     if (!truncated) {
         return '';
     }
-    return `walk capped at ${cap} symbols (depth ${depth}), so what follows this is not shown`;
+    return tr`walk capped at ${cap} symbols (depth ${depth}), so what follows this is not shown`;
 }

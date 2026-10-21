@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /*
  * Herkunft: portiert am 2026-08-28 aus CodeAtlasIDE,
  * /Users/bernhard/Desktop/CodeAtlasIDE/theia-extensions/codeatlas-views/src/browser/twin/render-model.ts
@@ -711,7 +712,7 @@ function overviewClauses(ir: SemanticIR, facets: ReadonlySet<Facet>): string[] {
         if (callees.length > 0) {
             clauses.push(proseCalls(ir.symbol.name, callees));
         } else {
-            absent.push('outgoing call');
+            absent.push(t("outgoing call"));
         }
     }
     if (facets.has(Facet.Data)) {
@@ -719,7 +720,7 @@ function overviewClauses(ir: SemanticIR, facets: ReadonlySet<Facet>): string[] {
         if (reads.length > 0) {
             clauses.push(proseReads(ir.symbol.name, reads));
         } else if (sharedNames(ir).length === 0) {
-            absent.push('environment read');
+            absent.push(t("environment read"));
         }
     }
     if (facets.has(Facet.Errors)) {
@@ -727,11 +728,11 @@ function overviewClauses(ir: SemanticIR, facets: ReadonlySet<Facet>): string[] {
         if (errors.length > 0) {
             clauses.push(proseThrows(ir.symbol.name, errors));
         } else {
-            absent.push('stopping error');
+            absent.push(t("stopping error"));
         }
     }
     if (absent.length > 0) {
-        clauses.push(`The index records no ${joinNames(absent)} for ${ir.symbol.name}.`);
+        clauses.push(tr`The index records no ${joinNames(absent)} for ${ir.symbol.name}.`);
     }
     return clauses;
 }
@@ -741,13 +742,13 @@ function subjectLine(ir: SemanticIR): string {
     const lines = Math.max(1, ir.symbol.range.end.line - ir.symbol.range.start.line);
     const file = displayFile(ir.symbol.uri) ?? ir.symbol.uri;
     if (ir.steps.value.length === 0) {
-        return `${ir.symbol.name} is a ${plainKind(ir.symbol.kind)} spanning ${lines} lines in ${file}. `
-            + 'The index resolves no outgoing calls from this symbol.';
+        return tr`${ir.symbol.name} is a ${plainKind(ir.symbol.kind)} spanning ${lines} lines in ${file}. `
+            + t("The index resolves no outgoing calls from this symbol.");
     }
     const start = ir.symbol.range.start.line + 1;
     const end = ir.symbol.range.end.line;
-    return `${ir.symbol.name} is a ${plainKind(ir.symbol.kind)} spanning ${lines} lines in ${file}, `
-        + `from line ${start} through line ${end}.`;
+    return tr`${ir.symbol.name} is a ${plainKind(ir.symbol.kind)} spanning ${lines} lines in ${file}, `
+        + tr`from line ${start} through line ${end}.`;
 }
 
 /** Type references whose declaration lies outside the focused symbol. */
@@ -770,12 +771,12 @@ function contextLines(ir: SemanticIR, facets: ReadonlySet<Facet>): string[] {
     if (facets.has(Facet.Data)) {
         const names = sharedNames(ir);
         if (names.length > 0) {
-            lines.push(`${ir.symbol.name} leans on shared names declared outside its own lines: ${joinNames(names)}.`);
+            lines.push(tr`${ir.symbol.name} leans on shared names declared outside its own lines: ${joinNames(names)}.`);
         }
     }
     if (facets.has(Facet.Calls) && ir.calledBy.value.length > 0) {
         const callers = ir.calledBy.value.map((caller) => callerLabel(caller.name)).filter((name) => name.length > 0);
-        lines.push(`${callers.length} callers reach ${ir.symbol.name}: ${joinNames(callers)}.`);
+        lines.push(tr`${callers.length} callers reach ${ir.symbol.name}: ${joinNames(callers)}.`);
     }
     return lines;
 }
@@ -908,7 +909,7 @@ function juniorTerms(ir: SemanticIR, facets: ReadonlySet<Facet>): TwinTerm[] {
     if (ir.complexity.state === 'known' && ir.complexity.value.isEntryPoint) {
         add('entry point');
     }
-    return wanted.map((term) => ({ term, explanation: TERM_EXPLANATIONS[term] }));
+    return wanted.map((term) => ({ term: t(term), explanation: TERM_EXPLANATIONS[term] }));
 }
 
 function junior(ir: SemanticIR, presentation: ResolvedPresentation): TwinViewModel {

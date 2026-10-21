@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /**
  * Das SEMANTIC_TWIN-Panel: dieselbe IR, vier Tiefen, und keine Behauptung ohne
  * Beleg daneben.
@@ -1001,9 +1002,7 @@ function VoiceBar(props: {
                     </button>
                 </Hint>
             )}
-            <p className="atlas-twin-voice-note" data-testid="codeatlas-twin-built-provenance">
-                built from indexed facts and cited source lines.
-            </p>
+            <p className="atlas-twin-voice-note" data-testid="codeatlas-twin-built-provenance">{t("built from indexed facts and cited source lines.")}</p>
             {(!props.available || props.message.length > 0) && (
                 <p
                     className="atlas-twin-voice-note"
@@ -1011,7 +1010,7 @@ function VoiceBar(props: {
                     data-refused={props.state === 'refused'}
                 >
                     {props.available && props.state === 'applied'
-                        ? `${props.message} Model: ${props.model}.`
+                        ? tr`${props.message} Model: ${props.model}.`
                         : props.available ? props.message : VOICE_UNAVAILABLE}
                 </p>
             )}
@@ -1743,7 +1742,7 @@ export default function TwinPanel(props: TwinPanelProps): JSX.Element {
             validateRewrite: (answer: string) => {
                 const lines = model?.rewritable ?? [];
                 if (lines.length === 0) {
-                    return { applied: false, reason: 'this level has no assembled sentence' };
+                    return { applied: false, reason: t("this level has no assembled sentence") };
                 }
                 const outcome = applyReaderRewrite(lines, answer);
                 return outcome.kind === 'applied'
@@ -1800,8 +1799,7 @@ export default function TwinPanel(props: TwinPanelProps): JSX.Element {
                         data-fold={props.flowOpen ? 'collapse' : 'open'}
                         data-fold-of="flow"
                         onClick={props.onToggleFlow}
-                    >
-                        flow <span className="atlas-twin-subject-name">({props.symbolName})</span>
+                    >{t("flow ")}<span className="atlas-twin-subject-name">({props.symbolName})</span>
                         {/*
                           * Ein Wort statt `[-]` und `[+]`. Der Nutzer hat die
                           * Zeichen beim Testen am 2026-08-29 nicht verstanden,
@@ -1825,7 +1823,7 @@ export default function TwinPanel(props: TwinPanelProps): JSX.Element {
                     facets={props.presentation.facets}
                     onToggle={props.onToggleFacet}
                 />
-                <div className="atlas-twin-tabs" role="tablist" aria-label="twin body">
+                <div className="atlas-twin-tabs" role="tablist" aria-label={t("twin body")}>
                     <Hint name="twin-tab-facts" text={TWIN_TAB_TOOLTIP}>
                         <button
                             type="button"

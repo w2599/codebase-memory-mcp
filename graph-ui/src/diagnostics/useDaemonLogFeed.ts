@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 import { useCallback, useRef } from 'react';
 import type { AtlasApi } from '../app/atlas-api';
 import type { LogTail } from '../projects/projects-model';
@@ -13,7 +14,7 @@ export function useDaemonLogFeed(api: Pick<AtlasApi, 'logs'>, active = true, pol
         try {
             const data = await api.logs(200, 'warn', project);
             if (project !== undefined && (data.scope !== 'project' || data.project !== project)) {
-                throw new Error('Project log attribution is unavailable. Open daemon history for older, unattributed events.');
+                throw new Error(t("Project log attribution is unavailable. Open daemon history for older, unattributed events."));
             }
             const result = { key, data, updatedAt: Date.now() };
             if (currentKey.current === key) last.current = result;

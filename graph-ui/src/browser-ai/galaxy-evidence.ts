@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 import { nodeDisplayName } from '../galaxy/node-names';
 import type { RelationshipGroup, ScopeRelationships } from '../galaxy/selection-evidence';
 import type { RelationshipWords } from './strings';
@@ -87,7 +88,7 @@ export function readGalaxyEvidence(snapshot: string): GalaxyEvidence | undefined
     });
     const project = text(evidence.project, 120);
     return {
-        project: project ?? '', label: text(identity.name, 120) ?? roots[0]?.name ?? 'selection',
+        project: project ?? '', label: text(identity.name, 120) ?? roots[0]?.name ?? t("selection"),
         identity, selectionKind: text(identity.kind, 20) ?? 'node',
         roots, rootCount: Math.max(count(selected?.rootCount), roots.length),
         depth: count(scope.depth), direction, edgeTypes, nodes: count(scope.nodes), edges: count(scope.edges),

@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /**
  * Das Instrument unten rechts: es erklaert, was auf dem Graphen zu sehen ist.
  *
@@ -313,9 +314,7 @@ function Row(props: {
             {expanded && (
                 <span className="atlas-agents-card" data-testid="atlas-agents-card">
                     <span className="atlas-agents-card-line">
-                        {`${actor.count} events, ${
-                            actor.missed === 0 ? text.orderIntact : text.orderMissed(actor.missed)
-                        }`}
+                        {tr`${actor.count} events, ${actor.missed === 0 ? text.orderIntact : text.orderMissed(actor.missed)}`}
                     </span>
                     <span className="atlas-agents-card-line">
                         {`${actor.last.tool} ${actor.last.detail}`}
@@ -751,7 +750,7 @@ export default function AgentsHud(props: AgentsHudProps): JSX.Element {
                         .filter((part) => part.length > 0)
                         .join(' ')}
                 >
-                    {edge.below ? '▾ more' : '▴ more'}
+                    {edge.below ? t("▾ more") : t("▴ more")}
                 </span>
             )}
         </aside>

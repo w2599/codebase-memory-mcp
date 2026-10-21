@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 import type { ArchitectureHotspot } from '../core/intelligence-provider';
 import type { GraphData, GraphNode } from '../galaxy/types';
 import { layoutFolderHierarchy, pruneHierarchyPlatforms, type SemanticGraph, type SemanticNode } from './semantic-graph';
@@ -83,13 +84,13 @@ export function gravityStrength(fanIn: number | undefined, referenceFanIn: numbe
 
 export function hotspotSignals(finding: ArchitectureHotspot): string[] {
     const signals: string[] = [];
-    if (finding.fanIn !== undefined && Number.isFinite(finding.fanIn)) signals.push(`Fan-in ${finding.fanIn}`);
-    if (finding.complexity !== undefined && Number.isFinite(finding.complexity)) signals.push(`Complexity ${finding.complexity}`);
-    if (finding.cognitive !== undefined && Number.isFinite(finding.cognitive)) signals.push(`Cognitive ${finding.cognitive}`);
-    if (finding.loopDepth !== undefined && Number.isFinite(finding.loopDepth)) signals.push(`Loop depth ${finding.loopDepth}`);
-    if (finding.allocationInLoop) signals.push('Allocation in a loop');
-    if (finding.scanInLoop) signals.push('Linear scan in a loop');
-    if (finding.unguardedRecursion) signals.push('Unguarded recursion');
+    if (finding.fanIn !== undefined && Number.isFinite(finding.fanIn)) signals.push(tr`Fan-in ${finding.fanIn}`);
+    if (finding.complexity !== undefined && Number.isFinite(finding.complexity)) signals.push(tr`Complexity ${finding.complexity}`);
+    if (finding.cognitive !== undefined && Number.isFinite(finding.cognitive)) signals.push(tr`Cognitive ${finding.cognitive}`);
+    if (finding.loopDepth !== undefined && Number.isFinite(finding.loopDepth)) signals.push(tr`Loop depth ${finding.loopDepth}`);
+    if (finding.allocationInLoop) signals.push(t("Allocation in a loop"));
+    if (finding.scanInLoop) signals.push(t("Linear scan in a loop"));
+    if (finding.unguardedRecursion) signals.push(t("Unguarded recursion"));
     return signals;
 }
 
@@ -108,7 +109,7 @@ export function buildHotspotGraph(graph: GraphData, catalog: HotspotCatalog, fil
         const symbol = exact.length === 1 ? exact[0] : undefined;
         const id = symbol ? `hotspot:${symbol.id}` : `hotspot-file:${finding.filePath ?? identity(finding)}`;
         const projected: SemanticNode = { id, kind: symbol || !finding.filePath ? 'symbol' : 'file', label: symbol?.name ?? finding.filePath ?? finding.name,
-            detail: symbol ? hotspotSignals(finding).join(' · ') : 'Ranked hotspot; symbol identity is outside the loaded graph',
+            detail: symbol ? hotspotSignals(finding).join(' · ') : t("Ranked hotspot; symbol identity is outside the loaded graph"),
             position: [0, 0, 0], count: 1, graphNode: symbol, filePath: finding.filePath, line: finding.line,
             areaPath: finding.filePath ? areaOf(finding.filePath) : undefined, members: symbol ? [symbol] : [] };
         if (!matchingNodes.has(id) && `${finding.name} ${finding.filePath ?? ''} ${hotspotSignals(finding).join(' ')}`.toLowerCase().includes(match)) matchingNodes.set(id, projected);
@@ -127,8 +128,8 @@ export function buildHotspotGraph(graph: GraphData, catalog: HotspotCatalog, fil
         id: `hotspot-edge:${edge.id ?? index}`, source: byGraphId.get(edge.source)!, target: byGraphId.get(edge.target)!, type: edge.type, count: 1,
         evidence: [{ source: graphById.get(edge.source)!, target: graphById.get(edge.target)!, type: edge.type, id: edge.id, strategy: edge.strategy }],
     }));
-    return { view: 'hotspots', scopeKey: `hotspots:${filter}`, title: 'Hotspots and their connections',
-        positionMeaning: 'Platforms follow source folders; symbol positions follow file and source order, independently of rank. Gravity fields encode static fan-in, not runtime activity.',
+    return { view: 'hotspots', scopeKey: `hotspots:${filter}`, title: t("Hotspots and their connections"),
+        positionMeaning: t("Platforms follow source folders; symbol positions follow file and source order, independently of rank. Gravity fields encode static fan-in, not runtime activity."),
         nodes: shown, platforms: pruneHierarchyPlatforms(platforms, shown), edges, totalNodes, totalEdges: allEdges.length, omittedNodes: totalNodes - shown.length, omittedEdges: allEdges.length - edges.length,
-        warnings: ['Hotspots are ranked review signals, not confirmed defects. Unmarked code has not been certified safe.', ...(graph.total_nodes > graph.nodes.length ? ['Some hotspot identities or relationships are outside the loaded graph.'] : [])] };
+        warnings: [t("Hotspots are ranked review signals, not confirmed defects. Unmarked code has not been certified safe."), ...(graph.total_nodes > graph.nodes.length ? [t("Some hotspot identities or relationships are outside the loaded graph.")] : [])] };
 }

@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 /*
  * Herkunft: portiert am 2026-08-28 aus CodeAtlasIDE,
  * /Users/bernhard/Desktop/CodeAtlasIDE/theia-extensions/codeatlas-core/src/common/presentation-profile.ts
@@ -59,7 +60,7 @@ export type DepthLevel = 0 | 1 | 2 | 3 | 4;
  * kept in their spelling. Lower case throughout, because these are the names of
  * people and not the names of settings.
  */
-export const DEPTH_NAMES = ['vibe coder', 'junior', 'medior', 'senior', 'architect'] as const;
+export const DEPTH_NAMES = [t("vibe coder"), 'junior', 'medior', 'senior', 'architect'] as const;
 
 /** The highest reader on the ladder. Everything that clamps clamps to this. */
 export const MAX_DEPTH = 4;
@@ -234,7 +235,7 @@ const IMPACT = 'codeatlas.impact';
 export const BUILTIN_PROFILES: readonly PresentationProfile[] = [
     {
         id: 'learning',
-        label: 'Learning',
+        label: t("Learning"),
         depth: 0,
         facets: [Facet.Logic, Facet.Errors],
         terminology: 'plain',
@@ -248,7 +249,7 @@ export const BUILTIN_PROFILES: readonly PresentationProfile[] = [
     },
     {
         id: 'verification',
-        label: 'Verification',
+        label: t("Verification"),
         depth: 2,
         facets: [Facet.Changes, Facet.Data, Facet.Tests, Facet.Errors],
         terminology: 'technical',
@@ -262,7 +263,7 @@ export const BUILTIN_PROFILES: readonly PresentationProfile[] = [
     },
     {
         id: 'understanding',
-        label: 'Understanding',
+        label: t("Understanding"),
         depth: 1,
         facets: [Facet.Logic, Facet.Calls, Facet.Tests],
         terminology: 'plain',
@@ -277,7 +278,7 @@ export const BUILTIN_PROFILES: readonly PresentationProfile[] = [
     },
     {
         id: 'debug-impact',
-        label: 'Debug and impact',
+        label: t("Debug and impact"),
         depth: 2,
         facets: [Facet.Calls, Facet.Errors, Facet.Runtime, Facet.Changes],
         terminology: 'technical',
@@ -295,7 +296,7 @@ export const BUILTIN_PROFILES: readonly PresentationProfile[] = [
         // Moved from 3 to 4 with the W13 ladder, and it is the same statement it
         // always was: this preset is the one whose reader is the architect, and
         // the architect is now a name on the scale rather than a position on it.
-        label: 'Architecture',
+        label: t("Architecture"),
         depth: 4,
         facets: [Facet.Calls, Facet.Data, Facet.Changes],
         terminology: 'technical',

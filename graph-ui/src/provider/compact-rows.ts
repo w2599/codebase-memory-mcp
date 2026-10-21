@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /**
  * Parser fuer das kompakte Zeilenformat, das der C-Server im MCP-Text liefert.
  *
@@ -128,7 +129,7 @@ function cellTokens(line: string): { value: string; quoted: boolean }[] {
             }
             if (!closed) {
                 throw new Error(
-                    `kompakte Zeile hat ein nicht geschlossenes Anfuehrungszeichen: ${line.trim()}`,
+                    tr`kompakte Zeile hat ein nicht geschlossenes Anfuehrungszeichen: ${line.trim()}`,
                 );
             }
             cells.push({ value: buf, quoted: true });
@@ -154,7 +155,7 @@ function unquote(value: string): string {
 function readColumns(raw: string): string[] {
     const columns = raw.trim().split(/\s+/).filter((c) => c.length > 0);
     if (columns.length === 0) {
-        throw new Error('kompakter Kopf nennt keine Spalten');
+        throw new Error(t("kompakter Kopf nennt keine Spalten"));
     }
     return columns;
 }
@@ -173,14 +174,13 @@ function collectRows(
             const ref = !cell.quoted && refs ? /^@(\d+)\+(.*)$/.exec(cell.value) : null;
             if (!ref) return cell.value;
             const prefix = refs!.get(Number(ref[1]));
-            if (prefix === undefined) throw new Error(`${label}: unknown reference @${ref[1]}`);
+            if (prefix === undefined) throw new Error(tr`${label}: unknown reference @${ref[1]}`);
             // Prefix entries are declarations, never recursively expanded.
             return prefix + ref[2];
         });
         if (cells.length !== columns.length) {
             throw new Error(
-                `${label}: Zeile ${i + 1} hat ${cells.length} Zellen, der Kopf nennt ` +
-                    `${columns.length} Spalten (${columns.join(' ')}): ${lines[i].trim()}`,
+                tr`${label}: Zeile ${i + 1} hat ${cells.length} Zellen, der Kopf nennt ${columns.length} Spalten (${columns.join(' ')}): ${lines[i].trim()}`,
             );
         }
         rows.push(cells);
@@ -196,16 +196,16 @@ function readReferences(lines: string[], from: number, key: 'rows' | 'results'):
     const count = Number(head[1]);
     const collected = collectRows(lines, from + 1, ['id', 'prefix'], `${key}_refs`);
     if (!Number.isSafeInteger(count) || collected.rows.length !== count)
-        throw new Error(`${key}_refs: declared count does not match reference rows`);
+        throw new Error(tr`${key}_refs: declared count does not match reference rows`);
     const refs = new Map<number, string>();
     for (const [id, prefix] of collected.rows) {
         const number = Number(id);
         if (!/^\d+$/.test(id) || !Number.isSafeInteger(number) || refs.has(number))
-            throw new Error(`${key}_refs: invalid or duplicate reference id ${id}`);
+            throw new Error(tr`${key}_refs: invalid or duplicate reference id ${id}`);
         refs.set(number, prefix);
     }
     if (lines[collected.next]?.trim() !== `${key}_ref_rule: @N+suffix=prefix+suffix`)
-        throw new Error(`${key}_refs: missing or unsupported reference rule`);
+        throw new Error(tr`${key}_refs: missing or unsupported reference rule`);
     return { refs, next: collected.next + 1 };
 }
 
@@ -213,12 +213,12 @@ function validateCounts(parsed: CompactRows | SearchResults): void {
     for (const value of [parsed.total, parsed.returned, 'offset' in parsed ? parsed.offset : undefined,
         'nextOffset' in parsed ? parsed.nextOffset : undefined]) {
         if (value !== undefined && (!Number.isSafeInteger(value) || value < 0))
-            throw new Error('Invalid compact response count');
+            throw new Error(t("Invalid compact response count"));
     }
     if (parsed.total < parsed.rows.length || (parsed.returned !== undefined && parsed.returned !== parsed.rows.length))
-        throw new Error('Compact response counts contradict returned rows');
+        throw new Error(t("Compact response counts contradict returned rows"));
     if (parsed.totalRelation !== undefined && parsed.totalRelation !== 'eq' && parsed.totalRelation !== 'gte')
-        throw new Error('Unknown total_relation');
+        throw new Error(t("Unknown total_relation"));
 }
 
 /**
@@ -234,7 +234,7 @@ export function parseCompactRows(text: string): CompactRows {
         i += 1;
     }
     if (i >= lines.length) {
-        throw new Error('kompakte Antwort war leer');
+        throw new Error(t("kompakte Antwort war leer"));
     }
 
     const directory = readReferences(lines, i, 'rows');
@@ -242,8 +242,7 @@ export function parseCompactRows(text: string): CompactRows {
     const head = ROWS_HEAD.exec(lines[i] ?? '');
     if (head === null) {
         throw new Error(
-            `unbekannter Kopf einer kompakten Antwort, erwartet "rows: N  (cols: ...)": ` +
-                `${lines[i].trim()}`,
+            tr`unbekannter Kopf einer kompakten Antwort, erwartet "rows: N  (cols: ...)": ${lines[i].trim()}`,
         );
     }
     const declared = Number.parseInt(head[1], 10);
@@ -256,7 +255,7 @@ export function parseCompactRows(text: string): CompactRows {
 
     if (rows.length !== declared) {
         throw new Error(
-            `kompakte Antwort kuendigt rows: ${declared} an, geliefert wurden ${rows.length}`,
+            tr`kompakte Antwort kuendigt rows: ${declared} an, geliefert wurden ${rows.length}`,
         );
     }
 
@@ -306,18 +305,18 @@ export function parseCompactRows(text: string): CompactRows {
         if (extra) {
             const value = unquote(extra[2]);
             if (extra[1] === 'offset' || extra[1] === 'next_offset') {
-                if (!/^\d+$/.test(value)) throw new Error(`Invalid ${extra[1]}`);
+                if (!/^\d+$/.test(value)) throw new Error(tr`Invalid ${extra[1]}`);
                 metadata[extra[1] === 'offset' ? 'offset' : 'nextOffset'] = Number(value);
             } else if (extra[1] === 'next_cursor') metadata.nextCursor = value;
             else if (extra[1] === 'truncation_reason') metadata.truncationReason = value;
             else metadata.warning = value;
             continue;
         }
-        throw new Error(`unbekannte Fusszeile einer kompakten Antwort: ${line.trim()}`);
+        throw new Error(tr`unbekannte Fusszeile einer kompakten Antwort: ${line.trim()}`);
     }
 
     if (total === undefined) {
-        throw new Error('kompakte Antwort ohne total-Zeile');
+        throw new Error(t("kompakte Antwort ohne total-Zeile"));
     }
 
     const out: CompactRows = { columns, rows, total, ...metadata };
@@ -366,9 +365,9 @@ export function parseSearchResults(text: string): SearchResults {
             continue;
         }
         if (line.startsWith('results_refs:')) {
-            if (refs || rows) throw new Error('Duplicate or misplaced results_refs');
+            if (refs || rows) throw new Error(t("Duplicate or misplaced results_refs"));
             const directory = readReferences(lines, i, 'results');
-            if (!directory.refs) throw new Error('Malformed results_refs');
+            if (!directory.refs) throw new Error(t("Malformed results_refs"));
             refs = directory.refs;
             i = directory.next;
             continue;
@@ -439,27 +438,27 @@ export function parseSearchResults(text: string): SearchResults {
             i = collected.next;
             continue;
         }
-        throw new Error(`unbekannte Zeile in der Suchantwort: ${line.trim()}`);
+        throw new Error(tr`unbekannte Zeile in der Suchantwort: ${line.trim()}`);
     }
 
     if (columns === undefined || rows === undefined || declared === undefined) {
         throw new Error(
-            'unbekannter Kopf einer Suchantwort, erwartet "results: N  (cols: ...)"',
+            t("unbekannter Kopf einer Suchantwort, erwartet \"results: N  (cols: ...)\""),
         );
     }
     if (rows.length !== declared) {
         throw new Error(
-            `Suchantwort kuendigt results: ${declared} an, geliefert wurden ${rows.length}`,
+            tr`Suchantwort kuendigt results: ${declared} an, geliefert wurden ${rows.length}`,
         );
     }
     if (total === undefined) {
-        throw new Error('Suchantwort ohne total-Zeile');
+        throw new Error(t("Suchantwort ohne total-Zeile"));
     }
     if (mode === undefined) {
-        throw new Error('Suchantwort ohne search_mode-Zeile');
+        throw new Error(t("Suchantwort ohne search_mode-Zeile"));
     }
     if (hasMore === undefined) {
-        throw new Error('Suchantwort ohne has_more-Zeile');
+        throw new Error(t("Suchantwort ohne has_more-Zeile"));
     }
 
     const out: SearchResults = { total, mode, columns, rows, hasMore, ...footers };

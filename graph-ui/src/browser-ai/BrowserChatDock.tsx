@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 import { useEffect, useMemo, useRef, useState, type FormEvent, type JSX, type ReactNode } from 'react';
 import type { BrowserAiProgress } from './browser-ai-controller';
 import { createBrowserChatRuntime, type BrowserChatRuntime } from './browser-ai-runtime';
@@ -111,15 +112,15 @@ function Attachment({ attachment, label }: { attachment: BrowserChatAttachment; 
     return <details className="cbm-chat-attachment">
         <summary><span aria-hidden="true">⌁</span> {label && `${label} · `}{selectionLocation(attachment)}</summary>
         <pre>{attachment.text}</pre>
-        <small>{attachment.project} · Source {attachment.sourceVersion}</small>
+        <small>{attachment.project}{t(" · Source ")}{attachment.sourceVersion}</small>
     </details>;
 }
 
 function SourceDisclosure({ children, title }: { children?: ReactNode; title?: string }): JSX.Element {
     return children ? <details className="cbm-chat-response-source">
-        <summary aria-label="Source for this answer"><span className="cbm-chat-speaker" title={title}>Agent</span><span className="cbm-chat-source-toggle">ⓘ Source</span></summary>
+        <summary aria-label={t("Source for this answer")}><span className="cbm-chat-speaker" title={title}>{t("Agent")}</span><span className="cbm-chat-source-toggle">{t("ⓘ Source")}</span></summary>
         <div className="cbm-chat-source-content">{children}</div>
-    </details> : <span className="cbm-chat-speaker" title={title}>Agent</span>;
+    </details> : <span className="cbm-chat-speaker" title={title}>{t("Agent")}</span>;
 }
 
 /** Where an answer stopped and what can be changed: the limits it ran into, the way to
@@ -460,7 +461,7 @@ export default function BrowserChatDock({ proactiveSelection, selectionScope = "
                 if (!valid()) return;
             }
             if (!packet.evidence.length || count > autoInput) {
-                setExplanation({ key: snapshot.key, label: snapshot.label, answer: '', status: 'error', packet, error: !packet.evidence.length ? 'No source or graph evidence is available for this selection.' : 'This selection is too large for the local agent. Select a smaller code range and try again.' });
+                setExplanation({ key: snapshot.key, label: snapshot.label, answer: '', status: 'error', packet, error: !packet.evidence.length ? t("No source or graph evidence is available for this selection.") : t("This selection is too large for the local agent. Select a smaller code range and try again.") });
                 return;
             }
             setExplanation({ key: snapshot.key, label: snapshot.label, answer: code ? writingExplanation(summary, browserChatText.writingSentence, code) : writing, status: 'generating', packet });
@@ -605,7 +606,7 @@ export default function BrowserChatDock({ proactiveSelection, selectionScope = "
         }
     };
     const stop = (): void => {
-        if (phase === 'preparing') { release(); setNotice('Download stopped. Cached files can be reused or deleted.'); return; }
+        if (phase === 'preparing') { release(); setNotice(t("Download stopped. Cached files can be reused or deleted.")); return; }
         if (manualRequest.current && autoRun.current) {
             manualRequest.current.cancelled = true; manualRequest.current = undefined; setQuestionQueued(false);
             lastAttempt.current = selectionRef.current?.key;
@@ -791,7 +792,7 @@ export default function BrowserChatDock({ proactiveSelection, selectionScope = "
                 if (epoch.current !== ticket || stopRequested.current) return;
             }
             if (count > limit) {
-                setError(`This prompt needs ${count.toLocaleString()} input tokens; the local working limit is ${limit.toLocaleString()}. Select less code or start a new conversation. Nothing was sent or shortened without disclosure.`);
+                setError(tr`This prompt needs ${count.toLocaleString()} input tokens; the local working limit is ${limit.toLocaleString()}. Select less code or start a new conversation. Nothing was sent or shortened without disclosure.`);
                 return;
             }
             // The model's answer to a listed, grounded or file answer is a turn of its own below it:
@@ -866,31 +867,31 @@ export default function BrowserChatDock({ proactiveSelection, selectionScope = "
             await removeCache(model.id);
             if (epoch.current !== ticket) return;
             setCached(previous => { const next = new Set(previous); next.delete(model.id); return next; });
-            setNotice('Cached model files deleted. Your conversation is still here.');
+            setNotice(t("Cached model files deleted. Your conversation is still here."));
         } catch (failure) { if (epoch.current === ticket) setError(messageOf(failure)); }
         finally { if (epoch.current === ticket) { pending.current = false; setPhase('off'); } }
     };
     const clear = (): void => {
-        if (busy || !historyReady || (!turns.length && !draft) || !window.confirm('Clear this project’s local conversation and saved history? This removes its messages, draft and attached code snapshots.')) return;
+        if (busy || !historyReady || (!turns.length && !draft) || !window.confirm(t("Clear this project’s local conversation and saved history? This removes its messages, draft and attached code snapshots."))) return;
         void clearHistory(); setError(undefined); setNewOutput(false); followOutput.current = true;
     };
     const submit = (event: FormEvent): void => { event.preventDefault(); void send(); };
-    const status = stopping ? 'Stopping' : phase === 'preparing' ? 'Loading' : phase === 'counting' ? 'Checking context' : phase === 'generating' ? 'Answering' : phase === 'removing' ? 'Deleting cache' : phase === 'ready' ? 'Loaded' : 'Off';
+    const status = stopping ? 'Stopping' : phase === 'preparing' ? 'Loading' : phase === 'counting' ? t("Checking context") : phase === 'generating' ? 'Answering' : phase === 'removing' ? t("Deleting cache") : phase === 'ready' ? 'Loaded' : 'Off';
     const needsEnable = phase === 'off';
     const showConversation = turns.length > 0 || draft.length > 0 || phase === 'ready' || phase === 'counting' || phase === 'generating';
 
     return <>
         {settingsOpen && <AgentSettingsDialog onClose={() => setSettingsOpen(false)}>
-        <section id="cbm-chat-model-settings" className="cbm-chat-settings" aria-label="Local model settings">
-            {proactive && <label><input type="checkbox" checked={automatic} onChange={event => setPreferences({ automatic: event.target.checked })} /> Explain selections automatically</label>}
+        <section id="cbm-chat-model-settings" className="cbm-chat-settings" aria-label={t("Local model settings")}>
+            {proactive && <label><input type="checkbox" checked={automatic} onChange={event => setPreferences({ automatic: event.target.checked })} />{t(" Explain selections automatically")}</label>}
             <label title={browserChatText.autoLoadNote}><input id="cbm-chat-auto-load" type="checkbox" checked={preferences.autoLoad} onChange={event => setPreferences({ autoLoad: event.target.checked })} /> {browserChatText.autoLoad}</label>
-            <span className="cbm-chat-status" role="status">{status}</span>
-            <label htmlFor="cbm-chat-model">Model</label>
+            <span className="cbm-chat-status" role="status">{t(status)}</span>
+            <label htmlFor="cbm-chat-model">{t("Model")}</label>
             <select id="cbm-chat-model" value={modelId} disabled={busy} onChange={event => { release(); setPreferences({ modelId: event.target.value }); setError(undefined); setNotice(undefined); }}>
-                {BROWSER_MODELS.map(candidate => <option key={candidate.id} value={candidate.id}>{candidate.displayName} · {candidate.availability === 'unsupported' ? 'Requires runtime support' : candidate.id === model.id && phase === 'ready' ? 'Loaded' : cached.has(candidate.id) ? browserChatText.cached : 'Available'}</option>)}
+                {BROWSER_MODELS.map(candidate => <option key={candidate.id} value={candidate.id}>{candidate.displayName} · {candidate.availability === 'unsupported' ? t("Requires runtime support") : candidate.id === model.id && phase === 'ready' ? t("Loaded") : cached.has(candidate.id) ? browserChatText.cached : t("Available")}</option>)}
             </select>
-            <p>{sizeLabel(model.bytes)} download · {model.license}. Memory use is higher.</p>
-            {model.compatibilityNote && <p>{model.compatibilityNote}</p>}
+            <p>{sizeLabel(model.bytes)}{t(" download · ")}{t(model.license)}{t(". Memory use is higher.")}</p>
+            {model.compatibilityNote && <p>{t(model.compatibilityNote)}</p>}
             <fieldset className="cbm-chat-token-limits">
                 <legend>{browserChatText.tokenLimits(model.displayName)}</legend>
                 <TokenLimitField id="cbm-chat-input-tokens" label={browserChatText.inputLimit} value={limits.inputTokens} {...tokenLimitBounds(model, limits.outputTokens).input} step={64}
@@ -899,104 +900,104 @@ export default function BrowserChatDock({ proactiveSelection, selectionScope = "
                     onCommit={outputTokens => setPreferences(current => ({ limits: { ...current.limits, [model.id]: clampTokenLimits(model, limits, { outputTokens }) } }))} />
                 <p>{browserChatText.limitsNote(autoInput, autoOutput)}</p>
             </fieldset>
-            <p><a href={model.modelCard} target="_blank" rel="noreferrer">Model details</a> · Downloads come from Hugging Face. No model downloads automatically.</p>
+            <p><a href={model.modelCard} target="_blank" rel="noreferrer">{t("Model details")}</a>{t(" · Downloads come from Hugging Face. No model downloads automatically.")}</p>
             <div className="cbm-chat-model-actions">
-                {phase === 'off' && <button type="button" className="cbm-chat-primary" disabled={model.availability !== 'available'} onClick={() => { void prepare(); }}>{runtimeFailed ? 'Reload model' : cached.has(model.id) ? browserChatText.loadCached : 'Download & load'}</button>}
-                {(phase === 'ready' || phase === 'generating' || phase === 'counting') && <button type="button" onClick={() => { release(); setNotice('Model unloaded. Conversation and cached files retained.'); }}>Unload model</button>}
-                <button type="button" disabled={busy} onClick={() => { void deleteCache(); }}>Delete cached model</button>
+                {phase === 'off' && <button type="button" className="cbm-chat-primary" disabled={model.availability !== 'available'} onClick={() => { void prepare(); }}>{runtimeFailed ? t("Reload model") : cached.has(model.id) ? browserChatText.loadCached : t("Download & load")}</button>}
+                {(phase === 'ready' || phase === 'generating' || phase === 'counting') && <button type="button" onClick={() => { release(); setNotice(t("Model unloaded. Conversation and cached files retained.")); }}>{t("Unload model")}</button>}
+                <button type="button" disabled={busy} onClick={() => { void deleteCache(); }}>{t("Delete cached model")}</button>
             </div>
         </section>
-        {historyKey && <section className="cbm-chat-settings" aria-label="Chat history settings">
-            <p>Chat history · 24 hours in this browser, per project. Expired history is removed on the next visit.</p>
-            <button type="button" disabled={busy || !historyReady || (!turns.length && !draft)} onClick={clear}>Clear history</button>
+        {historyKey && <section className="cbm-chat-settings" aria-label={t("Chat history settings")}>
+            <p>{t("Chat history · 24 hours in this browser, per project. Expired history is removed on the next visit.")}</p>
+            <button type="button" disabled={busy || !historyReady || (!turns.length && !draft)} onClick={clear}>{t("Clear history")}</button>
             {historyNotice && <p role="status">{historyNotice}</p>}
         </section>}
-        {phase === 'preparing' && <div className="cbm-chat-loading" role="status"><progress max={100} value={progress?.progress} /><span>{progress?.file ?? 'Preparing browser model…'}</span><button type="button" onClick={stop}>Stop download</button></div>}
+        {phase === 'preparing' && <div className="cbm-chat-loading" role="status"><progress max={100} value={progress?.progress} /><span>{progress?.file ?? t("Preparing browser model…")}</span><button type="button" onClick={stop}>{t("Stop download")}</button></div>}
         {error && <div className="cbm-chat-error" role="alert">{error}</div>}
         {notice && <p className="cbm-chat-notice" role="status">{notice}</p>}
         </AgentSettingsDialog>}
-        {!open && showCollapsed ? <aside className="cbm-chat-dock is-collapsed" aria-label="Local chat">
-            <header className="cbm-chat-header"><h2>Chat</h2>
-                <button type="button" className="cbm-chat-primary" aria-expanded={false} onClick={onOpen}>Open chat</button>
+        {!open && showCollapsed ? <aside className="cbm-chat-dock is-collapsed" aria-label={t("Local chat")}>
+            <header className="cbm-chat-header"><h2>{t("Chat")}</h2>
+                <button type="button" className="cbm-chat-primary" aria-expanded={false} onClick={onOpen}>{t("Open chat")}</button>
             </header>
-        </aside> : <aside className="cbm-chat-dock" hidden={!open} aria-label="Local chat">
+        </aside> : <aside className="cbm-chat-dock" hidden={!open} aria-label={t("Local chat")}>
         <header className="cbm-chat-header">
-            <h2>Chat</h2>
+            <h2>{t("Chat")}</h2>
             {turns.length > 0 && <button type="button" className="cbm-chat-new" disabled={busy} onClick={clear}>{browserChatText.newConversation}</button>}
-            <button type="button" className="cbm-chat-icon" aria-label="Collapse local chat" title="Collapse chat; keep conversation" onClick={onClose}>›</button>
+            <button type="button" className="cbm-chat-icon" aria-label={t("Collapse local chat")} title={t("Collapse chat; keep conversation")} onClick={onClose}>›</button>
         </header>
-        {needsEnable && <div className="cbm-chat-enable"><p>Enable the local agent to explain selections and chat.</p><button type="button" onClick={() => setSettingsOpen(true)}>Enable agent</button></div>}
-        {(phase === 'preparing' || phase === 'removing') && <p className="cbm-chat-notice" role="status">Preparing agent…</p>}
+        {needsEnable && <div className="cbm-chat-enable"><p>{t("Enable the local agent to explain selections and chat.")}</p><button type="button" onClick={() => setSettingsOpen(true)}>{t("Enable agent")}</button></div>}
+        {(phase === 'preparing' || phase === 'removing') && <p className="cbm-chat-notice" role="status">{t("Preparing agent…")}</p>}
         {error && !settingsOpen && <div className="cbm-chat-error" role="alert">{error}</div>}
-        {showConversation && <div className="cbm-chat-transcript" ref={transcript} role="log" aria-label="Conversation" aria-live="off" onScroll={() => {
+        {showConversation && <div className="cbm-chat-transcript" ref={transcript} role="log" aria-label={t("Conversation")} aria-live="off" onScroll={() => {
             const element = transcript.current;
             if (!element) return;
             if (element.scrollTop > 48) followExplanation.current = false;
             followOutput.current = element.scrollHeight - element.scrollTop - element.clientHeight < 48;
             if (followOutput.current) setNewOutput(false);
         }}>
-            {showConversation && !needsEnable && phase !== 'preparing' && phase !== 'removing' && proactive && automatic && selected && <section className="cbm-chat-explanation" aria-label="Current selection explanation">
-                <SourceDisclosure title="Generated explanation; check source for exact behavior.">
+            {showConversation && !needsEnable && phase !== 'preparing' && phase !== 'removing' && proactive && automatic && selected && <section className="cbm-chat-explanation" aria-label={t("Current selection explanation")}>
+                <SourceDisclosure title={t("Generated explanation; check source for exact behavior.")}>
                     {explanation?.key === selected.key && explanation.packet ? <PacketSource packet={explanation.packet} citation={explanation.citation} codeOnly={!selected.reader} /> : null}
                 </SourceDisclosure>
                 {explanation?.key === selected.key ? <>
-                    <ChatMarkdown text={explanation.answer || (explanation.status === 'generating' ? 'Explaining selection…' : explanation.status === 'stopped' ? 'Explanation stopped.' : '')} />
+                    <ChatMarkdown text={explanation.answer || (explanation.status === 'generating' ? t("Explaining selection…") : explanation.status === 'stopped' ? t("Explanation stopped.") : '')} />
                     {explanation.generated && explanation.status === 'complete' && <small className="cbm-chat-model-note">{chatRound3Text.en.modelNote}</small>}
                     {explanation.status !== 'generating' && <AnswerNotes shortened={limitNote(explanation.shortened, explanation.limit, true)} packet={explanation.grounded ? undefined : explanation.packet} model={model.displayName} />}
                     {explanation.error && <p className="cbm-chat-turn-error" role="alert">{explanation.error}</p>}
                     {explanation.status !== 'generating' && <button type="button" className="cbm-chat-retry" disabled={phase !== 'ready' || !!selected.waiting} onClick={() => {
                         if (explanation.askable) modelAsked.current.add(selected.key);
                         lastAttempt.current = undefined; explanations.current.delete(selected.key); setRetryExplanation(value => value + 1);
-                    }}>{explanation.askable ? relationshipWords.en.askModel : 'Explain again'}</button>}
+                    }}>{explanation.askable ? relationshipWords.en.askModel : t("Explain again")}</button>}
                 </> : <p>{selected.waiting === 'loading' ? browserChatText.waitingForScope : selected.waiting === 'partial' ? browserChatText.partialScope
-                    : manualRequest.current ? 'This selection will be explained after your answer.' : 'Preparing explanation…'}</p>}
+                    : manualRequest.current ? t("This selection will be explained after your answer.") : t("Preparing explanation…")}</p>}
             </section>}
-            {turns.length === 0 && !(proactive && automatic && selected) && <div className="cbm-chat-empty"><span aria-hidden="true">⌁</span><h3>Ask about the code.</h3><p>{readerContext ? 'The current file is included automatically. Mark code to focus your next message on that exact selection.' : 'Ask a question, or add source and graph context to your next message.'}</p></div>}
+            {turns.length === 0 && !(proactive && automatic && selected) && <div className="cbm-chat-empty"><span aria-hidden="true">⌁</span><h3>{t("Ask about the code.")}</h3><p>{readerContext ? t("The current file is included automatically. Mark code to focus your next message on that exact selection.") : t("Ask a question, or add source and graph context to your next message.")}</p></div>}
             {turns.map((turn, index) => { const replyWords = relationshipWords[turn.replyLanguage === 'de' ? 'de' : 'en'];
                 // The model's own answers carry their note in the language of the question (B1).
                 const ownWords = chatRound3Text[turn.replyLanguage ?? questionLanguage(turn.prompt)];
                 const divider = topicDivider(turns, index);
                 return <article className="cbm-chat-turn" key={turn.id}>
                 {turn.topic && divider && <p className="cbm-chat-topic-break">{divider === 'back' ? ownWords.backTo(turn.topic.label) : topicText[turn.replyLanguage ?? questionLanguage(turn.prompt)].topicBreak(turn.topic.label)}</p>}
-                <div className="cbm-chat-question"><span className="cbm-chat-speaker">You</span><ChatMarkdown text={turn.prompt} />
+                <div className="cbm-chat-question"><span className="cbm-chat-speaker">{t("You")}</span><ChatMarkdown text={turn.prompt} />
                     {turn.askedModel && <small className="cbm-chat-asked-model">{ownWords.askedModel}</small>}</div>
                 <div className="cbm-chat-answer"><SourceDisclosure>
                     {turn.evidence || turn.attachment || turn.readerContext?.source || turn.context?.length ? <>
                         {turn.evidence ? <PacketSource packet={turn.evidence} language={turn.replyLanguage ?? questionLanguage(turn.prompt)} /> : <>
                             {turn.attachment && <Attachment attachment={turn.attachment} />}
-                            {turn.readerContext?.source && <><Attachment attachment={turn.readerContext.source} label={turn.readerContext.source.kind === 'selection' ? 'Selection snapshot' : 'File snapshot'} />{turn.readerContext.source.partial && <p className="cbm-chat-evidence-note">{turn.readerContext.source.partial}</p>}</>}
+                            {turn.readerContext?.source && <><Attachment attachment={turn.readerContext.source} label={turn.readerContext.source.kind === 'selection' ? t("Selection snapshot") : t("File snapshot")} />{turn.readerContext.source.partial && <p className="cbm-chat-evidence-note">{turn.readerContext.source.partial}</p>}</>}
                         </>}
                         {turn.context?.map(item => <ContextSnapshot key={item.id} context={item} />)}
                     </> : null}
-                </SourceDisclosure><div className="cbm-chat-answer-text"><ChatMarkdown text={turn.answer || (turn.status === 'generating' ? 'Thinking…' : turn.status === 'stopped' ? 'Stopped before an answer.' : '')} /></div>
-                    {turn.status === 'stopped' && turn.answer && <small>Stopped · partial answer</small>}
+                </SourceDisclosure><div className="cbm-chat-answer-text"><ChatMarkdown text={turn.answer || (turn.status === 'generating' ? t("Thinking…") : turn.status === 'stopped' ? t("Stopped before an answer.") : '')} /></div>
+                    {turn.status === 'stopped' && turn.answer && <small>{t("Stopped · partial answer")}</small>}
                     {!turn.answeredFrom && !turn.echo && turn.answer && (turn.status === 'complete' || turn.status === 'stopped') && <small className="cbm-chat-model-note">{ownWords.modelNote}</small>}
                     {turn.status !== 'generating' && !turn.answeredFrom && !turn.echo && <AnswerNotes shortened={limitNote(turn.shortened, turn.limit)} packet={turn.evidence}
                         unsupported={turn.answer ? namesNotIn(turn.answer, turn.request.map(message => message.content).join('\n')) : []} model={BROWSER_MODELS.find(candidate => candidate.id === turn.modelId)?.displayName ?? turn.modelId} historyOmitted={turn.historyOmitted} />}
                     {turn.status === 'error' && <p className="cbm-chat-turn-error" role="alert">{turn.error}</p>}
                     {index === turns.length - 1 && turn.answeredFrom === 'suggestion' && turn.suggestion && <button type="button" className="cbm-chat-retry"
                         onClick={() => showSuggestedList(turn)}>{replyWords.showList}</button>}
-                    {index === turns.length - 1 && turn.status !== 'generating' && (!turn.answeredFrom || ASKABLE.has(turn.answeredFrom)) && <button type="button" className="cbm-chat-retry" disabled={phase !== 'ready'} onClick={() => { void send(turn); }}>{turn.answeredFrom ? replyWords.askModel : turn.status === 'error' ? 'Retry' : ownWords.askAgain}</button>}
+                    {index === turns.length - 1 && turn.status !== 'generating' && (!turn.answeredFrom || ASKABLE.has(turn.answeredFrom)) && <button type="button" className="cbm-chat-retry" disabled={phase !== 'ready'} onClick={() => { void send(turn); }}>{turn.answeredFrom ? replyWords.askModel : turn.status === 'error' ? t("Retry") : ownWords.askAgain}</button>}
                 </div>
             </article>; })}
         </div>}
-        {newOutput && <button type="button" className="cbm-chat-jump" onClick={() => { followOutput.current = true; setNewOutput(false); if (transcript.current) transcript.current.scrollTop = transcript.current.scrollHeight; }}>Latest answer ↓</button>}
-        {newExplanation && proactive && automatic && selected && <button type="button" className="cbm-chat-jump" onClick={() => { followExplanation.current = true; setNewExplanation(false); if (transcript.current) transcript.current.scrollTop = 0; }}>Current selection ↑</button>}
+        {newOutput && <button type="button" className="cbm-chat-jump" onClick={() => { followOutput.current = true; setNewOutput(false); if (transcript.current) transcript.current.scrollTop = transcript.current.scrollHeight; }}>{t("Latest answer ↓")}</button>}
+        {newExplanation && proactive && automatic && selected && <button type="button" className="cbm-chat-jump" onClick={() => { followExplanation.current = true; setNewExplanation(false); if (transcript.current) transcript.current.scrollTop = 0; }}>{t("Current selection ↑")}</button>}
         <form className="cbm-chat-composer" onSubmit={submit}>
-            {questionQueued && <p className="cbm-chat-source-state" role="status">Your question is next…</p>}
-            {currentReader && !currentReader.source && <p className="cbm-chat-source-state" role="status" title={currentReader.path}>{currentReader.status === 'loading' ? 'Loading current file…' : currentReader.status === 'empty' ? 'Open a file to include its code.' : 'Current file source is unavailable.'}</p>}
-            {manualAttachment && <div className="cbm-chat-pending"><div className="cbm-chat-pending-title"><span>Attached to next message</span><button type="button" aria-label="Remove code attachment" disabled={!onAttachmentRemoved} onClick={() => onAttachmentRemoved?.(manualAttachment.id)}>×</button></div><Attachment attachment={manualAttachment} /></div>}
-            {graphSelection && <div className="cbm-chat-pending"><div className="cbm-chat-pending-title"><span>Graph selection for next message</span><button type="button" aria-label="Remove graph selection" onClick={() => { setHandledContextId(graphSelection.id); onContextRemoved?.(graphSelection.id); }}>×</button></div><ContextSnapshot context={graphSelection} /></div>}
-            {selectedContext.map(item => <div className="cbm-chat-pending" key={item.id}><div className="cbm-chat-pending-title"><span>Context for next message</span><button type="button" aria-label={`Remove ${item.label}`} onClick={() => setSelectedContext(previous => previous.filter(selected => selected.id !== item.id))}>×</button></div><ContextSnapshot context={item} /></div>)}
-            {context.length > 0 && <details className="cbm-chat-context-options"><summary>Add context</summary><fieldset><legend>Include in the next message</legend>{context.map(item => <label key={item.id}><input type="checkbox" checked={selectedContext.some(selected => selected.id === item.id)} onChange={event => {
+            {questionQueued && <p className="cbm-chat-source-state" role="status">{t("Your question is next…")}</p>}
+            {currentReader && !currentReader.source && <p className="cbm-chat-source-state" role="status" title={currentReader.path}>{currentReader.status === 'loading' ? t("Loading current file…") : currentReader.status === 'empty' ? t("Open a file to include its code.") : t("Current file source is unavailable.")}</p>}
+            {manualAttachment && <div className="cbm-chat-pending"><div className="cbm-chat-pending-title"><span>{t("Attached to next message")}</span><button type="button" aria-label={t("Remove code attachment")} disabled={!onAttachmentRemoved} onClick={() => onAttachmentRemoved?.(manualAttachment.id)}>×</button></div><Attachment attachment={manualAttachment} /></div>}
+            {graphSelection && <div className="cbm-chat-pending"><div className="cbm-chat-pending-title"><span>{t("Graph selection for next message")}</span><button type="button" aria-label={t("Remove graph selection")} onClick={() => { setHandledContextId(graphSelection.id); onContextRemoved?.(graphSelection.id); }}>×</button></div><ContextSnapshot context={graphSelection} /></div>}
+            {selectedContext.map(item => <div className="cbm-chat-pending" key={item.id}><div className="cbm-chat-pending-title"><span>{t("Context for next message")}</span><button type="button" aria-label={tr`Remove ${item.label}`} onClick={() => setSelectedContext(previous => previous.filter(selected => selected.id !== item.id))}>×</button></div><ContextSnapshot context={item} /></div>)}
+            {context.length > 0 && <details className="cbm-chat-context-options"><summary>{t("Add context")}</summary><fieldset><legend>{t("Include in the next message")}</legend>{context.map(item => <label key={item.id}><input type="checkbox" checked={selectedContext.some(selected => selected.id === item.id)} onChange={event => {
                 const checked = event.target.checked;
                 setSelectedContext(previous => checked ? [...previous.filter(selected => selected.id !== item.id), { ...item }] : previous.filter(selected => selected.id !== item.id));
             }} />{item.label}</label>)}</fieldset></details>}
-            {showConversation && <><label className="cbm-chat-visually-hidden" htmlFor="cbm-chat-prompt">Message local model</label>
-            <div className="cbm-chat-input-row"><textarea ref={input} id="cbm-chat-prompt" value={draft} placeholder="Ask about this code…" rows={1} onChange={event => setDraft(event.target.value)} onKeyDown={event => {
+            {showConversation && <><label className="cbm-chat-visually-hidden" htmlFor="cbm-chat-prompt">{t("Message local model")}</label>
+            <div className="cbm-chat-input-row"><textarea ref={input} id="cbm-chat-prompt" value={draft} placeholder={t("Ask about this code…")} rows={1} onChange={event => setDraft(event.target.value)} onKeyDown={event => {
                 if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); void send(); }
             }} />
-                {(phase === 'counting' || phase === 'generating') && !(autoRun.current && !manualRequest.current && draft.trim() && !stopping) ? <button type="button" className="cbm-chat-send" aria-label={stopping ? 'Stopping…' : 'Stop'} title="Stop generating" disabled={stopping} onClick={stop}>■</button> : <button className="cbm-chat-primary cbm-chat-send" type="submit" aria-label="Send ↑" title="Send message" disabled={!historyReady || (!autoRun.current && phase !== 'ready') || !!manualRequest.current || !draft.trim() || readerContext?.status === 'loading'}>↑</button>}
+                {(phase === 'counting' || phase === 'generating') && !(autoRun.current && !manualRequest.current && draft.trim() && !stopping) ? <button type="button" className="cbm-chat-send" aria-label={stopping ? t("Stopping…") : t("Stop")} title={t("Stop generating")} disabled={stopping} onClick={stop}>■</button> : <button className="cbm-chat-primary cbm-chat-send" type="submit" aria-label={t("Send ↑")} title={t("Send message")} disabled={!historyReady || (!autoRun.current && phase !== 'ready') || !!manualRequest.current || !draft.trim() || readerContext?.status === 'loading'}>↑</button>}
             </div>
 
             </>}

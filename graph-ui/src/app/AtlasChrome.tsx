@@ -620,6 +620,7 @@ export default function AtlasChrome(props: AtlasChromeProps): JSX.Element {
                 <span className="atlas-version" data-testid="atlas-version">
                     {props.version.replace(/-dirty$/, '')}
                 </span>
+                <LanguageSelect />
                 {/*
                   * Sechs Eintraege, EINE Gestalt.
                   *
@@ -819,3 +820,4 @@ export default function AtlasChrome(props: AtlasChromeProps): JSX.Element {
         </div>
     );
 }
+import { LanguageSelect } from '../i18n/LanguageSelect';

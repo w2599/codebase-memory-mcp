@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 export interface ScreenNode {
     id: number;
     x: number;
@@ -30,7 +31,7 @@ function directionSeed(id: number): number {
  * without dropping nodes or squeezing them into a fixed viewport. */
 export function separateScreenNodes<T extends ScreenNode>(nodes: readonly T[], gap = 4, pinned: ReadonlySet<number> = new Set()): T[] {
     if (!Number.isFinite(gap) || gap < 0 || nodes.some(node => ![node.x, node.y, node.radius].every(Number.isFinite) || node.radius < 0)) {
-        throw new RangeError('Screen node positions, radii and gap must be finite; radii and gap must be nonnegative.');
+        throw new RangeError(t("Screen node positions, radii and gap must be finite; radii and gap must be nonnegative."));
     }
     const order = nodes.map((node, index) => ({ node, index, pinned: pinned.has(node.id) }))
         .sort((a, b) => Number(b.pinned) - Number(a.pinned) || b.node.radius - a.node.radius || a.node.id - b.node.id || a.index - b.index);

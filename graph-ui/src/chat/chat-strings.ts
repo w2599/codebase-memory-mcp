@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /**
  * Everything the chat says in its own voice.
  *
@@ -14,61 +15,58 @@
 import { SIDECAR_PORT } from '../llm/sidecar';
 
 /** The word over the panel. */
-export const CHAT_TITLE = 'CBM LENS CHAT';
+export const CHAT_TITLE = t("CBM LENS CHAT");
 
 /** What the command line hint says when a question would be sent. */
-export const CHAT_HINT_READY = 'enter asks CBM Lens';
+export const CHAT_HINT_READY = t("enter asks CBM Lens");
 
 /** What it says when the line looks like a question and the model is off. */
-export const CHAT_HINT_OFF = 'enter asks CBM Lens: the local model is off';
+export const CHAT_HINT_OFF = t("enter asks CBM Lens: the local model is off");
 
 /** The sentence when the model is off and a question was typed. */
 export const CHAT_OFF_MESSAGE =
-    `the local model is off, so nothing was sent to 127.0.0.1:${SIDECAR_PORT}. `
-    + 'Turn it on in the [a]tlas menu or on the LOCAL LLM card, then ask again.';
+    tr`the local model is off, so nothing was sent to 127.0.0.1:${SIDECAR_PORT}. Turn it on in the [a]tlas menu or on the LOCAL LLM card, then ask again.`;
 
 /** The model is off, but the index-built cards still answer the question. */
 export const CHAT_OFF_WITH_CARDS =
-    `the local model is off, so the answer below is built from the cards and nothing was sent to 127.0.0.1:${SIDECAR_PORT}.`;
+    tr`the local model is off, so the answer below is built from the cards and nothing was sent to 127.0.0.1:${SIDECAR_PORT}.`;
 
 /** The compiler still answered; this only names why its optional model pass did not run. */
 export function chatBuiltUnavailableMessage(reason: 'off' | 'not-running' | 'policy'): string {
     switch (reason) {
         case 'policy':
-            return 'the local model is denied by the project policy, so the answer below is built from the cards and nothing was sent.';
+            return t("the local model is denied by the project policy, so the answer below is built from the cards and nothing was sent.");
         case 'not-running':
-            return `the local model is on, but nothing answers on 127.0.0.1:${SIDECAR_PORT}; the answer below is built from the cards.`;
+            return tr`the local model is on, but nothing answers on 127.0.0.1:${SIDECAR_PORT}; the answer below is built from the cards.`;
         default:
             return CHAT_OFF_WITH_CARDS;
     }
 }
 
-export const CHAT_AI_LABEL = 'AI version';
-export const CHAT_AI_RESTORE = 'built version';
-export const CHAT_BUILT_PROVENANCE = 'built from indexed cards and their citations.';
+export const CHAT_AI_LABEL = t("AI version");
+export const CHAT_AI_RESTORE = t("built version");
+export const CHAT_BUILT_PROVENANCE = t("built from indexed cards and their citations.");
 export function chatAiProvenance(model: string): string {
-    return `worded by local model ${model}; every required fact passed the rewrite guard.`;
+    return tr`worded by local model ${model}; every required fact passed the rewrite guard.`;
 }
 
 /** The sentence when the model is on but no process answers. */
 export const CHAT_NOT_RUNNING_MESSAGE =
-    `the local model is on, but nothing answers on 127.0.0.1:${SIDECAR_PORT}. `
-    + 'Start the sidecar with llm/start.sh, then ask again.';
+    tr`the local model is on, but nothing answers on 127.0.0.1:${SIDECAR_PORT}. Start the sidecar with llm/start.sh, then ask again.`;
 
 /** The sentence when a policy denies the model. */
 export const CHAT_POLICY_MESSAGE =
-    'the local model is denied by the project policy, so nothing was sent.';
+    t("the local model is denied by the project policy, so nothing was sent.");
 
 /** The sentence while the compiler is working. */
-export const CHAT_COMPILING = 'compiling the cards from the index ...';
+export const CHAT_COMPILING = t("compiling the cards from the index ...");
 
 /** The sentence while the model is answering. */
-export const CHAT_ASKING = 'the local model is phrasing an answer from the cards ...';
+export const CHAT_ASKING = t("the local model is phrasing an answer from the cards ...");
 
 /** Why the agreed sentence is there, under it. */
 export const CHAT_NO_CARDS_HINT =
-    'The index holds nothing this question could be answered from, so the model was not asked. '
-    + 'Name a symbol with @name to fetch its facts.';
+    t("The index holds nothing this question could be answered from, so the model was not asked. Name a symbol with @name to fetch its facts.");
 
 // ------------------------------------------------- the name and the symbol --
 
@@ -79,8 +77,7 @@ export const CHAT_NO_CARDS_HINT =
  * and it says what a click does, because a list without that is a list.
  */
 export function chatChoiceHeadline(name: string, count: number): string {
-    return `"${name}" names ${count} symbols in this index. Pick the one you meant and the same `
-        + 'question is asked again about it; nothing was sent to the model in the meantime.';
+    return tr`"${name}" names ${count} symbols in this index. Pick the one you meant and the same question is asked again about it; nothing was sent to the model in the meantime.`;
 }
 
 /** One candidate, as the list writes it: the name, the file, the line. */
@@ -90,18 +87,18 @@ export function chatCandidateLabel(
     line: number | undefined,
 ): string {
     const where = filePath === undefined || filePath.length === 0
-        ? 'no file in the index'
+        ? t("no file in the index")
         : line === undefined ? filePath : `${filePath}:${line}`;
     return `${name} (${where})`;
 }
 
 /** The tooltip of a candidate. It names the act and not the thing. */
 export function chatCandidateTitle(name: string): string {
-    return `ask this question again about ${name}`;
+    return tr`ask this question again about ${name}`;
 }
 
 /** The mark on a candidate the index flagged as test code. */
-export const CHAT_CANDIDATE_TEST_MARK = 'test';
+export const CHAT_CANDIDATE_TEST_MARK = t("test");
 
 /**
  * The line that says the answer is about something else than what was asked.
@@ -113,71 +110,66 @@ export const CHAT_CANDIDATE_TEST_MARK = 'test';
  * same symbol and how the compiler got from one to the other.
  */
 export function chatFocusFallbackLine(asked: string, used: string): string {
-    return `"@${asked}" was not found in the index; answered about the symbol in focus instead: `
-        + `${used}.`;
+    return tr`"@${asked}" was not found in the index; answered about the symbol in focus instead: ${used}.`;
 }
 
 
 /** The line over the cards, which fold open. */
 export function chatCardsLabel(count: number): string {
-    return count === 1 ? 'the 1 card this answer was given' : `the ${count} cards this answer was given`;
+    return count === 1 ? t("the 1 card this answer was given") : tr`the ${count} cards this answer was given`;
 }
 
 /** The honest line under the answer, naming the class and the rule that fired. */
 export function chatProvenance(klass: string, rule: string, tokens: number, budget: number): string {
-    return `question class ${klass} (rule ${rule}); the cards cost about ${tokens} of ${budget} `
-        + 'tokens, estimated at four characters per token.';
+    return tr`question class ${klass} (rule ${rule}); the cards cost about ${tokens} of ${budget} tokens, estimated at four characters per token.`;
 }
 
 /** What the panel says when a claim came back without a citation. */
 export function chatCitationWarning(count: number): string {
     return count === 1
-        ? '1 line of this answer carries no card citation and is shown as the model wrote it.'
-        : `${count} lines of this answer carry no card citation and are shown as the model wrote it.`;
+        ? t("1 line of this answer carries no card citation and is shown as the model wrote it.")
+        : tr`${count} lines of this answer carry no card citation and are shown as the model wrote it.`;
 }
 
 /** What it says when the model cited a card that was never given. */
 export function chatUnknownCardWarning(ids: readonly string[]): string {
-    return `this answer cites ${ids.join(', ')}, which was never handed over. `
-        + 'Nothing was navigated to and nothing was believed.';
+    return tr`this answer cites ${ids.join(', ')}, which was never handed over. Nothing was navigated to and nothing was believed.`;
 }
 
 /** What it says when a model returned only its own monologue. */
 export const CHAT_THOUGHT_ONLY =
-    'the model returned only its internal monologue and no answer. Nothing of it is shown: '
-    + 'a monologue is not a finding.';
+    t("the model returned only its internal monologue and no answer. Nothing of it is shown: a monologue is not a finding.");
 
 /** What it says when the token ceiling cut the answer off. */
 export const CHAT_TRUNCATED =
-    'the answer stopped at the token limit, so its last line is incomplete. It is shown as it '
-    + 'arrived and is not counted as a claim.';
+    t("the answer stopped at the token limit, so its last line is incomplete. It is shown as it arrived and is not counted as a claim.");
 
 /** What it says when the request failed. */
 export function chatFailed(detail: string): string {
-    return `the local model could not be asked: ${detail}`;
+    return tr`the local model could not be asked: ${detail}`;
 }
 
 // ------------------------------------------------ the neighbourhood setting --
 
 /** The label of the depth control. */
-export const CHAT_DEPTH_LABEL = 'context';
+export const CHAT_DEPTH_LABEL = t("context");
 
 /** The three options, in order. */
 export const CHAT_DEPTH_OPTIONS: readonly { value: 0 | 1 | 2; label: string; title: string }[] = [
     {
         value: 0,
-        label: '0 hops',
-        title: 'the focus symbol alone: no caller and no callee goes into the cards',
+        label: t("0 hops"),
+        title: t("the focus symbol alone: no caller and no callee goes into the cards"),
     },
     {
         value: 1,
-        label: '1 hop',
-        title: 'the focus symbol plus its direct callers and callees. The default.',
+        label: t("1 hop"),
+        title: t("the focus symbol plus its direct callers and callees. The default."),
     },
     {
         value: 2,
-        label: '2 hops',
-        title: 'the focus symbol plus two rings of neighbours. More context, more to confuse.',
+        label: t("2 hops"),
+        title: t("the focus symbol plus two rings of neighbours. More context, more to confuse."),
     },
 ];
 
@@ -195,9 +187,7 @@ export const CHAT_DEPTH_OPTIONS: readonly { value: 0 | 1 | 2; label: string; tit
  * is built so that a citation still means what it meant when it was written.
  */
 export const CHAT_DEPTH_NOTE =
-    'How much of the neighbourhood goes into the cards. More neighbours change the answer and '
-    + 'can make it worse: a small model has more to confuse, and the token budget cuts the '
-    + 'furthest cards first.';
+    t("How much of the neighbourhood goes into the cards. More neighbours change the answer and can make it worse: a small model has more to confuse, and the token budget cuts the furthest cards first.");
 
 /**
  * The offer on the last answer when the depth has been changed since.
@@ -214,14 +204,12 @@ export const CHAT_DEPTH_NOTE =
  * ambiguous candidates.
  */
 export function chatRerunLabel(depth: number): string {
-    return depth === 1 ? 'ask again with 1 hop' : `ask again with ${depth} hops`;
+    return depth === 1 ? t("ask again with 1 hop") : tr`ask again with ${depth} hops`;
 }
 
 /** Why the offer is there, on the button itself. */
 export function chatRerunTooltip(was: number, now: number): string {
-    return `This answer was compiled with ${was === 1 ? '1 hop' : `${was} hops`} of context and the `
-        + `setting now says ${now === 1 ? '1 hop' : `${now} hops`}. Asking again makes a new turn; `
-        + 'this one stays as it is, so the two can be compared.';
+    return tr`This answer was compiled with ${was === 1 ? t("1 hop") : tr`${was} hops`} of context and the setting now says ${now === 1 ? t("1 hop") : tr`${now} hops`}. Asking again makes a new turn; this one stays as it is, so the two can be compared.`;
 }
 
 /**
@@ -232,38 +220,37 @@ export function chatRerunTooltip(was: number, now: number): string {
  * here. A word in front of the count answers the question the sign asked.
  */
 export function chatCardsFoldLabel(open: boolean): string {
-    return open ? 'collapse' : 'open';
+    return open ? t("collapse") : t("open");
 }
 
 // -------------------------------------------------------------- the refine --
 
 /** The label on the refine button in the pseudocode view. */
-export const REFINE_LABEL = 'rephrase';
+export const REFINE_LABEL = t("rephrase");
 
 /** Its tooltip when it can be pressed. */
 export const REFINE_TITLE =
-    'let the local model rewrite these lines. Every number and every line must survive, or the '
-    + 'rewrite is refused and the deterministic block stays.';
+    t("let the local model rewrite these lines. Every number and every line must survive, or the rewrite is refused and the deterministic block stays.");
 
 /** The label that brings the deterministic block back. */
-export const REFINE_RESTORE_LABEL = 'original';
+export const REFINE_RESTORE_LABEL = t("original");
 
 /** Its tooltip. */
-export const REFINE_RESTORE_TITLE = 'show the block as the index produced it';
+export const REFINE_RESTORE_TITLE = t("show the block as the index produced it");
 
 /** What the view says while the model works. */
-export const REFINE_RUNNING = 'the local model is rephrasing these lines ...';
+export const REFINE_RUNNING = t("the local model is rephrasing these lines ...");
 
 /** What it says when the rewrite was accepted. */
 export const REFINE_APPLIED =
-    'rephrased by the local model. Every line and every number is the one the index produced.';
+    t("rephrased by the local model. Every line and every number is the one the index produced.");
 
 /** What it says when the rewrite was refused, with the reason. */
 export function refineRejected(reason: string): string {
-    return `the rewrite was refused and the original block is still shown. Reason: ${reason}`;
+    return tr`the rewrite was refused and the original block is still shown. Reason: ${reason}`;
 }
 
 /** The three reasons a rewrite is refused. Read by the proof run. */
-export const REFINE_REASON_COUNT = 'the answer holds a different number of lines than were sent';
-export const REFINE_REASON_NUMBERS = 'a line came back with a different number than it was sent with';
-export const REFINE_REASON_EMPTY = 'the model returned nothing to put back';
+export const REFINE_REASON_COUNT = t("the answer holds a different number of lines than were sent");
+export const REFINE_REASON_NUMBERS = t("a line came back with a different number than it was sent with");
+export const REFINE_REASON_EMPTY = t("the model returned nothing to put back");

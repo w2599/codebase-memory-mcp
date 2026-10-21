@@ -1,22 +1,23 @@
+import { t, tr } from '../i18n/translate';
 import type { DaemonLogRecord, ProcessCpuUnit, ProcessMemoryKind } from '../projects/projects-model';
 import { countedDetail, repeatCount } from '../app/ui-log';
 
 export function cpuText(value: number | null | undefined, unit: ProcessCpuUnit | undefined): string {
-    if (value == null || !Number.isFinite(value) || value < 0) return 'Unavailable';
+    if (value == null || !Number.isFinite(value) || value < 0) return t('Unavailable');
     if (unit === 'percent') return `${value.toFixed(1)}%`;
-    if (unit === 'seconds') return `${value.toFixed(1)} s total`;
-    return 'Unit unavailable';
+    if (unit === 'seconds') return tr`${value.toFixed(1)} s total`;
+    return t("Unit unavailable");
 }
 
 export function memoryText(value: number | null | undefined): string {
-    return value == null || !Number.isFinite(value) || value < 0 ? 'Unavailable' : `${value.toFixed(1)} MiB`;
+    return value == null || !Number.isFinite(value) || value < 0 ? t('Unavailable') : `${value.toFixed(1)} MiB`;
 }
 
 export function memoryLabel(kind: ProcessMemoryKind | undefined): string {
-    if (kind === 'working_set') return 'Working set';
-    if (kind === 'resident') return 'Resident memory';
-    if (kind === 'peak_resident') return 'Peak resident memory';
-    return 'Memory · kind unspecified';
+    if (kind === 'working_set') return t("Working set");
+    if (kind === 'resident') return t("Resident memory");
+    if (kind === 'peak_resident') return t("Peak resident memory");
+    return t("Memory · kind unspecified");
 }
 
 export type LogLevel = 'error' | 'warn' | 'info' | 'debug' | 'trace' | 'other';
@@ -90,5 +91,5 @@ export function collapseRepeats(records: readonly DaemonLogRecord[]): LogRow[] {
 
 /** The tooltip of a combined row. */
 export function repeatTitle(row: LogRow): string {
-    return `${row.count.toLocaleString()} identical events from ${row.first} to ${row.record.ts}`;
+    return tr`${row.count.toLocaleString()} identical events from ${row.first} to ${row.record.ts}`;
 }

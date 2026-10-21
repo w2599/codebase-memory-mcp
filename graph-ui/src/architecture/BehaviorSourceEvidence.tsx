@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 import { useEffect, useState } from 'react';
 import { callToolJson } from '../provider/rpc-transport';
 import { readCodeSnippet, type CodeSnippetResult } from '../provider/rpc-schemas';
@@ -30,35 +31,35 @@ export default function BehaviorSourceEvidence({ project, generation, symbol, ca
                 if (controller.signal.aborted) return;
                 const path = source.file_path?.replaceAll('\\', '/');
                 if (source.qualified_name && source.qualified_name !== symbol.qualified_name)
-                    throw new Error('Source identity changed. Refresh the analysis before following this call.');
+                    throw new Error(t("Source identity changed. Refresh the analysis before following this call."));
                 if (!path || (path !== file && !path.endsWith(`/${file}`)))
-                    throw new Error('The returned source does not match this call location.');
-                if (source.source_mode && source.source_mode !== 'full') throw new Error('Full source is unavailable for this operation.');
+                    throw new Error(t("The returned source does not match this call location."));
+                if (source.source_mode && source.source_mode !== 'full') throw new Error(t("Full source is unavailable for this operation."));
                 const lines = source.source.split('\n');
                 const count = source.end_line !== undefined && source.start_line !== undefined ? source.end_line - source.start_line + 1 : 0;
                 if (lines.at(-1) === '' && lines.length - 1 === count) lines.pop();
                 if (!source.start_line || !source.end_line || count < 1 || lines.length !== count)
-                    throw new Error('Source line range could not be verified. Open the definition to inspect it.');
+                    throw new Error(t("Source line range could not be verified. Open the definition to inspect it."));
                 if (line && (line < source.start_line || line > source.end_line))
-                    throw new Error('The indexed location is outside the current source window. The file may have changed.');
+                    throw new Error(t("The indexed location is outside the current source window. The file may have changed."));
                 setReading({ key, source: { ...source, source: lines.join('\n') } });
             } catch (error) {
-                if (!controller.signal.aborted) setReading({ key, error: error instanceof Error ? error.message : 'Could not read this source.' });
+                if (!controller.signal.aborted) setReading({ key, error: error instanceof Error ? error.message : t("Could not read this source.") });
             }
         })();
         return () => controller.abort();
     }, [project, generation, symbol.qualified_name, file, line, key, active]);
-    return <section className="behavior-source" aria-label="Behavior source evidence">
-        <div className="behavior-source-heading"><h4>{call?.callsite ? 'Code at this call' : 'Operation source'}</h4>
-            {file && <button onClick={() => onNavigate(file, line, symbol.name)}>Open source ↗</button>}</div>
-        {!file ? <p>Source location unavailable.</p> : <>
+    return <section className="behavior-source" aria-label={t("Behavior source evidence")}>
+        <div className="behavior-source-heading"><h4>{call?.callsite ? t("Code at this call") : t("Operation source")}</h4>
+            {file && <button onClick={() => onNavigate(file, line, symbol.name)}>{t("Open source ↗")}</button>}</div>
+        {!file ? <p>{t("Source location unavailable.")}</p> : <>
             <p className="behavior-source-location">{file}{line ? `:${line}` : ''}</p>
-            {current?.error ? <p role="status">{current.error}</p> : !current?.source ? <p role="status">{active ? 'Reading source…' : 'Source reading paused.'}</p>
-                : <pre aria-label="Code at selected operation"><code>{current.source.source.split('\n').map((text, index) => {
+            {current?.error ? <p role="status">{current.error}</p> : !current?.source ? <p role="status">{active ? t("Reading source…") : t("Source reading paused.")}</p>
+                : <pre aria-label={t("Code at selected operation")}><code>{current.source.source.split('\n').map((text, index) => {
                     const number = current.source!.start_line! + index;
                     return <span key={number} data-selected={number === line}><i aria-hidden="true">{number}</i>{text || ' '}{'\n'}</span>;
                 })}</code></pre>}
-            <small>Current local source · may differ from the indexed snapshot.</small>
+            <small>{t("Current local source · may differ from the indexed snapshot.")}</small>
         </>}
     </section>;
 }

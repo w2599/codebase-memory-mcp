@@ -1,3 +1,4 @@
+import { tr } from '../i18n/translate';
 import type { GraphData, GraphNode } from '../galaxy/types';
 import type { BrowserChatContext } from './chat-model';
 
@@ -35,7 +36,7 @@ export function galaxyNodeContext(graph: GraphData | undefined, nodeId: number, 
     const neighbors = availableNeighbors.slice(0, GALAXY_CONTEXT_LIMITS.neighbors).map((node, index) => record(node, `neighbors[${index}]`));
     return {
         id: snapshotId,
-        label: `Graph node · ${selected.name.length > 60 ? `${selected.name.slice(0, 60)}…` : selected.name}`,
+        label: tr`Graph node · ${selected.name.length > 60 ? `${selected.name.slice(0, 60)}…` : selected.name}`,
         text: JSON.stringify({
             kind: 'galaxy-selection-snapshot',
             source: 'loaded-galaxy-layout',

@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AtlasApi } from '../app/atlas-api';
 import type { ProjectHealth } from '../projects/projects-model';
@@ -18,10 +19,10 @@ interface Props {
 }
 
 const failureText = (error: unknown) => error instanceof Error ? error.message : String(error);
-const booleanText = (value: string | null | undefined) => value === 'true' ? 'On' : value === 'false' ? 'Off' : 'Unknown';
+const booleanText = (value: string | null | undefined) => value === 'true' ? t('On') : value === 'false' ? t('Off') : t('Unknown');
 const watcherText = (health: ProjectHealth | null, failed: boolean) => {
-    if (failed || health?.watchRegistered == null || health.watcherRunning == null) return 'Unknown';
-    return health.watchRegistered ? health.watcherRunning ? 'Active' : 'Registered · daemon watcher stopped' : 'Not registered';
+    if (failed || health?.watchRegistered == null || health.watcherRunning == null) return t('Unknown');
+    return health.watchRegistered ? health.watcherRunning ? t('Active') : t('Registered · daemon watcher stopped') : t('Not registered');
 };
 
 function WatcherSetting({ api, active, paused, pollMs, refreshToken }: Omit<Props, 'listProjects' | 'onOpenProjects'> & { pollMs: number }) {
@@ -31,7 +32,7 @@ function WatcherSetting({ api, active, paused, pollMs, refreshToken }: Omit<Prop
     const [saveError, setSaveError] = useState('');
     const pending = useRef(false);
     const readConfiguration = useCallback(async () => {
-        if (!api.configuration) throw new Error('Watcher configuration is unavailable.');
+        if (!api.configuration) throw new Error(t("Watcher configuration is unavailable."));
         return api.configuration();
     }, [api]);
     const reading = useSystemPoll(readConfiguration, active, paused || saving, pollMs);
@@ -44,16 +45,16 @@ function WatcherSetting({ api, active, paused, pollMs, refreshToken }: Omit<Prop
         if (!snapshot || !setting?.editable || !api.saveConfiguration || pending.current) return;
         pending.current = true; setSaving(true); setOptimistic(enabled); setSaveError('');
         try { setSnapshot(await api.saveConfiguration(snapshot.revision, { watcher_enabled: enabled ? 'true' : 'false' })); }
-        catch (error) { setSaveError(`Could not save the watcher setting. ${failureText(error)}`); }
+        catch (error) { setSaveError(tr`Could not save the watcher setting. ${failureText(error)}`); }
         finally { pending.current = false; setSaving(false); setOptimistic(null); }
     };
-    return <section className="system-watcher-setting" aria-label="Background watcher configuration">
-        <label className="system-watcher-toggle"><input type="checkbox" role="switch" aria-label="Background watcher" checked={optimistic ?? saved === 'true'} disabled={!known || !setting?.editable || !api.saveConfiguration || saving || !!reading.error || reading.loading} onChange={event => { void change(event.currentTarget.checked); }} /><span>Background watcher <small>Applies after daemon restart</small></span></label>
-        <div className="system-watcher-details"><span>{saving ? 'Saving…' : `Saved: ${booleanText(saved)}`}</span><span>Running setting: {setting?.effectiveKnown === false ? 'Unknown' : booleanText(setting?.effective)}</span>{setting?.pendingRestart && <strong>Restart pending</strong>}</div>
+    return <section className="system-watcher-setting" aria-label={t("Background watcher configuration")}>
+        <label className="system-watcher-toggle"><input type="checkbox" role="switch" aria-label={t("Background watcher")} checked={optimistic ?? saved === 'true'} disabled={!known || !setting?.editable || !api.saveConfiguration || saving || !!reading.error || reading.loading} onChange={event => { void change(event.currentTarget.checked); }} /><span>{t("Background watcher ")}<small>{t("Applies after daemon restart")}</small></span></label>
+        <div className="system-watcher-details"><span>{saving ? t("Saving…") : tr`Saved: ${booleanText(saved)}`}</span><span>{t("Running setting: ")}{setting?.effectiveKnown === false ? t("Unknown") : booleanText(setting?.effective)}</span>{setting?.pendingRestart && <strong>{t("Restart pending")}</strong>}</div>
         {setting?.readOnlyReason && <p className="system-muted">{setting.readOnlyReason}</p>}
-        {(!setting && !reading.loading) && <p className="system-muted">This daemon does not report an editable watcher setting.</p>}
+        {(!setting && !reading.loading) && <p className="system-muted">{t("This daemon does not report an editable watcher setting.")}</p>}
         {(saveError || reading.error) && <p className="system-warning" role="alert">{saveError || reading.error}</p>}
-        <p className="system-muted">This setting applies to all projects. Project registrations come from agent sessions.</p>
+        <p className="system-muted">{t("This setting applies to all projects. Project registrations come from agent sessions.")}</p>
     </section>;
 }
 
@@ -65,17 +66,17 @@ export default function IndexesPanel({ api, listProjects, active, paused, refres
     const readIndexes = useCallback(async () => {
         if (inFlight.current) return inFlight.current;
         const read = async () => {
-            if (!listProjects) throw new Error('Project inventory is unavailable.');
+            if (!listProjects) throw new Error(t("Project inventory is unavailable."));
             const projects = await listProjects();
             const rows = new Array<IndexReading>(projects.length);
             let cursor = 0;
             const worker = async () => {
                 while (cursor < projects.length) {
-                    if (!enabled.current || document.visibilityState === 'hidden') throw new Error('Index reading paused.');
+                    if (!enabled.current || document.visibilityState === 'hidden') throw new Error(t("Index reading paused."));
                     const index = cursor++;
                     const project = projects[index];
                     try {
-                        if (!api.projectHealth) throw new Error('Project health is unavailable.');
+                        if (!api.projectHealth) throw new Error(t("Project health is unavailable."));
                         rows[index] = { project, health: await api.projectHealth(project.name), error: null };
                     } catch (error) {
                         rows[index] = { project, health: previous.current.get(project.name)?.health ?? null, error: failureText(error) };
@@ -95,20 +96,20 @@ export default function IndexesPanel({ api, listProjects, active, paused, refres
     }, [api, listProjects]);
     const reading = useSystemPoll(readIndexes, active, paused, pollMs);
     useEffect(() => { if (active && refreshToken > 0) reading.refresh(); }, [active, refreshToken, reading.refresh]);
-    return <section className="system-section system-indexes" aria-label="Project indexes">
-        <div className="system-section-heading"><div><h2>Indexes</h2><p>Persisted project indexes and background watching.</p></div><button type="button" onClick={onOpenProjects}>Add project index</button></div>
+    return <section className="system-section system-indexes" aria-label={t("Project indexes")}>
+        <div className="system-section-heading"><div><h2>{t("Indexes")}</h2><p>{t("Persisted project indexes and background watching.")}</p></div><button type="button" onClick={onOpenProjects}>{t("Add project index")}</button></div>
         <WatcherSetting api={api} active={active} paused={paused} pollMs={pollMs} refreshToken={refreshToken} />
-        <div className="system-index-reading"><span>{reading.loading ? 'Updating indexes…' : paused ? 'Live updates paused' : 'Updates every 15 seconds'}</span>{reading.updatedAt !== null && <span>Read <time dateTime={new Date(reading.updatedAt).toISOString()}>{new Date(reading.updatedAt).toLocaleTimeString()}</time></span>}</div>
-        {reading.error && <p className="system-warning" role="alert">{reading.error}{reading.data ? ' Showing the last inventory reading; current watcher state is unknown.' : ''}</p>}
-        <div className="system-table-wrap"><table className="system-index-table"><thead><tr><th>Project</th><th title="Recorded index metadata time; does not prove the current files are indexed.">Index timestamp</th><th>Index contents</th><th>Background watcher</th></tr></thead><tbody>
+        <div className="system-index-reading"><span>{reading.loading ? t("Updating indexes…") : paused ? t("Live updates paused") : t("Updates every 15 seconds")}</span>{reading.updatedAt !== null && <span>{t("Read ")}<time dateTime={new Date(reading.updatedAt).toISOString()}>{new Date(reading.updatedAt).toLocaleTimeString()}</time></span>}</div>
+        {reading.error && <p className="system-warning" role="alert">{reading.error}{reading.data ? t(" Showing the last inventory reading; current watcher state is unknown.") : ''}</p>}
+        <div className="system-table-wrap"><table className="system-index-table"><thead><tr><th>{t("Project")}</th><th title={t("Recorded index metadata time; does not prove the current files are indexed.")}>{t("Index timestamp")}</th><th>{t("Index contents")}</th><th>{t("Background watcher")}</th></tr></thead><tbody>
             {reading.data?.map(({ project, health, error }) => <tr key={project.name}>
-                <th scope="row"><strong>{project.name}</strong>{project.root_path && <small className="system-index-path" title={project.root_path}>{project.root_path}</small>}{health?.status !== 'healthy' && <small>{health?.status === 'corrupt' ? 'Index corrupt' : health?.status === 'missing' ? 'Index missing' : 'Health unknown'}</small>}{error && <small className="system-warning">Update failed: {error}{health ? ' · showing last reading' : ''}</small>}</th>
-                <td>{health?.indexedAt ? <time dateTime={health.indexedAt}>{new Date(health.indexedAt).toLocaleString()}</time> : <span>Unknown</span>}</td>
-                <td><span>{health?.nodes ?? project.nodes ?? 'Unknown'} nodes</span><small>{health?.edges ?? project.edges ?? 'Unknown'} edges</small></td>
+                <th scope="row"><strong>{project.name}</strong>{project.root_path && <small className="system-index-path" title={project.root_path}>{project.root_path}</small>}{health?.status !== 'healthy' && <small>{health?.status === 'corrupt' ? t("Index corrupt") : health?.status === 'missing' ? t("Index missing") : t("Health unknown")}</small>}{error && <small className="system-warning">{t("Update failed: ")}{error}{health ? t(" · showing last reading") : ''}</small>}</th>
+                <td>{health?.indexedAt ? <time dateTime={health.indexedAt}>{new Date(health.indexedAt).toLocaleString()}</time> : <span>{t("Unknown")}</span>}</td>
+                <td><span>{health?.nodes ?? project.nodes ?? t('Unknown')}{t(" nodes")}</span><small>{health?.edges ?? project.edges ?? t('Unknown')}{t(" edges")}</small></td>
                 <td>{watcherText(health, !!error || !!reading.error)}</td>
             </tr>)}
         </tbody></table></div>
-        {!reading.data && !reading.error && <p className="system-empty">Reading project indexes…</p>}
-        {reading.data?.length === 0 && <p className="system-empty">No persisted project indexes.</p>}
+        {!reading.data && !reading.error && <p className="system-empty">{t("Reading project indexes…")}</p>}
+        {reading.data?.length === 0 && <p className="system-empty">{t("No persisted project indexes.")}</p>}
     </section>;
 }

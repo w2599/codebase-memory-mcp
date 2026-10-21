@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /*
  * Herkunft: portiert am 2026-08-29 aus CodeAtlasIDE,
  * /Users/bernhard/Desktop/CodeAtlasIDE/theia-extensions/codeatlas-views/src/browser/strings.ts
@@ -28,19 +29,19 @@ import { countOf } from '../twin/strings';
 
 /** The heading over each scope's block. */
 export function pseudocodeSymbolTitle(name: string): string {
-    return `Steps in ${name}`;
+    return tr`Steps in ${name}`;
 }
 
 export function pseudocodeClassTitle(name: string): string {
-    return `Steps in class ${name}`;
+    return tr`Steps in class ${name}`;
 }
 
 export function pseudocodeSelectionTitle(count: number): string {
-    return `Steps in ${countOf(count, 'selected symbol', 'selected symbols')}`;
+    return tr`Steps in ${countOf(count, 'selected symbol', 'selected symbols')}`;
 }
 
 export function pseudocodeClosureTitle(name: string): string {
-    return `Steps in ${name} and the code it reaches`;
+    return tr`Steps in ${name} and the code it reaches`;
 }
 
 /**
@@ -56,22 +57,22 @@ export function pseudocodeStepLine(order: number, verb: string, target: string):
 }
 
 /** The two verbs, and the only two. */
-export const PSEUDOCODE_VERB_CALL = 'call';
-export const PSEUDOCODE_VERB_CONSTRUCT = 'construct';
+export const PSEUDOCODE_VERB_CALL = t("call");
+export const PSEUDOCODE_VERB_CONSTRUCT = t("construct");
 
 /** One error the symbol can raise. "May" because the index records the site, not the condition. */
 export function pseudocodeRaiseLine(order: number, type: string): string {
-    return `${order}. may raise ${type}`;
+    return tr`${order}. may raise ${type}`;
 }
 
 /** One environment value the symbol reads. */
 export function pseudocodeEnvLine(order: number, key: string): string {
-    return `${order}. read ${key} from the environment`;
+    return tr`${order}. read ${key} from the environment`;
 }
 
 /** The heading over one method of a class. */
 export function pseudocodeMethodGroup(name: string): string {
-    return `method ${name}:`;
+    return tr`method ${name}:`;
 }
 
 /** The heading over one symbol of a selection or a closure. */
@@ -87,12 +88,12 @@ export function pseudocodeSymbolGroup(name: string): string {
  * read for it, which is a statement about the index and is worded as one.
  */
 export function pseudocodeEmptyGroup(name: string): string {
-    return `the index recorded no calls, raised errors or environment reads for ${name}`;
+    return tr`the index recorded no calls, raised errors or environment reads for ${name}`;
 }
 
 /** Said at the end of a block the closure's bound cut short. */
 export function pseudocodeCappedNote(hidden: number): string {
-    return `and ${countOf(hidden, 'more symbol', 'more symbols')} not expanded: the walk stopped at its bound`;
+    return tr`and ${countOf(hidden, 'more symbol', 'more symbols')} not expanded: the walk stopped at its bound`;
 }
 
 /**
@@ -106,7 +107,7 @@ export function pseudocodeCappedNote(hidden: number): string {
  * the one way this feature could mislead without saying anything untrue.
  */
 export const PSEUDOCODE_PARTIAL_SCOPE =
-    'CBM Lens sampled this range rather than reading every line of it, so a very short member may be missing.';
+    t("CBM Lens sampled this range rather than reading every line of it, so a very short member may be missing.");
 
 /**
  * The footer, and the sentence that keeps the whole block honest.
@@ -118,21 +119,19 @@ export const PSEUDOCODE_PARTIAL_SCOPE =
  * of an index, and an index reports what it resolved.
  */
 export function pseudocodeCoverage(covered: number, total: number): string {
-    return `${covered} of ${countOf(total, 'symbol', 'symbols')} in scope contributed steps.`;
+    return tr`${covered} of ${countOf(total, 'symbol', 'symbols')} in scope contributed steps.`;
 }
 
 /** Named symbols the block covers nothing for, so their absence is not read as emptiness. */
 export function pseudocodeUncovered(names: readonly string[]): string {
-    return `Nothing was listed for ${names.join(', ')}.`;
+    return tr`Nothing was listed for ${names.join(', ')}.`;
 }
 
 export const PSEUDOCODE_SOURCE_NOTE =
-    'Derived from the index and nothing else: every line is a call, a raised error or an environment read '
-    + 'that the analysis reported, in the order it reported them. Anything the index did not resolve is '
-    + 'absent from this block, not absent from the code.';
+    t("Derived from the index and nothing else: every line is a call, a raised error or an environment read that the analysis reported, in the order it reported them. Anything the index did not resolve is absent from this block, not absent from the code.");
 
 /** Tooltip on a numbered line, which opens the place it was read from. */
-export const PSEUDOCODE_LINE_TOOLTIP = 'Open the line this came from.';
+export const PSEUDOCODE_LINE_TOOLTIP = t("Open the line this came from.");
 
 // ---------------------------------------------------------------------------
 // W8c: der Fund zuerst, das Ziel an jeder Zeile, und das Meta hinter dem
@@ -163,27 +162,22 @@ export const PSEUDOCODE_LINE_TOOLTIP = 'Open the line this came from.';
  * dasteht, waere ein Kopf, dessen Fehlen selbst eine Behauptung ist.
  */
 export function pseudocodeLeadUnused(symbol: string, unused: number, total: number): string {
-    return `You cannot see this in the code: ${unused} of the ${countOf(total, 'name', 'names')} this file `
-        + `pulls in ${unused === 1 ? 'is' : 'are'} not used by ${symbol} as far as the index shows.`;
+    return tr`You cannot see this in the code: ${unused} of the ${countOf(total, 'name', 'names')} this file pulls in ${unused === 1 ? t("is") : t("are")} not used by ${symbol} as far as the index shows.`;
 }
 
 export function pseudocodeLeadUnchecked(symbol: string, unknown: number): string {
-    return `You cannot see this in the code: every name this file pulls in is one the index links to `
-        + `${symbol}, except ${countOf(unknown, 'one', 'ones')} CBM Lens cannot check either way.`;
+    return tr`You cannot see this in the code: every name this file pulls in is one the index links to ${symbol}, except ${countOf(unknown, 'one', 'ones')} CBM Lens cannot check either way.`;
 }
 
 export function pseudocodeLeadBehind(steps: number): string {
-    return `You cannot see this in the code: the index records raised errors, further calls or environment `
-        + `reads behind ${countOf(steps, 'step', 'steps')} below.`;
+    return tr`You cannot see this in the code: the index records raised errors, further calls or environment reads behind ${countOf(steps, 'step', 'steps')} below.`;
 }
 
 export function pseudocodeLeadNone(symbol: string, total: number): string {
     if (total === 0) {
-        return 'Nothing stands above the steps this time: CBM Lens found no import in this file, and the '
-            + 'index records nothing behind the steps below.';
+        return t("Nothing stands above the steps this time: CBM Lens found no import in this file, and the index records nothing behind the steps below.");
     }
-    return `Nothing stands above the steps this time: every name this file pulls in is one the index links `
-        + `to ${symbol}, and it records nothing behind the steps below.`;
+    return tr`Nothing stands above the steps this time: every name this file pulls in is one the index links to ${symbol}, and it records nothing behind the steps below.`;
 }
 
 /**
@@ -194,13 +188,13 @@ export function pseudocodeLeadNone(symbol: string, total: number): string {
  * eine Abwesenheit behaupten, die bloss eine Verzoegerung ist.
  */
 export const PSEUDOCODE_LEAD_PENDING =
-    'What this file pulls in has not arrived yet, so what stands above the steps is not complete.';
+    t("What this file pulls in has not arrived yet, so what stands above the steps is not complete.");
 
 /** Die Ueberschrift ueber der Schrittliste, die sagt, was an ihr neu ist. */
-export const PSEUDOCODE_STEPS_HEADING = 'Steps, and where each one goes';
+export const PSEUDOCODE_STEPS_HEADING = t("Steps, and where each one goes");
 
 /** Tooltip am Ziel einer Zeile. Der Text der Zeile fuehrt woandershin, siehe PseudocodeLine. */
-export const PSEUDOCODE_TARGET_TOOLTIP = 'Open where this step leads: the symbol it calls.';
+export const PSEUDOCODE_TARGET_TOOLTIP = t("Open where this step leads: the symbol it calls.");
 
 /**
  * Gesagt an einer Zeile, deren Ziel der Index nicht kennt.
@@ -209,23 +203,23 @@ export const PSEUDOCODE_TARGET_TOOLTIP = 'Open where this step leads: the symbol
  * aus wie eine Zeile, deren Ziel niemand gebraucht hat, und ist in Wahrheit
  * eine, deren Aufruf der Index nicht aufloesen konnte.
  */
-export const PSEUDOCODE_TARGET_UNKNOWN = 'the index records no place for this name';
+export const PSEUDOCODE_TARGET_UNKNOWN = t("the index records no place for this name");
 
 /** Was hinter einem Aufruf liegt, in den Worten der Relation, die es sagt. */
 export function insightRaises(types: string): string {
-    return `may raise ${types}`;
+    return tr`may raise ${types}`;
 }
 
 export function insightCalls(count: number): string {
-    return `makes ${countOf(count, 'call', 'calls')} of its own`;
+    return tr`makes ${countOf(count, 'call', 'calls')} of its own`;
 }
 
 export function insightReadsEnv(key: string): string {
-    return `reads ${key} from the environment`;
+    return tr`reads ${key} from the environment`;
 }
 
 export function insightMore(count: number): string {
-    return `and ${count} more`;
+    return tr`and ${count} more`;
 }
 
 /**
@@ -237,11 +231,7 @@ export function insightMore(count: number): string {
  * anderes als ein Aufruf, hinter dem nichts passiert.
  */
 export const PSEUDOCODE_BEHIND_NOTE =
-    'What stands beside a step comes from the relations the index recorded for the symbol that step calls, '
-    + 'in the graph this window already loaded: what it can raise, what it calls in turn, and what it reads '
-    + 'from the environment. It is not a reading of that symbol\'s body. A step with nothing beside it is a '
-    + 'step whose callee the loaded graph records none of those three for, not a callee that does none of '
-    + 'them.';
+    t("What stands beside a step comes from the relations the index recorded for the symbol that step calls, in the graph this window already loaded: what it can raise, what it calls in turn, and what it reads from the environment. It is not a reading of that symbol's body. A step with nothing beside it is a step whose callee the loaded graph records none of those three for, not a callee that does none of them.");
 
 /**
  * Der EINE Satz, der unter dem Block stehenbleibt.
@@ -254,10 +244,10 @@ export const PSEUDOCODE_BEHIND_NOTE =
  * {@link PSEUDOCODE_SOURCE_NOTE} stehen unveraendert hinter dem Fragezeichen
  * daneben, also in dem Idiom, das dieses Produkt fuer Herkunft schon hat.
  */
-export const PSEUDOCODE_HONESTY_SHORT = 'Only what the index reported, in the order it reported it.';
+export const PSEUDOCODE_HONESTY_SHORT = t("Only what the index reported, in the order it reported it.");
 
 /** Was das Fragezeichen unter dem Block sagt, wenn man es beruehrt. */
-export const PSEUDOCODE_PROVENANCE_TOOLTIP = 'Where this block comes from.';
+export const PSEUDOCODE_PROVENANCE_TOOLTIP = t("Where this block comes from.");
 
 // ---------------------------------------------------------------------------
 // Die Imports-Gruppe
@@ -268,7 +258,7 @@ export const PSEUDOCODE_PROVENANCE_TOOLTIP = 'Where this block comes from.';
 // ---------------------------------------------------------------------------
 
 /** The heading over the group, in the pseudocode block. */
-export const IMPORTS_GROUP_HEADING = 'What this file pulls in';
+export const IMPORTS_GROUP_HEADING = t("What this file pulls in");
 
 /**
  * Die Ueberschrift der Gruppe seit W8c: sie nennt den Fund, statt ihn zu
@@ -289,19 +279,17 @@ export function importsFindingHeading(unused: number, unknown: number, total: nu
         return IMPORTS_GROUP_HEADING;
     }
     if (unused > 0) {
-        return `${IMPORTS_GROUP_HEADING}: ${countOf(unused, 'name', 'names')} not used anywhere in this file `
-            + 'as far as the index shows';
+        return tr`${IMPORTS_GROUP_HEADING}: ${countOf(unused, 'name', 'names')} not used anywhere in this file as far as the index shows`;
     }
     if (unknown > 0) {
-        return `${IMPORTS_GROUP_HEADING}: ${countOf(unknown, 'name', 'names')} CBM Lens cannot check `
-            + 'against this file';
+        return tr`${IMPORTS_GROUP_HEADING}: ${countOf(unknown, 'name', 'names')} CBM Lens cannot check against this file`;
     }
-    return `${IMPORTS_GROUP_HEADING}: every name here is linked to a symbol in this file`;
+    return tr`${IMPORTS_GROUP_HEADING}: every name here is linked to a symbol in this file`;
 }
 
 /** Said on an entry a fact from this file names. */
 export function importsUsedLine(name: string, module: string): string {
-    return `uses ${name} from ${module}`;
+    return tr`uses ${name} from ${module}`;
 }
 
 /**
@@ -313,60 +301,60 @@ export function importsUsedLine(name: string, module: string): string {
  * declaration was read and every relevant family answered.
  */
 export function importsUnusedLine(name: string, module: string): string {
-    return `${name} from ${module}: imported here, not used anywhere in this file as far as the index shows`;
+    return tr`${name} from ${module}: imported here, not used anywhere in this file as far as the index shows`;
 }
 
 /** Said on an entry that could not be checked at all. */
 export function importsUnknownLine(name: string, module: string): string {
-    return `${name} from ${module}: CBM Lens cannot tell whether this file uses it`;
+    return tr`${name} from ${module}: CBM Lens cannot tell whether this file uses it`;
 }
 
 /** Said on `import * as db from ...` and its equivalents in the other languages. */
 export function importsNamespaceLine(binding: string, module: string): string {
-    return `${binding} from ${module}: the whole module under one name`;
+    return tr`${binding} from ${module}: the whole module under one name`;
 }
 
 /** Said on `import './setup'`, which binds nothing. */
 export function importsSideEffectLine(module: string): string {
-    return `${module}: pulled in for what it does when the file loads`;
+    return tr`${module}: pulled in for what it does when the file loads`;
 }
 
 /** Said on an entry recovered from an import edge alone, with no statement behind it. */
 export function importsIndexOnlyLine(path: string): string {
-    return `${path}: the index records the dependency without naming what was imported`;
+    return tr`${path}: the index records the dependency without naming what was imported`;
 }
 
 /** Why an entry says what it says. One sentence, on the entry itself. */
 export const IMPORTS_NOTE_USED =
-    'The index records a symbol in this file reaching this name, so the import is one the file actually leans on.';
+    t("The index records a symbol in this file reaching this name, so the import is one the file actually leans on.");
 
 export const IMPORTS_NOTE_UNUSED =
-    'The index answered every checked symbol in this file, and none of their recorded facts mentions this name.';
+    t("The index answered every checked symbol in this file, and none of their recorded facts mentions this name.");
 
 export const IMPORTS_NOTE_UNKNOWN =
-    'CBM Lens does not have a complete answered reading for every callable in this file, so it will not claim the import is unused.';
+    t("CBM Lens does not have a complete answered reading for every callable in this file, so it will not claim the import is unused.");
 
 export const IMPORTS_NOTE_NAMESPACE =
-    'A namespace import binds every export of the module under one name, and the index records a call through it under the member\'s name. So nothing here can be matched against the binding.';
+    t("A namespace import binds every export of the module under one name, and the index records a call through it under the member's name. So nothing here can be matched against the binding.");
 
 export const IMPORTS_NOTE_SIDE_EFFECT =
-    'This statement binds no name, so there is nothing for the index to match it against. What the module does when it loads is not something the analysis records.';
+    t("This statement binds no name, so there is nothing for the index to match it against. What the module does when it loads is not something the analysis records.");
 
 export const IMPORTS_NOTE_INDEX_ONLY =
-    'This came from the dependency the index recorded rather than from the file\'s text, so CBM Lens has the imported file and not the imported name.';
+    t("This came from the dependency the index recorded rather than from the file's text, so CBM Lens has the imported file and not the imported name.");
 
 /** Said at the end of a group the display cap cut short. */
 export function importsCappedNote(hidden: number, shown: number): string {
-    return `and ${countOf(hidden, 'more import', 'more imports')} not listed: this group shows the first ${shown}`;
+    return tr`and ${countOf(hidden, 'more import', 'more imports')} not listed: this group shows the first ${shown}`;
 }
 
 /** Said when the file's own text could not be read at all. */
 export const IMPORTS_SOURCE_UNREAD =
-    'CBM Lens could not read this file\'s text, so what follows is the dependencies the index recorded and not the import statements themselves.';
+    t("CBM Lens could not read this file's text, so what follows is the dependencies the index recorded and not the import statements themselves.");
 
 /** Said when the file pulls in nothing at all. */
 export const IMPORTS_EMPTY =
-    'The index records no dependency for this file and CBM Lens found no import statement in it.';
+    t("The index records no dependency for this file and CBM Lens found no import statement in it.");
 
 /**
  * The standing sentence under the group, in both surfaces.
@@ -377,16 +365,15 @@ export const IMPORTS_EMPTY =
  * the judgement about use comes from every callable declaration the file read.
  */
 export const IMPORTS_SOURCE_NOTE =
-    'The dependency comes from the index; the statement, its line and the name it binds are CBM Lens reading '
-    + 'this file. Use is checked against the recorded facts of every callable symbol in the file.';
+    t("The dependency comes from the index; the statement, its line and the name it binds are CBM Lens reading this file. Use is checked against the recorded facts of every callable symbol in the file.");
 
 /** The three markers. Short enough to sit beside a name, and never the only carrier of meaning. */
-export const IMPORT_MARK_USED = 'used here';
-export const IMPORT_MARK_UNUSED = 'not used here';
-export const IMPORT_MARK_UNKNOWN = 'not checkable';
+export const IMPORT_MARK_USED = t("used here");
+export const IMPORT_MARK_UNUSED = t("not used here");
+export const IMPORT_MARK_UNKNOWN = t("not checkable");
 
 /** Tooltip on an entry that points at its statement. */
-export const IMPORTS_LINE_TOOLTIP = 'Open the import statement this came from.';
+export const IMPORTS_LINE_TOOLTIP = t("Open the import statement this came from.");
 
 /** The twin section's own sentences. */
 export const IMPORTS_SECTION_EMPTY = IMPORTS_EMPTY;
@@ -395,22 +382,21 @@ export const IMPORTS_SECTION_NOTE = IMPORTS_SOURCE_NOTE;
 
 /** How the group's own tally reads, under the entries. */
 export function importsTally(used: number, unused: number, unknown: number): string {
-    return `${used} used in this file, ${unused} not used in it, ${unknown} that CBM Lens cannot check.`;
+    return tr`${used} used in this file, ${unused} not used in it, ${unknown} that CBM Lens cannot check.`;
 }
 
 // ---------------------------------------------------------------------------
 // Der Flow-Erklaerer
 // ---------------------------------------------------------------------------
 
-export const EXPLAINER_LABEL = 'Explain flow';
+export const EXPLAINER_LABEL = t("Explain flow");
 
 export const EXPLAINER_TOOLTIP =
-    'Draw the code this symbol reaches as a sequence, beside the steps it is made of, and walk them one at '
-    + 'a time.';
+    t("Draw the code this symbol reaches as a sequence, beside the steps it is made of, and walk them one at a time.");
 
 /** Beschriftung des Kopfes, je nach Zustand. Der Kopf ist ein Knopf, kein Etikett. */
 export function explainerHeadTooltip(open: boolean): string {
-    return open ? 'Close the flow of this symbol.' : EXPLAINER_TOOLTIP;
+    return open ? t("Close the flow of this symbol.") : EXPLAINER_TOOLTIP;
 }
 
 /**
@@ -420,11 +406,11 @@ export function explainerHeadTooltip(open: boolean): string {
  * und nicht der der Datei: der Walk beginnt an einem Symbol.
  */
 export function explainerTitle(name: string): string {
-    return `Flow from ${name}`;
+    return tr`Flow from ${name}`;
 }
 
 /** Die Ueberschrift ueber der Schritt-Liste. */
-export const EXPLAINER_STEPS_TITLE = 'Steps';
+export const EXPLAINER_STEPS_TITLE = t("Steps");
 
 /*
  * Der Schliess-Knopf und der Escape-Hinweis stehen seit W8 nicht mehr hier.
@@ -435,11 +421,11 @@ export const EXPLAINER_STEPS_TITLE = 'Steps';
  * zumacht, waeren die Sorte Verdopplung, die dieser Zyklus abgeschafft hat.
  */
 
-export const EXPLAINER_PREV_LABEL = 'Previous';
-export const EXPLAINER_NEXT_LABEL = 'Next';
-export const EXPLAINER_PREV_TOOLTIP = 'Go back one step.';
+export const EXPLAINER_PREV_LABEL = t("Previous");
+export const EXPLAINER_NEXT_LABEL = t("Next");
+export const EXPLAINER_PREV_TOOLTIP = t("Go back one step.");
 export const EXPLAINER_NEXT_TOOLTIP =
-    'Go on one step: the editor follows and the diagram lights up.';
+    t("Go on one step: the editor follows and the diagram lights up.");
 
 /**
  * Die Position im Stepper. Immer beide Zahlen: "3" allein sagt nichts.
@@ -448,7 +434,7 @@ export const EXPLAINER_NEXT_TOOLTIP =
  * Schraegstrich liest sich wie ein Bruch, und ein Standort ist kein Anteil.
  */
 export function explainerPosition(step: number, total: number): string {
-    return `${step} of ${total}`;
+    return tr`${step} of ${total}`;
 }
 
 /** Vor dem ersten Schritt. Kein "0 / 8", das waere ein Schritt, den es nicht gibt. */
@@ -464,17 +450,17 @@ export function explainerNotStarted(total: number): string {
  * warum er still bleibt, statt irgendeinen Pfeil zu faerben.
  */
 export const EXPLAINER_NO_DIAGRAM_HIT =
-    'This step is not an arrow in the picture: the index recorded it as an error path or an environment read, and neither has a lifeline of its own in a sequence of calls. The code is still opened.';
+    t("This step is not an arrow in the picture: the index recorded it as an error path or an environment read, and neither has a lifeline of its own in a sequence of calls. The code is still opened.");
 
 /** Ueber dem Kasten: was die Spalten sind. */
-export const EXPLAINER_PARTICIPANTS_LABEL = 'files';
+export const EXPLAINER_PARTICIPANTS_LABEL = t("files");
 
 /** Ueber der Pfeilliste. */
-export const EXPLAINER_ARROWS_LABEL = 'calls';
+export const EXPLAINER_ARROWS_LABEL = t("calls");
 
 /** Gesagt, wenn der Walk gar keinen Halt hergab. */
 export const EXPLAINER_NO_STEPS =
-    'The index recorded no calls out of this symbol, so there is no flow to walk.';
+    t("The index recorded no calls out of this symbol, so there is no flow to walk.");
 
 /**
  * Der erste der zwei Ehrlichkeits-Absaetze, wortgleich aus dem
@@ -488,8 +474,7 @@ export const EXPLAINER_NO_STEPS =
  * Fragezeichen daneben. Warum, steht an {@link EXPLAINER_HONESTY_SHORT}.
  */
 export const EXPLAINER_SOURCE_NOTE =
-    'The diagram and the list are two readings of one walk: one lifeline per file, one line per call the '
-    + 'index reported. Neither shows a call the index did not resolve.';
+    t("The diagram and the list are two readings of one walk: one lifeline per file, one line per call the index reported. Neither shows a call the index did not resolve.");
 
 /**
  * Der EINE Satz, der unter dem Bild stehenbleibt.
@@ -520,7 +505,7 @@ export const EXPLAINER_SOURCE_NOTE =
  * gleichzeitig ins Gesicht.
  */
 export const EXPLAINER_HONESTY_SHORT =
-    'Neither the picture nor the list shows a call the index did not resolve.';
+    t("Neither the picture nor the list shows a call the index did not resolve.");
 
 /**
  * Steht statt {@link EXPLAINER_HONESTY_SHORT}, wenn der Walk unaufgeloeste
@@ -534,8 +519,7 @@ export const EXPLAINER_HONESTY_SHORT =
  * einer ungenaueren Messung.
  */
 export function explainerUnresolvedNote(count: number): string {
-    return `At least ${countOf(count, 'call', 'calls')} the index did not resolve `
-        + `${count === 1 ? 'is' : 'are'} missing from the picture and from the list.`;
+    return tr`At least ${countOf(count, 'call', 'calls')} the index did not resolve ${count === 1 ? t("is") : t("are")} missing from the picture and from the list.`;
 }
 
 /**
@@ -556,10 +540,10 @@ export function explainerUnresolvedNote(count: number): string {
  * und hoechstens zwei Absaetze; beide Saetze zusammen sind 142.
  */
 export const EXPLAINER_BEYOND_BOX =
-    'What those calls reach in turn is one hop further than this box draws.';
+    t("What those calls reach in turn is one hop further than this box draws.");
 
 /** Was das Fragezeichen neben dem Bild sagt, wenn man es beruehrt. */
-export const EXPLAINER_PROVENANCE_TOOLTIP = 'Where this picture comes from.';
+export const EXPLAINER_PROVENANCE_TOOLTIP = t("Where this picture comes from.");
 
 /**
  * Die Beschriftung am Rand des Bildes: wie weit der Walk ging und wie viel er
@@ -570,7 +554,7 @@ export const EXPLAINER_PROVENANCE_TOOLTIP = 'Where this picture comes from.';
  * vierte Absatz einer Textwand: er steht hinter dem Fragezeichen daneben.
  */
 export function explainerWalkBound(depth: number, cap: number): string {
-    return `walk: ${countOf(depth, 'hop', 'hops')}, at most ${countOf(cap, 'symbol', 'symbols')}`;
+    return tr`walk: ${countOf(depth, 'hop', 'hops')}, at most ${countOf(cap, 'symbol', 'symbols')}`;
 }
 
 /**
@@ -581,13 +565,11 @@ export function explainerWalkBound(depth: number, cap: number): string {
  * entworfen, muss sagen, dass sie aus einem Index gerechnet ist.
  */
 export const EXPLAINER_GENERATED_NOTE =
-    'Nobody drew this picture. CBM Lens laid it out from what the index recorded for this walk, so it can '
-    + 'be incomplete about the code and exact about what was reported.';
+    t("Nobody drew this picture. CBM Lens laid it out from what the index recorded for this walk, so it can be incomplete about the code and exact about what was reported.");
 
 /** Die Notiz im Bild, wenn eine Kante in eine schon besuchte Kette zurueckfuehrt. */
 export function explainerCycleNote(count: number): string {
-    return `${countOf(count, 'arrow closes', 'arrows close')} a chain the walk had already been through; `
-        + 'those are drawn dashed and not followed further.';
+    return tr`${countOf(count, 'arrow closes', 'arrows close')} a chain the walk had already been through; those are drawn dashed and not followed further.`;
 }
 
 /**
@@ -603,30 +585,29 @@ export function explainerOmittedNote(
     participantCap: number,
     interactionCap: number,
 ): string {
-    return `${countOf(count, 'call is', 'calls are')} not drawn: the picture keeps at most `
-        + `${participantCap} lifelines and ${interactionCap} arrows.`;
+    return tr`${countOf(count, 'call is', 'calls are')} not drawn: the picture keeps at most ${participantCap} lifelines and ${interactionCap} arrows.`;
 }
 
 /** Gesagt, wenn die Closure gar keinen Aufruf hergab. */
 export const EXPLAINER_EMPTY =
-    'The index records no call out of this symbol, so there is no sequence to draw. That is a statement about the index, not about the code.';
+    t("The index records no call out of this symbol, so there is no sequence to draw. That is a statement about the index, not about the code.");
 
 /** Gesagt, wenn der Walk an einer Grenze aufgehoert hat. */
 export function explainerCappedNote(depth: number, cap: number): string {
-    return `The picture shows the calls this symbol makes itself: the walk went ${countOf(depth, 'hop', 'hops')} and kept at most ${countOf(cap, 'symbol', 'symbols')}. What those calls reach in turn is one hop further than this box draws.`;
+    return tr`The picture shows the calls this symbol makes itself: the walk went ${countOf(depth, 'hop', 'hops')} and kept at most ${countOf(cap, 'symbol', 'symbols')}. What those calls reach in turn is one hop further than this box draws.`;
 }
 
 /** Beschriftung des Umschalters auf die Pseudocode-Ansicht. */
-export const PSEUDOCODE_TAB_LABEL = 'pseudocode';
+export const PSEUDOCODE_TAB_LABEL = t("pseudocode");
 export const PSEUDOCODE_TAB_TOOLTIP =
-    'Show the facts the index recorded for this symbol as a numbered block, with what its file pulls in.';
+    t("Show the facts the index recorded for this symbol as a numbered block, with what its file pulls in.");
 
 /** Beschriftung des Umschalters zurueck auf den Twin-Koerper. */
-export const TWIN_TAB_LABEL = 'facts';
-export const TWIN_TAB_TOOLTIP = 'Back to the panel.';
+export const TWIN_TAB_LABEL = t("facts");
+export const TWIN_TAB_TOOLTIP = t("Back to the panel.");
 
 /** Steht statt des Kastens, solange der Walk noch laeuft. */
-export const FLOW_LOADING = 'Reading what this symbol reaches.';
+export const FLOW_LOADING = t("Reading what this symbol reaches.");
 
 /**
  * Steht statt des Kastens, wenn der Walk nichts hergab.
@@ -636,4 +617,4 @@ export const FLOW_LOADING = 'Reading what this symbol reaches.';
  * hier nichts zu zeigen, und keiner davon heisst "dieses Symbol ruft nichts".
  */
 export const FLOW_UNAVAILABLE =
-    'CBM Lens has no walk for this symbol right now. Place the caret in an indexed function, or reindex the workspace.';
+    t("CBM Lens has no walk for this symbol right now. Place the caret in an indexed function, or reindex the workspace.");

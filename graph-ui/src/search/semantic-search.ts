@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 /*
  * Herkunft: portiert am 2026-08-28 aus CodeAtlasIDE,
  * /Users/bernhard/Desktop/CodeAtlasIDE/theia-extensions/codeatlas-views/src/browser/search/semantic-search.ts
@@ -310,7 +311,7 @@ export function rankHits(
         const scored = scoreHit(hit, terms, fanInOf(hit));
         if (pathMatches) {
             scored.pathMatch = fileMatch ? 'file' : 'symbol';
-            scored.matched = [fileMatch ? 'exact file path' : 'symbol in requested file'];
+            scored.matched = [fileMatch ? t("exact file path") : t("symbol in requested file")];
         }
         if (scored.matched.length === 0) {
             continue;

@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 /**
  * The prompt: what the model is allowed to do, and the cards it may do it with.
  *
@@ -206,8 +207,7 @@ export function nonThinkingFor(modelName: string): NonThinkingPlan {
     return {
         chatTemplateKwargs: { enable_thinking: false },
         note: key === undefined
-            ? 'not measured for this model; the template switch is sent regardless, which is '
-                + 'inert for a model whose template does not read it.'
+            ? t("not measured for this model; the template switch is sent regardless, which is inert for a model whose template does not read it.")
             : NON_THINKING_TABLE[key],
     };
 }

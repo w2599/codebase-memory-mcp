@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
 import BrowserConfig, { type BrowserConfigProps } from './BrowserConfig';
@@ -6,37 +7,37 @@ import { CONFIG_TEXT, configValueError, type ConfigService, type ConfigSetting, 
 import './configuration.css';
 
 interface Props extends BrowserConfigProps { service: ConfigService; onClose: () => void; embedded?: boolean; active?: boolean }
-const displayValue = (value: string | null) => value === null ? 'Automatic' : value === 'true' ? 'On' : value === 'false' ? 'Off' : value || '(empty)';
-const title = (value: string) => value.replace(/[_-]/g, ' ').replace(/^./, char => char.toUpperCase());
-const timing = (value: string) => ({ restart: 'Process restart', 'next-session': 'Next session', 'next-request': 'Next request', live: 'Immediate', startup: 'After restart', 'next-index': 'Next index' }[value] ?? title(value));
+const displayValue = (value: string | null, enumValue = false) => value === null ? t('Automatic') : value === 'true' ? t('On') : value === 'false' ? t('Off') : (value ? enumValue ? t(value) : value : t('(empty)'));
+const title = (value: string) => t(value.replace(/[_-]/g, ' ').replace(/^./, char => char.toUpperCase()));
+const timing = (value: string) => t({ restart: 'Process restart', 'next-session': 'Next session', 'next-request': 'Next request', live: 'Immediate', startup: 'After restart', 'next-index': 'Next index' }[value] ?? title(value));
 
 function SettingRow({ setting, draft, changed, onChange, disabled }: { setting: ConfigSetting; draft?: string | null; changed: boolean; onChange: (value: string | null) => void; disabled: boolean }) {
     const value = changed ? draft ?? null : setting.override ?? setting.value;
     const error = changed ? configValueError(setting, value) : undefined;
     const id = `config-${setting.key}`;
     const legacyInput = !changed && value !== null && !!configValueError(setting, value);
-    const effectiveLabel = setting.effectiveKnown === false ? `Runtime interprets ${displayValue(setting.effective)}` : `Using ${displayValue(setting.effective)}`;
+    const effectiveLabel = setting.effectiveKnown === false ? tr`Runtime interprets ${displayValue(setting.effective, setting.type === 'enum')}` : tr`Using ${displayValue(setting.effective, setting.type === 'enum')}`;
     return <article className={`cbm-config-setting${changed ? ' is-changed' : ''}`}>
-        <div className="cbm-config-setting-main"><div><label htmlFor={id}>{setting.label}</label><p>{setting.description}</p></div>
+        <div className="cbm-config-setting-main"><div><label htmlFor={id}>{t(setting.label)}</label><p>{t(setting.description)}</p></div>
             <div className="cbm-config-value">
-                {!setting.editable ? <span>{displayValue(setting.effective)}</span>
+                {!setting.editable ? <span>{displayValue(setting.effective, setting.type === 'enum')}</span>
                     : setting.type === 'boolean' || setting.type === 'enum' ? <select id={id} value={value ?? ''} disabled={disabled} aria-invalid={!!error} onChange={event => onChange(event.target.value || null)}>
-                        <option value="">Inherited / automatic</option>{(setting.type === 'boolean' ? ['true', 'false'] : setting.options ?? []).map(option => <option key={option} value={option}>{displayValue(option)}</option>)}
+                        <option value="">{t("Inherited / automatic")}</option>{(setting.type === 'boolean' ? ['true', 'false'] : setting.options ?? []).map(option => <option key={option} value={option}>{displayValue(option, true)}</option>)}
                     </select> : <input id={id} type={setting.type === 'integer' || setting.type === 'number' ? 'number' : 'text'}
-                        value={legacyInput ? '' : value ?? ''} placeholder="Inherited / automatic" min={setting.minimum} max={setting.maximum} step={setting.type === 'number' ? 'any' : 1}
+                        value={legacyInput ? '' : value ?? ''} placeholder={t("Inherited / automatic")} min={setting.minimum} max={setting.maximum} step={setting.type === 'number' ? 'any' : 1}
                         disabled={disabled} aria-invalid={!!error} onChange={event => onChange(event.target.value)} />}
-                {setting.editable && <button type="button" disabled={disabled || (!changed && setting.override === null)} onClick={() => onChange(null)}>Reset</button>}
+                {setting.editable && <button type="button" disabled={disabled || (!changed && setting.override === null)} onClick={() => onChange(null)}>{t("Reset")}</button>}
             </div>
         </div>
         {error && <p className="cbm-config-error" role="alert">{error}</p>}
-        <div className="cbm-config-setting-meta"><span>{setting.pendingRestart ? 'Restart pending' : timing(setting.applyMode)}</span><span>{effectiveLabel}</span><span>{title(setting.source)}</span>{changed && <span>{draft === null ? 'Reset staged' : 'Unsaved'}</span>}</div>
-        {setting.readOnlyReason && <p className="cbm-config-readonly">{setting.readOnlyReason}</p>}
-        <details className="cbm-config-setting-details"><summary>Source & default</summary><dl>
-            <div><dt>Key</dt><dd>{setting.key}</dd></div><div><dt>Default</dt><dd>{displayValue(setting.defaultValue)}</dd></div>
-            <div><dt>Saved override</dt><dd>{setting.override === null ? 'None' : displayValue(setting.override)}</dd></div>
-            {setting.environment && <div><dt>Environment</dt><dd>{setting.environment}</dd></div>}
-            {setting.cli && <div><dt>CLI</dt><dd>{setting.cli}</dd></div>}
-            {setting.sourceFile && <div><dt>Consumer</dt><dd>{setting.sourceFile}</dd></div>}
+        <div className="cbm-config-setting-meta"><span>{setting.pendingRestart ? t("Restart pending") : timing(setting.applyMode)}</span><span>{effectiveLabel}</span><span>{title(setting.source)}</span>{changed && <span>{draft === null ? t("Reset staged") : t("Unsaved")}</span>}</div>
+        {setting.readOnlyReason && <p className="cbm-config-readonly">{t(setting.readOnlyReason)}</p>}
+        <details className="cbm-config-setting-details"><summary>{t("Source & default")}</summary><dl>
+            <div><dt>{t("Key")}</dt><dd>{setting.key}</dd></div><div><dt>{t("Default")}</dt><dd>{displayValue(setting.defaultValue, setting.type === 'enum')}</dd></div>
+            <div><dt>{t("Saved override")}</dt><dd>{setting.override === null ? t("None") : displayValue(setting.override, setting.type === 'enum')}</dd></div>
+            {setting.environment && <div><dt>{t("Environment")}</dt><dd>{setting.environment}</dd></div>}
+            {setting.cli && <div><dt>{t("CLI")}</dt><dd>{setting.cli}</dd></div>}
+            {setting.sourceFile && <div><dt>{t("Consumer")}</dt><dd>{setting.sourceFile}</dd></div>}
         </dl></details>
     </article>;
 }
@@ -64,7 +65,7 @@ export default function ConfigPanel({ service, onClose, embedded = false, active
         const ticket = ++generation.current;
         setLoading(true); setError(''); setNotice('');
         try { const next = await service.configuration(); if (ticket === generation.current) { setSnapshot(next); setDraft({}); setConfirmClose(false); } }
-        catch (failure) { if (ticket === generation.current) setError(failure instanceof Error ? failure.message : 'Could not read configuration.'); }
+        catch (failure) { if (ticket === generation.current) setError(failure instanceof Error ? failure.message : t('Could not read configuration.')); }
         finally { if (ticket === generation.current) setLoading(false); }
     }, [service]);
     useEffect(() => () => { generation.current++; }, [service]);
@@ -93,31 +94,31 @@ export default function ConfigPanel({ service, onClose, embedded = false, active
             const next = await service.saveConfiguration(snapshot.revision, draft);
             if (ticket === generation.current) {
                 setSnapshot(next); setDraft({}); setConfirmClose(false);
-                setNotice(next.settings.some(setting => setting.pendingRestart) ? 'Saved. Restart CBM to apply pending settings throughout.' : 'Saved. Changes apply at the times shown below.');
+                setNotice(next.settings.some(setting => setting.pendingRestart) ? t('Saved. Restart CBM to apply pending settings throughout.') : t('Saved. Changes apply at the times shown below.'));
             }
-        } catch (failure) { if (ticket === generation.current) setError(failure instanceof Error ? failure.message : 'Could not save configuration. Your edits are retained.'); }
+        } catch (failure) { if (ticket === generation.current) setError(failure instanceof Error ? failure.message : t('Could not save configuration. Your edits are retained.')); }
         finally { pending.current = false; if (ticket === generation.current) setSaving(false); }
     };
-    const navigate = (action: () => void) => { if (count) { setError('Save or discard your daemon changes before opening another settings panel.'); return; } action(); };
+    const navigate = (action: () => void) => { if (count) { setError(t('Save or discard your daemon changes before opening another settings panel.')); return; } action(); };
     const panel = <div className={`cbm-config-dialog${embedded ? ' cbm-config-embedded' : ''}`} ref={dialog} role={embedded ? 'region' : 'dialog'} aria-modal={embedded ? undefined : true} aria-labelledby="cbm-config-title" tabIndex={embedded ? undefined : -1} onKeyDown={embedded ? undefined : keyDown}>
-            <header className="cbm-config-heading"><div><h2 id="cbm-config-title">{embedded ? 'Configuration' : CONFIG_TEXT.title}</h2><p>Daemon settings and browser preferences</p></div>{!embedded && <button type="button" onClick={close} disabled={saving} aria-label={CONFIG_TEXT.close}>×</button>}</header>
-            <nav className="cbm-config-categories" aria-label="Configuration categories">{[...categories, 'browser', 'reference'].map(value => <button type="button" key={value} aria-pressed={activeCategory === value} onClick={() => setCategory(value)}>{value === 'reference' ? 'External inputs' : title(value)}</button>)}</nav>
+            <header className="cbm-config-heading"><div><h2 id="cbm-config-title">{embedded ? t("Configuration") : CONFIG_TEXT.title}</h2><p>{t("Daemon settings and browser preferences")}</p></div>{!embedded && <button type="button" onClick={close} disabled={saving} aria-label={CONFIG_TEXT.close}>×</button>}</header>
+            <nav className="cbm-config-categories" aria-label={t("Configuration categories")}>{[...categories, 'browser', 'reference'].map(value => <button type="button" key={value} aria-pressed={activeCategory === value} onClick={() => setCategory(value)}>{value === 'reference' ? t("External inputs") : title(value)}</button>)}</nav>
             <div className="cbm-config-content">
-                {error && <div className="cbm-config-error" role="alert">{error}<p>Your edits have not been applied. Reload values to review a newer daemon configuration.</p></div>}
+                {error && <div className="cbm-config-error" role="alert">{error}<p>{t("Your edits have not been applied. Reload values to review a newer daemon configuration.")}</p></div>}
                 {notice && <p className="cbm-config-notice" role="status">{notice}</p>}
-                {confirmClose && <div className="cbm-config-unsaved" role="alert"><p>Discard {count} unsaved daemon {count === 1 ? 'change' : 'changes'}?</p><button type="button" onClick={() => setConfirmClose(false)}>Keep editing</button><button type="button" onClick={onClose}>Discard & close</button></div>}
+                {confirmClose && <div className="cbm-config-unsaved" role="alert"><p>{t("Discard ")}{count}{t(" unsaved daemon ")}{count === 1 ? t("change") : t("changes")}?</p><button type="button" onClick={() => setConfirmClose(false)}>{t("Keep editing")}</button><button type="button" onClick={onClose}>{t("Discard & close")}</button></div>}
                 {activeCategory === 'browser' ? <BrowserConfig {...browser} onOpenBrowserModels={() => navigate(browser.onOpenBrowserModels)} onOpenDisplay={() => navigate(browser.onOpenDisplay)} />
-                    : activeCategory === 'reference' ? <><ConfigReference />{references.length > 0 && <details className="cbm-config-setting-details"><summary>Daemon reference values</summary>{references.map(setting => <SettingRow key={setting.key} setting={setting} changed={false} disabled onChange={() => undefined} />)}</details>}</>
-                    : <><p className="cbm-config-scope">Applies to this CBM installation, across projects. Saved overrides take precedence when each process starts; restart CBM to apply them throughout. Reset restores inherited values.</p>
-                        {loading && <p role="status">Reading configuration…</p>}
+                    : activeCategory === 'reference' ? <><ConfigReference />{references.length > 0 && <details className="cbm-config-setting-details"><summary>{t("Daemon reference values")}</summary>{references.map(setting => <SettingRow key={setting.key} setting={setting} changed={false} disabled onChange={() => undefined} />)}</details>}</>
+                    : <><p className="cbm-config-scope">{t("Applies to this CBM installation, across projects. Saved overrides take precedence when each process starts; restart CBM to apply them throughout. Reset restores inherited values.")}</p>
+                        {loading && <p role="status">{t("Reading configuration…")}</p>}
                         {snapshot?.settings.filter(setting => setting.category === activeCategory).map(setting => <SettingRow key={setting.key} setting={setting} draft={draft[setting.key]} changed={Object.hasOwn(draft, setting.key)} disabled={saving || loading} onChange={value => {
                             setNotice(''); setDraft(previous => { const next = { ...previous }; if (value === setting.override || (setting.override === null && value === setting.value)) delete next[setting.key]; else next[setting.key] = value; return next; });
                         }} />)}
                     </>}
             </div>
-            <footer className="cbm-config-footer"><span>{count ? `${count} unsaved ${count === 1 ? 'change' : 'changes'}` : snapshot ? `${snapshot.settings.length} daemon settings` : 'Daemon configuration unavailable'}</span><div>
-                <button type="button" disabled={loading || saving} onClick={() => { if (count) { setDraft({}); setNotice('Unsaved edits discarded.'); } else void reload(); }}>{count ? 'Discard edits' : 'Reload values'}</button>
-                <button type="button" className="cbm-config-save" disabled={!count || !!invalid || loading || saving} onClick={() => { void save(); }}>{saving ? 'Saving…' : 'Save changes'}</button>
+            <footer className="cbm-config-footer"><span>{count ? tr`${count} unsaved ${count === 1 ? t("change") : t("changes")}` : snapshot ? tr`${snapshot.settings.length} daemon settings` : t("Daemon configuration unavailable")}</span><div>
+                <button type="button" disabled={loading || saving} onClick={() => { if (count) { setDraft({}); setNotice(t('Unsaved edits discarded.')); } else void reload(); }}>{count ? t("Discard edits") : t("Reload values")}</button>
+                <button type="button" className="cbm-config-save" disabled={!count || !!invalid || loading || saving} onClick={() => { void save(); }}>{saving ? t("Saving…") : t("Save changes")}</button>
             </div></footer>
         </div>;
     return embedded ? panel : <div className="cbm-config-backdrop" onClick={event => { if (event.target === event.currentTarget) close(); }}>{panel}</div>;

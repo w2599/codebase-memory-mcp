@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 /**
  * Wo im Graphen ein Ereignis liegt, und wie sicher das ist.
  *
@@ -221,7 +222,7 @@ export function placeEvent(
                 name: '',
                 qualifiedName: '',
                 uncertain: false,
-                why: 'the command names no file this index knows',
+                why: t("the command names no file this index knows"),
                 ...empty,
             };
         }
@@ -233,7 +234,7 @@ export function placeEvent(
             name: '',
             qualifiedName: '',
             uncertain: false,
-            why: 'the event names no path',
+            why: t("the event names no path"),
             ...empty,
         };
     }
@@ -245,7 +246,7 @@ export function placeEvent(
             name: '',
             qualifiedName: '',
             uncertain: false,
-            why: 'the index has no node for this path',
+            why: t("the index has no node for this path"),
             ...empty,
         };
     }
@@ -276,7 +277,7 @@ export function placeEvent(
             name: '',
             qualifiedName: '',
             uncertain: false,
-            why: 'the index has no node for this path',
+            why: t("the index has no node for this path"),
             ghostIds,
         };
     }

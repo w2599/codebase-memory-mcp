@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /*
  * Herkunft: portiert am 2026-08-28 aus CodeAtlasIDE,
  * /Users/bernhard/Desktop/CodeAtlasIDE/theia-extensions/codeatlas-views/src/browser/impact/impact-model.ts
@@ -609,53 +610,53 @@ export function buildNarrative(inputs: NarrativeInputs): ImpactNarrative {
         claim: impactChangedSentence(changedFiles, inputs.declared),
         source: 'detect_changes',
         value: `${countOf(changedFiles, 'changed file', 'changed files')}, `
-            + `${countOf(reported, 'symbol', 'symbols')} reported`,
+            + tr`${countOf(reported, 'symbol', 'symbols')} reported`,
     });
     const seeds = inputs.change?.seedSymbols;
     if (seeds !== undefined && seeds !== inputs.declared) {
         evidence.push({
             claim: impactSeedSentence(seeds, inputs.declared),
             source: 'detect_changes',
-            value: `${countOf(seeds, 'seed declaration', 'seed declarations')} reported, `
-                + `${countOf(inputs.declared, 'symbol', 'symbols')} listed`,
+            value: tr`${countOf(seeds, 'seed declaration', 'seed declarations')} reported, `
+                + tr`${countOf(inputs.declared, 'symbol', 'symbols')} listed`,
         });
     }
     evidence.push({
         claim: impactDownstreamSentence(inputs.callers, inputs.walkedDistance),
         source: 'detect_changes',
-        value: `${countOf(inputs.callers, 'caller', 'callers')} over `
+        value: tr`${countOf(inputs.callers, 'caller', 'callers')} over `
             + `${countOf(inputs.walkedDistance, 'walked step', 'walked steps')}`,
     });
     evidence.push({
         claim: impactEndpointSentence(inputs.endpoints.map((endpoint) => endpointLabel(endpoint))),
         source: 'architecture',
-        value: `${countOf(inputs.architecture?.routes.length ?? 0, 'route', 'routes')} recovered, `
-            + `${inputs.endpoints.length} reached`,
+        value: tr`${countOf(inputs.architecture?.routes.length ?? 0, 'route', 'routes')} recovered, `
+            + tr`${inputs.endpoints.length} reached`,
     });
     evidence.push({
         claim: impactTestsSentence(inputs.tests.covering.length, inputs.tests.missing.length),
         source: 'facts',
-        value: `${countOf(inputs.tests.checked, 'symbol', 'symbols')} checked for test callers`,
+        value: tr`${countOf(inputs.tests.checked, 'symbol', 'symbols')} checked for test callers`,
     });
     if (inputs.completeness.unmeasured > 0) {
         evidence.push({
             claim: impactUnmeasuredSentence(inputs.completeness.unmeasured),
             source: 'facts',
-            value: `${inputs.completeness.measured} of ${inputs.completeness.total} symbols carry a complexity reading`,
+            value: tr`${inputs.completeness.measured} of ${inputs.completeness.total} symbols carry a complexity reading`,
         });
     }
     if (inputs.tests.cappedAt !== undefined) {
         evidence.push({
             claim: impactTestLookupCapped(inputs.tests.cappedAt),
             source: 'facts',
-            value: `lookup capped at ${inputs.tests.cappedAt} symbols`,
+            value: tr`lookup capped at ${inputs.tests.cappedAt} symbols`,
         });
     }
     if (inputs.change?.truncated === true) {
         evidence.push({
             claim: IMPACT_WALK_TRUNCATED,
             source: 'detect_changes',
-            value: `walk stopped after ${inputs.walkedDistance} steps`,
+            value: tr`walk stopped after ${inputs.walkedDistance} steps`,
         });
     }
     return {
@@ -727,29 +728,29 @@ export function badgeRules(model: ImpactModel): string[] {
 export function refRejection(ref: string): string | undefined {
     const value = ref.trim();
     if (value.length === 0) {
-        return 'it is empty';
+        return t("it is empty");
     }
     // eslint-disable-next-line no-control-regex
     if (/[\u0000-\u0020\u007f~^:?*[\\]/.test(value)) {
-        return 'a git ref holds no space, no control character and none of ~ ^ : ? * [ \\';
+        return t("a git ref holds no space, no control character and none of ~ ^ : ? * [ \\");
     }
     if (value.startsWith('-')) {
-        return 'a git ref does not start with a dash';
+        return t("a git ref does not start with a dash");
     }
     if (value.startsWith('/') || value.endsWith('/') || value.includes('//')) {
-        return 'a git ref has no empty path component';
+        return t("a git ref has no empty path component");
     }
     if (value.includes('..')) {
-        return 'a git ref holds no two consecutive dots';
+        return t("a git ref holds no two consecutive dots");
     }
     if (value.includes('@{')) {
-        return 'a git ref holds no @{ sequence';
+        return t("a git ref holds no @{ sequence");
     }
     if (value.endsWith('.') || value.endsWith('.lock')) {
-        return 'a git ref ends in neither a dot nor .lock';
+        return t("a git ref ends in neither a dot nor .lock");
     }
     if (value === '@') {
-        return 'a git ref is not the single character @';
+        return t("a git ref is not the single character @");
     }
     return undefined;
 }

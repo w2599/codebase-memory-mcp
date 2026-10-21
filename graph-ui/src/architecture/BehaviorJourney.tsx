@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { behaviorJourney } from './behavior-journey-model';
 import { projectionLimits, type SystemSceneModel } from './system-architecture-model';
@@ -115,15 +116,15 @@ export default function BehaviorJourney({ project, generation, data, entries, ta
     const limits = data?.status === 'limited' ? projectionLimits(data) : [];
     const sourceKey = caller ? JSON.stringify([project, generation, caller.qualified_name, call?.callsite?.file_path ?? caller.file_path, call?.callsite?.line ?? caller.start_line]) : undefined;
     useSelectionEvidence(onSelectionEvidence, !overview && !pending && journey && symbol ? {
-        project, generation, view: 'architecture-behavior', source: 'indexed behavior projection and call-site evidence',
+        project, generation, view: 'architecture-behavior', source: t("indexed behavior projection and call-site evidence"),
         label: caller && callee ? `${caller.name} → ${callee.name}` : symbol.name,
         selected: { operation: symbol, caller, callee, call, component: components.get(symbol.component_id),
-            currentSource: sourceEvidence?.key === sourceKey ? { ...sourceEvidence, provenance: 'Current local source; may differ from the indexed snapshot.' } : undefined },
+            currentSource: sourceEvidence?.key === sourceKey ? { ...sourceEvidence, provenance: t("Current local source; may differ from the indexed snapshot.") } : undefined },
         relationships: path ? { nodes: path.nodes, edges: path.edges, nodeCount: path.nodes.length, edgeCount: path.edges.length }
             : { count: related.length, calls: related.map(edge => edge.pathEdge) },
         scope: { entry, destination: selectedTarget, pathIndex, step: activeStep, mode: path ? 'connected-call-chain' : 'immediate-calls' },
         limitations: { analysis: data?.limits, warnings: data?.warnings, journey: journey.limits, counts: journey.counts,
-            interpretation: 'Static call evidence only. Call-chain depth is not execution order. Branch feasibility, parameter binding, runtime values and data transformation are not established.' },
+            interpretation: t("Static call evidence only. Call-chain depth is not execution order. Branch feasibility, parameter binding, runtime values and data transformation are not established.") },
     } : undefined, active);
     /** Empty background leaves a destination and returns from followed calls to where they began. */
     function clearSelection() {
@@ -168,10 +169,10 @@ export default function BehaviorJourney({ project, generation, data, entries, ta
         const operation = allNodes.find(node => node.id === id)?.symbol;
         if (operation && operation.id !== entryId) request(operation, undefined, from ?? entry);
     }
-    return <section className="system-architecture behavior-journey" aria-label="Behavior" data-testid="behavior-journey" aria-busy={pending}>
-        <header className="behavior-heading"><div><span className="system-eyebrow">Behavior · source-guided exploration</span>
-            <h2>{targetId !== undefined ? `${entry?.name ?? 'Operation'} → ${selectedTarget?.name ?? 'destination'}` : `What can ${entry?.name ?? 'this operation'} call?`}</h2>
-            <p>{path ? 'Follow one recorded call chain across the parts it touches.' : 'Choose a starting operation. Explore its calls, or follow a path to a destination.'}</p></div>
+    return <section className="system-architecture behavior-journey" aria-label={t("Behavior")} data-testid="behavior-journey" aria-busy={pending}>
+        <header className="behavior-heading"><div><span className="system-eyebrow">{t("Behavior · source-guided exploration")}</span>
+            <h2>{targetId !== undefined ? `${entry?.name ?? t("Operation")} → ${selectedTarget?.name ?? t("destination")}` : tr`What can ${entry?.name ?? t("this operation")} call?`}</h2>
+            <p>{path ? t("Follow one recorded call chain across the parts it touches.") : t("Choose a starting operation. Explore its calls, or follow a path to a destination.")}</p></div>
             <RefreshControl labels={text.refreshFeedback.behavior} feedback={refresh} onRefresh={onRefresh} /></header>
         <div className="behavior-requests">
             {navigation}
@@ -190,69 +191,68 @@ export default function BehaviorJourney({ project, generation, data, entries, ta
                         {startQuery.trim() && !startChoices.matching && <option disabled value="-1">{startText.none(startQuery.trim())}</option>}
                     </optgroup>
                 </select></label>
-            <label>Reach <select aria-label="Behavior destination" value={targetId ?? ''} disabled={!entry || pending} onChange={event => request(entry, event.target.value ? Number(event.target.value) : undefined, from)}>
-                <option value="">Explore immediate calls</option>{targetOptions.map(item => <option key={item.id} value={item.id}>{item.name} · {item.file_path ?? ''}</option>)}
+            <label>{t("Reach ")}<select aria-label={t("Behavior destination")} value={targetId ?? ''} disabled={!entry || pending} onChange={event => request(entry, event.target.value ? Number(event.target.value) : undefined, from)}>
+                <option value="">{t("Explore immediate calls")}</option>{targetOptions.map(item => <option key={item.id} value={item.id}>{item.name} · {item.file_path ?? ''}</option>)}
             </select></label>
         </div>
-        <div className="behavior-navigation">{targetId !== undefined && <button onClick={() => request(entry, undefined, from)}>Immediate calls</button>}
-            <span>{pending ? 'Updating this journey…' : path ? `${path.edges.length} call-chain hops · ${new Set(path.nodes.map(item => item.component_id)).size} components`
+        <div className="behavior-navigation">{targetId !== undefined && <button onClick={() => request(entry, undefined, from)}>{t("Immediate calls")}</button>}
+            <span>{pending ? t("Updating this journey…") : path ? tr`${path.edges.length} call-chain hops · ${new Set(path.nodes.map(item => item.component_id)).size} components`
                 : text.directCallees(journey?.counts.directChoices ?? 0, journey?.counts.selfCalls ?? false)}</span>
-            <span className="behavior-static-badge" title="Graph relationships describe possible calls. They do not prove execution order, path feasibility or actual runtime values.">Static evidence</span>
+            <span className="behavior-static-badge" title={t("Graph relationships describe possible calls. They do not prove execution order, path feasibility or actual runtime values.")}>{t("Static evidence")}</span>
         </div>
-        {error && <p role="alert">{error} <button onClick={onRefresh}>Try again</button></p>}
-        {pending ? <div className="behavior-loading" role="status">Preparing the selected operation…</div> : !scene || !journey ? <div className="behavior-loading">Choose an operation to explore.</div> : <>
-            {journey.paths.length > 1 && <div className="behavior-paths" role="group" aria-label="Indexed paths">{journey.paths.map((item, index) => <button key={index} aria-pressed={pathIndex === index} onClick={() => { changePlace({ path: index, step: 0 }); setSelection(undefined); }}>
-                Path {index + 1}<small>{item.edges.length} hops{new Set(item.nodes.map(node => node.id)).size < item.nodes.length ? ' · revisits a symbol' : ''}</small></button>)}</div>}
+        {error && <p role="alert">{error} <button onClick={onRefresh}>{t("Try again")}</button></p>}
+        {pending ? <div className="behavior-loading" role="status">{t("Preparing the selected operation…")}</div> : !scene || !journey ? <div className="behavior-loading">{t("Choose an operation to explore.")}</div> : <>
+            {journey.paths.length > 1 && <div className="behavior-paths" role="group" aria-label={t("Indexed paths")}>{journey.paths.map((item, index) => <button key={index} aria-pressed={pathIndex === index} onClick={() => { changePlace({ path: index, step: 0 }); setSelection(undefined); }}>{t("Path ")}{index + 1}<small>{item.edges.length}{t(" hops")}{new Set(item.nodes.map(node => node.id)).size < item.nodes.length ? t(" · revisits a symbol") : ''}</small></button>)}</div>}
             <div className="behavior-stage"><div className="behavior-visual" ref={visual}>
-                <div className="behavior-visual-toolbar"><span>{path ? 'CALL CHAIN →' : 'DIRECT CALLS · UNORDERED'}</span>
-                    <div className="system-view-switch" role="group" aria-label="Behavior camera"><button aria-pressed={!planar} onClick={() => changePlace({ planar: false })}>3D</button><button aria-pressed={planar} onClick={() => changePlace({ planar: true })}>Plan</button></div>
-                    <button onClick={() => setResetKey(value => value + 1)}>Fit</button></div>
+                <div className="behavior-visual-toolbar"><span>{path ? t("CALL CHAIN →") : t("DIRECT CALLS · UNORDERED")}</span>
+                    <div className="system-view-switch" role="group" aria-label={t("Behavior camera")}><button aria-pressed={!planar} onClick={() => changePlace({ planar: false })}>3D</button><button aria-pressed={planar} onClick={() => changePlace({ planar: true })}>{t("Plan")}</button></div>
+                    <button onClick={() => setResetKey(value => value + 1)}>{t("Fit")}</button></div>
                 <div className="system-map behavior-map">
-                    {scene.nodes.length ? <Suspense fallback={<div className="behavior-loading">Preparing the journey…</div>}><Scene model={scene}
+                    {scene.nodes.length ? <Suspense fallback={<div className="behavior-loading">{t("Preparing the journey…")}</div>}><Scene model={scene}
                         selectedNode={selectedEdge ? undefined : selectedNode?.id} selectedEdge={selectedEdge?.id}
                         onSelectNode={selectNode} onSelectEdge={selectEdge} onExpandNode={follow} onClearSelection={clearSelection}
                         resetKey={resetKey} planar={planar} active={active} showConnectionLoad={false} presentation="journey" /></Suspense>
                         : limits.length ? <div className="behavior-loading" role="status"><div className="behavior-limited"><strong>{text.behaviorLimited}</strong>{limits.map(limit => <p key={limit}>{limit}</p>)}</div></div>
-                        : <div className="behavior-loading">{filter ? 'No connected path matches this filter.' : targetId !== undefined ? 'No connected call-chain witness was returned for this destination.' : 'No direct call witnesses were returned for this operation.'}</div>}
-                    <div className="system-map-caption"><span>{path ? `Showing operations ${(scene.nodes[0]?.depth ?? 0) + 1} to ${(scene.nodes.at(-1)?.depth ?? 0) + 1} of ${path.nodes.length}` : 'Branches are possible calls, not an execution sequence.'}</span>
-                        <span>Double-click an operation to follow its calls</span></div>
+                        : <div className="behavior-loading">{filter ? t("No connected path matches this filter.") : targetId !== undefined ? t("No connected call-chain witness was returned for this destination.") : t("No direct call witnesses were returned for this operation.")}</div>}
+                    <div className="system-map-caption"><span>{path ? tr`Showing operations ${(scene.nodes[0]?.depth ?? 0) + 1} to ${(scene.nodes.at(-1)?.depth ?? 0) + 1} of ${path.nodes.length}` : t("Branches are possible calls, not an execution sequence.")}</span>
+                        <span>{t("Double-click an operation to follow its calls")}</span></div>
                 </div>
-                {path && <nav className="behavior-walk" aria-label="Walk the call chain"><button disabled={activeStep === 0} onClick={() => selectStep(activeStep - 1)}>← Previous</button>
-                    <input type="range" aria-label="Call-chain position" min={0} max={path.nodes.length - 1} value={activeStep} onChange={event => selectStep(Number(event.target.value))} />
-                    <span>{activeStep + 1} / {path.nodes.length}</span><button disabled={activeStep >= path.nodes.length - 1} onClick={() => selectStep(activeStep + 1)}>Next →</button></nav>}
-                {!path && journey.scene.nodes.length > 5 && <nav className="behavior-walk" aria-label="Direct call pages"><button disabled={branchPage === 0} onClick={() => { changePlace({ page: branchPage - 1 }); setSelection(undefined); }}>← Earlier calls</button>
+                {path && <nav className="behavior-walk" aria-label={t("Walk the call chain")}><button disabled={activeStep === 0} onClick={() => selectStep(activeStep - 1)}>{t("← Previous")}</button>
+                    <input type="range" aria-label={t("Call-chain position")} min={0} max={path.nodes.length - 1} value={activeStep} onChange={event => selectStep(Number(event.target.value))} />
+                    <span>{activeStep + 1} / {path.nodes.length}</span><button disabled={activeStep >= path.nodes.length - 1} onClick={() => selectStep(activeStep + 1)}>{t("Next →")}</button></nav>}
+                {!path && journey.scene.nodes.length > 5 && <nav className="behavior-walk" aria-label={t("Direct call pages")}><button disabled={branchPage === 0} onClick={() => { changePlace({ page: branchPage - 1 }); setSelection(undefined); }}>{t("← Earlier calls")}</button>
                     <span>{text.callPage(branchPage * 4 + 1, Math.min(branchPage * 4 + 4, journey.scene.nodes.length - 1), journey.scene.nodes.length - 1,
                         journey.counts.omittedNodes, Boolean(filter.trim()) && journey.scene.nodes.length - 1 + journey.counts.omittedNodes < journey.counts.directChoices)}</span>
-                    <button disabled={(branchPage + 1) * 4 >= journey.scene.nodes.length - 1} onClick={() => { changePlace({ page: branchPage + 1 }); setSelection(undefined); }}>More calls →</button></nav>}
-            </div><aside className="behavior-inspector" aria-label="Behavior evidence inspector">
-                {caller ? <><span className="system-eyebrow">{call ? call.type.replaceAll('_', ' ') : path ? `Operation ${activeStep + 1}` : 'Starting operation'}</span>
+                    <button disabled={(branchPage + 1) * 4 >= journey.scene.nodes.length - 1} onClick={() => { changePlace({ page: branchPage + 1 }); setSelection(undefined); }}>{t("More calls →")}</button></nav>}
+            </div><aside className="behavior-inspector" aria-label={t("Behavior evidence inspector")}>
+                {caller ? <><span className="system-eyebrow">{call ? call.type.replaceAll('_', ' ') : path ? tr`Operation ${activeStep + 1}` : t("Starting operation")}</span>
                     <h3>{caller.name}{callee && <><span className="behavior-call-arrow">↓</span>{callee.name}</>}</h3>
-                    <p>{call && callee ? caller.component_id === callee.component_id ? 'A call within the same component.' : `Crosses from ${components.get(caller.component_id)?.label ?? caller.component_id} into ${components.get(callee.component_id)?.label ?? callee.component_id}.`
+                    <p>{call && callee ? caller.component_id === callee.component_id ? t("A call within the same component.") : tr`Crosses from ${components.get(caller.component_id)?.label ?? caller.component_id} into ${components.get(callee.component_id)?.label ?? callee.component_id}.`
                         : components.get(caller.component_id)?.label ?? caller.file_path}</p>
-                    {call?.resolution && <p className="behavior-resolution">{call.resolution.strategy?.replaceAll('_', ' ') ?? 'Indexed resolution'}{call.resolution.candidates && call.resolution.candidates > 1 ? ` · ${call.resolution.candidates} candidate targets` : ''}</p>}
-                    <div className="behavior-inspector-actions">{symbol && symbol.id !== entryId && <button onClick={() => request(symbol, undefined, from ?? entry)}>Follow calls from here</button>}
-                        {symbol?.file_path && <button onClick={() => onNavigate(symbol.file_path!, symbol.start_line, symbol.name)}>Open definition ↗</button>}</div>
-                    <div className="behavior-contract" aria-label="Indexed call contract">
-                        {call?.arguments && <section><h4>Passed expressions</h4>{call.arguments.length ? <ol>{call.arguments.map((argument, index) => <li key={`${argument.i}:${index}`}><code>{argument.e}</code>
-                            {argument.v !== undefined && <small>Resolved string: <code>{JSON.stringify(argument.v)}</code></small>}</li>)}</ol> : <p>No argument expressions were captured.</p>}
-                            <small>Indexed expressions{call.argument_limit ? ` · up to ${call.argument_limit}` : ''}. Parameter binding is not established.</small></section>}
-                        {(callee ?? symbol)?.signature && <section><h4>{callee ? 'Called declaration' : 'Declaration'}</h4><code className="behavior-signature">{(callee ?? symbol)!.signature}</code></section>}
-                        {(callee ?? symbol)?.parameters && <section><h4>Declared parameters</h4><ul>{(callee ?? symbol)!.parameters!.names.map((name, index) => <li key={`${index}:${name}`}><code>{name}{(callee ?? symbol)!.parameters!.types[index] ? `: ${(callee ?? symbol)!.parameters!.types[index]}` : ''}</code></li>)}</ul>
-                            <small>{(callee ?? symbol)!.parameters!.count} reported parameters</small></section>}
-                        {(callee ?? symbol)?.return_type && <section><h4>Declared return type</h4><code>{(callee ?? symbol)!.return_type}</code></section>}
+                    {call?.resolution && <p className="behavior-resolution">{call.resolution.strategy?.replaceAll('_', ' ') ?? t("Indexed resolution")}{call.resolution.candidates && call.resolution.candidates > 1 ? tr` · ${call.resolution.candidates} candidate targets` : ''}</p>}
+                    <div className="behavior-inspector-actions">{symbol && symbol.id !== entryId && <button onClick={() => request(symbol, undefined, from ?? entry)}>{t("Follow calls from here")}</button>}
+                        {symbol?.file_path && <button onClick={() => onNavigate(symbol.file_path!, symbol.start_line, symbol.name)}>{t("Open definition ↗")}</button>}</div>
+                    <div className="behavior-contract" aria-label={t("Indexed call contract")}>
+                        {call?.arguments && <section><h4>{t("Passed expressions")}</h4>{call.arguments.length ? <ol>{call.arguments.map((argument, index) => <li key={`${argument.i}:${index}`}><code>{argument.e}</code>
+                            {argument.v !== undefined && <small>{t("Resolved string: ")}<code>{JSON.stringify(argument.v)}</code></small>}</li>)}</ol> : <p>{t("No argument expressions were captured.")}</p>}
+                            <small>{t("Indexed expressions")}{call.argument_limit ? tr` · up to ${call.argument_limit}` : ''}{t(". Parameter binding is not established.")}</small></section>}
+                        {(callee ?? symbol)?.signature && <section><h4>{callee ? t("Called declaration") : t("Declaration")}</h4><code className="behavior-signature">{(callee ?? symbol)!.signature}</code></section>}
+                        {(callee ?? symbol)?.parameters && <section><h4>{t("Declared parameters")}</h4><ul>{(callee ?? symbol)!.parameters!.names.map((name, index) => <li key={`${index}:${name}`}><code>{name}{(callee ?? symbol)!.parameters!.types[index] ? `: ${(callee ?? symbol)!.parameters!.types[index]}` : ''}</code></li>)}</ul>
+                            <small>{(callee ?? symbol)!.parameters!.count}{t(" reported parameters")}</small></section>}
+                        {(callee ?? symbol)?.return_type && <section><h4>{t("Declared return type")}</h4><code>{(callee ?? symbol)!.return_type}</code></section>}
                     </div>
                     <BehaviorSourceEvidence project={project} generation={generation} symbol={caller} call={call} active={active} onNavigate={onNavigate} onSourceEvidence={setSourceEvidence} />
-                    {callee && <div className="behavior-next-operation"><span>Continues into</span><button onClick={() => { const node = allNodes.find(node => node.symbol?.id === callee.id && (node.depth ?? 0) > activeStep) ?? allNodes.find(node => node.symbol?.id === callee.id); if (node) selectNode(node.id); }}>{callee.name} →</button></div>}
-                    {!path && related.length > 0 && <div className="behavior-immediate-list"><h4>Calls from this operation</h4>{related.map(edge => <button key={edge.id} onClick={() => selectEdge(edge.id)}>
-                        {allNodes.find(node => node.id === edge.target)?.symbol?.name ?? edge.target}<small>{edge.pathEdge?.callsite ? `line ${edge.pathEdge.callsite.line}` : edge.type.toLowerCase().replaceAll('_', ' ')}</small></button>)}</div>}
-                </> : <p>Select an operation or a call to inspect its evidence.</p>}
+                    {callee && <div className="behavior-next-operation"><span>{t("Continues into")}</span><button onClick={() => { const node = allNodes.find(node => node.symbol?.id === callee.id && (node.depth ?? 0) > activeStep) ?? allNodes.find(node => node.symbol?.id === callee.id); if (node) selectNode(node.id); }}>{callee.name} →</button></div>}
+                    {!path && related.length > 0 && <div className="behavior-immediate-list"><h4>{t("Calls from this operation")}</h4>{related.map(edge => <button key={edge.id} onClick={() => selectEdge(edge.id)}>
+                        {allNodes.find(node => node.id === edge.target)?.symbol?.name ?? edge.target}<small>{edge.pathEdge?.callsite ? tr`line ${edge.pathEdge.callsite.line}` : edge.type.toLowerCase().replaceAll('_', ' ')}</small></button>)}</div>}
+                </> : <p>{t("Select an operation or a call to inspect its evidence.")}</p>}
             </aside></div>
-            {path && <details className="behavior-limits"><summary>Call chain · {path.nodes.length} operations</summary><ol className="behavior-operation-strip" aria-label="All operations in this call chain">{path.nodes.map((item, index) => <li key={`${index}:${item.id}`}>
-                <button aria-label={`Select step ${index + 1}: ${item.name}`} aria-pressed={!overview && activeStep === index} onClick={() => selectStep(index)}><span>{index + 1}</span><strong>{item.name}</strong><small>{item.file_path}</small></button></li>)}</ol></details>}
-            <details className="behavior-limits"><summary>Evidence and limits{journey.limits.sampled ? ' · partial analysis' : ''}</summary>
-                <p>Each arrow is a recorded invocation. Component lanes provide orientation; numbered operations follow call-chain depth. Neither proves execution order, branch feasibility, data transformation or runtime values. Opening a call reads its current local source.</p>
-                <p>{journey.counts.omittedChoices} choices, {journey.counts.omittedNodes} nodes and {journey.counts.omittedEdges} edges omitted by display limits. {journey.counts.invalidPaths} disconnected or unsupported paths excluded.</p>
-                {(data?.behavior?.totals.omitted_targets ?? 0) > 0 && <p>{data!.behavior!.totals.omitted_targets} reachable destinations are outside the returned catalog.</p>}
+            {path && <details className="behavior-limits"><summary>{t("Call chain · ")}{path.nodes.length}{t(" operations")}</summary><ol className="behavior-operation-strip" aria-label={t("All operations in this call chain")}>{path.nodes.map((item, index) => <li key={`${index}:${item.id}`}>
+                <button aria-label={tr`Select step ${index + 1}: ${item.name}`} aria-pressed={!overview && activeStep === index} onClick={() => selectStep(index)}><span>{index + 1}</span><strong>{item.name}</strong><small>{item.file_path}</small></button></li>)}</ol></details>}
+            <details className="behavior-limits"><summary>{t("Evidence and limits")}{journey.limits.sampled ? t(" · partial analysis") : ''}</summary>
+                <p>{t("Each arrow is a recorded invocation. Component lanes provide orientation; numbered operations follow call-chain depth. Neither proves execution order, branch feasibility, data transformation or runtime values. Opening a call reads its current local source.")}</p>
+                <p>{journey.counts.omittedChoices}{t(" choices, ")}{journey.counts.omittedNodes}{t(" nodes and ")}{journey.counts.omittedEdges}{t(" edges omitted by display limits. ")}{journey.counts.invalidPaths}{t(" disconnected or unsupported paths excluded.")}</p>
+                {(data?.behavior?.totals.omitted_targets ?? 0) > 0 && <p>{data!.behavior!.totals.omitted_targets}{t(" reachable destinations are outside the returned catalog.")}</p>}
                 {journey.limits.hit.length > 0 && <p>{journey.limits.hit.join(' · ')}</p>}
                 {data?.warnings.map((warning, index) => <p key={index}>{warning}</p>)}
             </details>

@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /** Selection impact deliberately keeps graph evidence and Git association apart. */
 export interface SelectionImpactTarget {
     filePath: string;
@@ -81,24 +82,24 @@ export type SelectionImpactReply = SelectionImpact | { status: 'pending' | 'busy
 
 function object(value: unknown): Record<string, unknown> {
     if (typeof value !== 'object' || value === null || Array.isArray(value))
-        throw new Error('Invalid impact response');
+        throw new Error(t("Invalid impact response"));
     return value as Record<string, unknown>;
 }
 function text(value: unknown): string {
-    if (typeof value !== 'string') throw new Error('Invalid impact text');
+    if (typeof value !== 'string') throw new Error(t("Invalid impact text"));
     return value;
 }
 function count(value: unknown): number {
     if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0)
-        throw new Error('Invalid impact count');
+        throw new Error(t("Invalid impact count"));
     return value;
 }
 function flag(value: unknown): boolean {
-    if (typeof value !== 'boolean') throw new Error('Invalid impact flag');
+    if (typeof value !== 'boolean') throw new Error(t("Invalid impact flag"));
     return value;
 }
 function list(value: unknown): unknown[] {
-    if (!Array.isArray(value)) throw new Error('Invalid impact evidence list');
+    if (!Array.isArray(value)) throw new Error(t("Invalid impact evidence list"));
     return value;
 }
 function node(value: unknown): ImpactEvidenceNode {
@@ -113,7 +114,7 @@ export function readSelectionImpact(value: unknown): SelectionImpactReply {
     if (row.status === 'pending' || row.status === 'busy') return { status: row.status };
     if (row.status === 'failed') return { status: 'failed', error: text(row.error) };
     if (row.status !== 'ready' || (row.scope !== 'symbol' && row.scope !== 'file'))
-        throw new Error('Invalid impact snapshot');
+        throw new Error(t("Invalid impact snapshot"));
     const snapshot = object(row.snapshot), structural = object(row.structural), history = object(row.history);
     const result: SelectionImpact = {
         status: 'ready', project: text(row.project), file_path: text(row.file_path), scope: row.scope,
@@ -137,7 +138,7 @@ export function readSelectionImpact(value: unknown): SelectionImpactReply {
                 const item = object(value);
                 const path = list(item.path).map(value => {
                     const edge = object(value);
-                    if (edge.type !== 'CALLS' && edge.type !== 'IMPORTS') throw new Error('Unknown impact relation');
+                    if (edge.type !== 'CALLS' && edge.type !== 'IMPORTS') throw new Error(t("Unknown impact relation"));
                     return { edge_id: count(edge.edge_id), type: edge.type,
                         from: node(edge.from), to: node(edge.to) } as ImpactEvidenceEdge;
                 });
@@ -145,7 +146,7 @@ export function readSelectionImpact(value: unknown): SelectionImpactReply {
                     test_candidate: flag(item.test_candidate), path };
                 if (path.length === 0 || path.length !== finding.distance || path[0]?.from.id !== finding.id
                     || path.some((edge, i) => i > 0 && path[i - 1]?.to.id !== edge.from.id))
-                    throw new Error('Disconnected impact evidence path');
+                    throw new Error(t("Disconnected impact evidence path"));
                 return finding;
             }),
         },
@@ -190,41 +191,41 @@ export function selectionRisk(data: SelectionImpact): SelectionRisk {
     let level: SelectionRisk['level'] = 'unresolved';
     if (graph.available && (graph.direct >= 10 || graph.reachable >= 25)) {
         level = 'high';
-        reasons.push(`${graph.direct} direct and ${graph.reachable} total indexed dependents meet the broad-impact rule (10 direct or 25 total).`);
+        reasons.push(tr`${graph.direct} direct and ${graph.reachable} total indexed dependents meet the broad-impact rule (10 direct or 25 total).`);
     } else if (graph.available && graph.reachable > 0) {
         level = 'elevated';
-        reasons.push(`${graph.reachable} indexed dependent${graph.reachable === 1 ? '' : 's'} could be affected; inspect direct paths first.`);
+        reasons.push(tr`${graph.reachable} indexed dependent${graph.reachable === 1 ? '' : 's'} could be affected; inspect direct paths first.`);
     }
     if (history.available && history.selection_commits >= 10) {
-        reasons.push(`This file changed in ${history.selection_commits} sampled ordinary commits (frequent-change threshold: 10).`);
+        reasons.push(tr`This file changed in ${history.selection_commits} sampled ordinary commits (frequent-change threshold: 10).`);
         if (level === 'unresolved') level = 'elevated';
     }
     const repeated = history.cochanges.filter(row => row.shared_commits >= 3);
     if (history.available && repeated.length > 0)
-        reasons.push(`${repeated.length} file${repeated.length === 1 ? '' : 's'} changed together with this selection in at least 3 sampled commits; review these historical associations separately.`);
-    if (reasons.length === 0) reasons.push('No elevated signal was established in the available sample. This does not establish low risk.');
-    if (!graph.available) uncertainties.push(graph.error ?? 'The selection has no usable indexed dependency evidence.');
-    if (graph.truncated) uncertainties.push('The graph walk or evidence list reached a bound; further dependents may exist.');
-    if (data.snapshot.coverage_recording !== 'complete') uncertainties.push('Index coverage recording is incomplete or unavailable.');
+        reasons.push(tr`${repeated.length} file${repeated.length === 1 ? '' : 's'} changed together with this selection in at least 3 sampled commits; review these historical associations separately.`);
+    if (reasons.length === 0) reasons.push(t("No elevated signal was established in the available sample. This does not establish low risk."));
+    if (!graph.available) uncertainties.push(graph.error ?? t("The selection has no usable indexed dependency evidence."));
+    if (graph.truncated) uncertainties.push(t("The graph walk or evidence list reached a bound; further dependents may exist."));
+    if (data.snapshot.coverage_recording !== 'complete') uncertainties.push(t("Index coverage recording is incomplete or unavailable."));
     const gaps = data.snapshot.coverage.reduce((sum, row) => sum + row.count, 0);
-    if (gaps > 0) uncertainties.push(`${gaps} persisted index coverage records identify excluded, unsupported, or partially indexed paths; inspect Diagnostics.`);
+    if (gaps > 0) uncertainties.push(tr`${gaps} persisted index coverage records identify excluded, unsupported, or partially indexed paths; inspect Diagnostics.`);
     if (data.snapshot.index_revision === 'unknown') uncertainties.push(data.snapshot.freshness);
-    if (!history.available) uncertainties.push(history.error ?? 'Historical evidence is unavailable or contains read failures.');
-    if (history.shallow) uncertainties.push('This is a shallow checkout; earlier co-changes are missing.');
-    if (history.truncated) uncertainties.push('The history scan reached a count, time, or file bound.');
-    if (history.available && history.selection_commits < 3) uncertainties.push('Fewer than 3 sampled ordinary commits touch this file; historical evidence is sparse.');
-    if (history.selection_uncommitted) uncertainties.push('The selected file has uncommitted changes; Git history describes committed versions, and graph freshness is unverified.');
-    if (history.worktree_status_known !== true) uncertainties.push('Working-tree status of the selection could not be established.');
+    if (!history.available) uncertainties.push(history.error ?? t("Historical evidence is unavailable or contains read failures."));
+    if (history.shallow) uncertainties.push(t("This is a shallow checkout; earlier co-changes are missing."));
+    if (history.truncated) uncertainties.push(t("The history scan reached a count, time, or file bound."));
+    if (history.available && history.selection_commits < 3) uncertainties.push(t("Fewer than 3 sampled ordinary commits touch this file; historical evidence is sparse."));
+    if (history.selection_uncommitted) uncertainties.push(t("The selected file has uncommitted changes; Git history describes committed versions, and graph freshness is unverified."));
+    if (history.worktree_status_known !== true) uncertainties.push(t("Working-tree status of the selection could not be established."));
     const next = [
-        'Inspect the nearest dependent paths and check the interfaces used by their callers or importers.',
+        t("Inspect the nearest dependent paths and check the interfaces used by their callers or importers."),
         graph.test_candidates > 0
-            ? `Review and run the ${graph.test_candidates} indexed test candidate${graph.test_candidates === 1 ? '' : 's'} that reach the selection. Test-file classification is heuristic.`
-            : 'No test dependency was found within this walk. Search for integration tests and add a focused regression check; this is not a coverage measurement.',
-        'Compare the local change with the indexed source and reindex before relying on absence of downstream findings.',
+            ? tr`Review and run the ${graph.test_candidates} indexed test candidate${graph.test_candidates === 1 ? '' : 's'} that reach the selection. Test-file classification is heuristic.`
+            : t("No test dependency was found within this walk. Search for integration tests and add a focused regression check; this is not a coverage measurement."),
+        t("Compare the local change with the indexed source and reindex before relying on absence of downstream findings."),
     ];
-    if (history.cochanges.length > 0) next.push('Inspect the linked local commit evidence for repeated co-changes; shared commits alone do not establish a dependency.');
-    return { level, label: level === 'high' ? 'Broad impact · high review priority'
-        : level === 'elevated' ? 'Review needed · elevated change risk' : 'Risk unresolved', reasons, uncertainties, next };
+    if (history.cochanges.length > 0) next.push(t("Inspect the linked local commit evidence for repeated co-changes; shared commits alone do not establish a dependency."));
+    return { level, label: level === 'high' ? t("Broad impact · high review priority")
+        : level === 'elevated' ? t("Review needed · elevated change risk") : t("Risk unresolved"), reasons, uncertainties, next };
 }
 
 export function evidenceTarget(node: ImpactEvidenceNode): SelectionImpactTarget {
@@ -234,7 +235,7 @@ export function evidenceTarget(node: ImpactEvidenceNode): SelectionImpactTarget 
 
 /** Display-only local command; quote even shell metacharacters in Git filenames. */
 export function localCommitCommand(hash: string, ...paths: string[]): string {
-    if (!/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(hash)) return 'Commit hash unavailable';
+    if (!/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(hash)) return t("Commit hash unavailable");
     const quote = (value: string): string => `'${value.replaceAll("'", "'\\''")}'`;
     return `git show ${hash} -- ${paths.map(quote).join(' ')}`;
 }
@@ -246,9 +247,9 @@ export async function fetchSelectionImpact(project: string, target: SelectionImp
     else if (target.id !== undefined) query.set('node', `#${target.id}`);
     if (refresh) query.set('refresh', '1');
     const response = await doFetch(`/api/impact-analysis?${query}`, { signal });
-    if (!response.ok) throw new Error(`Impact analysis returned HTTP ${response.status}`);
+    if (!response.ok) throw new Error(tr`Impact analysis returned HTTP ${response.status}`);
     const reply = readSelectionImpact(await response.json());
     if (reply.status === 'ready' && (reply.project !== project || reply.file_path !== target.filePath))
-        throw new Error('Impact response belongs to a different selection');
+        throw new Error(t("Impact response belongs to a different selection"));
     return reply;
 }

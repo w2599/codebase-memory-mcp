@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 import type { SymbolRef } from '../core/focus-protocol';
 import type { SemanticIR } from '../core/semantic-ir';
 import type { ReaderSelection } from '../reader/MonacoReader';
@@ -39,16 +40,16 @@ export function inspectorChatContext(snapshot: SelectedCodeSnapshot, id: string)
         && firstLine >= document.firstLine && lastLine <= document.lastLine;
     return {
         id,
-        label: `${selection ? 'Selection context' : symbol ? 'Symbol context' : 'File context'} · ${symbol?.name ?? filePath}`,
+        label: `${selection ? t("Selection context") : symbol ? t("Symbol context") : t("File context")} · ${symbol?.name ?? filePath}`,
         text: JSON.stringify({
             kind: 'selected-code-context', project, path: filePath, symbol,
             generation: ir?.generation,
-            scope: selection ? 'Graph relationships describe the named symbol, not just the selected text.'
-                : symbol ? 'Selected symbol and its indexed relationships.' : 'File symbols and import context; file source is not attached.',
+            scope: selection ? t("Graph relationships describe the named symbol, not just the selected text.")
+                : symbol ? t("Selected symbol and its indexed relationships.") : t("File symbols and import context; file source is not attached."),
             source: sourceAvailable ? {
                 firstLine, lastLine,
                 text: document.source.split('\n').slice(firstLine - document.firstLine, lastLine - document.firstLine + 1).join('\n'),
-                note: 'Complete source lines covering the indexed symbol; this is not an editor text selection.',
+                note: t("Complete source lines covering the indexed symbol; this is not an editor text selection."),
             } : undefined,
             evidence: browserGraphContext(ir, project, filePath, symbol ? workspacePathOf(symbol.uri) : '')
                 .map(item => JSON.parse(item.text) as unknown),
@@ -57,7 +58,7 @@ export function inspectorChatContext(snapshot: SelectedCodeSnapshot, id: string)
             fileSymbolsNote: !symbol ? snapshot.fileSymbolsMessage : undefined,
             imports: snapshot.imports,
             coverage: snapshot.coverageNote,
-            limitations: 'Static indexed evidence is best-effort. Missing information does not establish absence. Select source text to attach its literal contents.',
+            limitations: t("Static indexed evidence is best-effort. Missing information does not establish absence. Select source text to attach its literal contents."),
         }, null, 2),
     };
 }

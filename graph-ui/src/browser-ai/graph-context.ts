@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 import type { CallSite, CallerRef, Fact, SemanticIR } from '../core/semantic-ir';
 import type { BrowserChatContext } from './chat-model';
 
@@ -20,7 +21,7 @@ export function browserGraphContext(ir: SemanticIR | undefined, project: string,
         const value = relation === 'calls' ? (fact?.value as CallSite[] | undefined)?.map(callWithoutArguments) : fact?.value;
         return {
             id: `graph:${JSON.stringify([project, activePath, ir.symbol.uri, ir.symbol.nodeId ?? ir.symbol.qualifiedName ?? ir.symbol.name, ir.generation, relation])}`,
-            label: `${relation === 'calls' ? 'Calls' : 'Called by'} · ${ir.symbol.name} · ${fact?.state ?? 'unavailable'}`,
+            label: `${relation === 'calls' ? t("Calls") : t("Called by")} · ${ir.symbol.name} · ${fact?.state ?? t("unavailable")}`,
             text: JSON.stringify({
                 kind: 'graph-context-snapshot',
                 project,

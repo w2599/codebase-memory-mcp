@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
 import SelectionImpactWidget from './SelectionImpactWidget';
@@ -91,70 +92,70 @@ export default function ChangeAnalysisWorkspace({ project, selectedTarget, expec
     const select = (next: SelectionImpactTarget) => setChosen({ owner: selectionIdentity, target: next });
     const selectedChanged = ownedReading?.data?.files.includes(target?.filePath ?? '');
 
-    return <section ref={workspace} tabIndex={-1} onKeyDown={keyboard} className="change-analysis" data-testid="change-analysis-workspace" aria-label="Change impact workspace">
-        <header className="change-analysis-header"><h2>Change impact</h2>
-            {onClose && <button type="button" onClick={onClose}>Close change impact</button>}</header>
+    return <section ref={workspace} tabIndex={-1} onKeyDown={keyboard} className="change-analysis" data-testid="change-analysis-workspace" aria-label={t("Change impact workspace")}>
+        <header className="change-analysis-header"><h2>{t("Change impact")}</h2>
+            {onClose && <button type="button" onClick={onClose}>{t("Close change impact")}</button>}</header>
         <div className="change-analysis-toolbar">
-            <div role="tablist" aria-label="Change analysis scope">{([
-                ['selection', 'Current selection'], ['worktree', 'Working tree'], ['since-ref', 'Since ref'],
+            <div role="tablist" aria-label={t("Change analysis scope")}>{([
+                ['selection', t("Current selection")], ['worktree', t("Working tree")], ['since-ref', t("Since ref")],
             ] as const).map(([value, label]) => <button role="tab" type="button" key={value} aria-selected={mode === value}
                 onClick={() => setMode(value)}>{label}</button>)}</div>
             {mode === 'since-ref' && <form onSubmit={event => { event.preventDefault(); if (validChangeRef(ref)) { setAppliedRef(ref); setRefresh(value => value + 1); } }}>
-                <label>Baseline revision <input value={ref} onChange={event => setRef(event.currentTarget.value)} placeholder="HEAD~1 or branch name" /></label>
-                <button type="submit" disabled={!validChangeRef(ref)}>Read changes</button></form>}
-            {mode !== 'selection' && <button type="button" onClick={() => setRefresh(value => value + 1)} disabled={ownedReading?.loading}>Refresh changes</button>}
-            <span>{project || 'No project selected'}</span>
+                <label>{t("Baseline revision ")}<input value={ref} onChange={event => setRef(event.currentTarget.value)} placeholder={t("HEAD~1 or branch name")} /></label>
+                <button type="submit" disabled={!validChangeRef(ref)}>{t("Read changes")}</button></form>}
+            {mode !== 'selection' && <button type="button" onClick={() => setRefresh(value => value + 1)} disabled={ownedReading?.loading}>{t("Refresh changes")}</button>}
+            <span>{project || t("No project selected")}</span>
         </div>
         <div className="change-analysis-columns" data-has-changes={mode !== 'selection'}>
-            {mode !== 'selection' && <aside className="change-analysis-files" aria-label="Changed files">
-                <h3>{mode === 'worktree' ? 'Uncommitted changes' : `Changes since ${appliedRef}`}</h3>
-                <p>{mode === 'worktree' ? 'Compared explicitly with HEAD; staged, unstaged and untracked paths are included.'
-                    : 'The daemon compares the merge base with HEAD and includes current worktree changes.'}</p>
-                {(!ownedReading || ownedReading.loading) && <p role="status">Reading the local Git change set…</p>}
-                {ownedReading?.error && <p role="alert">Change set unavailable: {ownedReading.error} No low-risk result was inferred.</p>}
+            {mode !== 'selection' && <aside className="change-analysis-files" aria-label={t("Changed files")}>
+                <h3>{mode === 'worktree' ? t("Uncommitted changes") : tr`Changes since ${appliedRef}`}</h3>
+                <p>{mode === 'worktree' ? t("Compared explicitly with HEAD; staged, unstaged and untracked paths are included.")
+                    : t("The daemon compares the merge base with HEAD and includes current worktree changes.")}</p>
+                {(!ownedReading || ownedReading.loading) && <p role="status">{t("Reading the local Git change set…")}</p>}
+                {ownedReading?.error && <p role="alert">{t("Change set unavailable: ")}{ownedReading.error}{t(" No low-risk result was inferred.")}</p>}
                 {ownedReading?.data && <>
-                    <p><strong>{ownedReading.data.files.length} of {ownedReading.data.totalFiles} changed paths loaded</strong></p>
-                    <details><summary>Change-set revision and limits</summary><p>Baseline {ownedReading.data.base} · merge base <code>{ownedReading.data.mergeBase}</code><br />Read {ownedReading.data.checkedAt}</p>
-                        <p>Changes may continue while this view is open. Refresh before relying on the scope. File-level selection analyzes all indexed declarations, not only edited lines.</p>
+                    <p><strong>{ownedReading.data.files.length}{t(" of ")}{ownedReading.data.totalFiles}{t(" changed paths loaded")}</strong></p>
+                    <details><summary>{t("Change-set revision and limits")}</summary><p>{t("Baseline ")}{ownedReading.data.base}{t(" · merge base ")}<code>{ownedReading.data.mergeBase}</code><br />{t("Read ")}{ownedReading.data.checkedAt}</p>
+                        <p>{t("Changes may continue while this view is open. Refresh before relying on the scope. File-level selection analyzes all indexed declarations, not only edited lines.")}</p>
                         {ownedReading.data.limitations.map(note => <p key={note}>{note}</p>)}</details>
-                    {!ownedReading.data.complete && <p role="alert">The changed-file listing is incomplete. Missing files are not evidence of safety.</p>}
-                    {ownedReading.data.totalFiles === 0 && <p>No changed paths were reported for this revision. Select a file from the repository to inspect its dependencies.</p>}
-                    <label className="change-analysis-filter">Filter changed paths<input type="search" value={filter} onChange={event => setFilter(event.currentTarget.value)} /></label>
-                    <p className="change-analysis-note">Areas are grouped by path and ordered by changed-file count, with the current selection first. These counts measure scope, not risk.</p>
+                    {!ownedReading.data.complete && <p role="alert">{t("The changed-file listing is incomplete. Missing files are not evidence of safety.")}</p>}
+                    {ownedReading.data.totalFiles === 0 && <p>{t("No changed paths were reported for this revision. Select a file from the repository to inspect its dependencies.")}</p>}
+                    <label className="change-analysis-filter">{t("Filter changed paths")}<input type="search" value={filter} onChange={event => setFilter(event.currentTarget.value)} /></label>
+                    <p className="change-analysis-note">{t("Areas are grouped by path and ordered by changed-file count, with the current selection first. These counts measure scope, not risk.")}</p>
                     {areas.map(area => <details className="change-analysis-area" key={area.path} open={areas.length <= 3 || area.files.includes(selectedTarget?.filePath ?? '')}>
-                        <summary>{area.path} · {area.files.length} changed paths</summary>
+                        <summary>{area.path} · {area.files.length}{t(" changed paths")}</summary>
                         {area.files.map(file => <button type="button" key={file} aria-pressed={target?.filePath === file}
                             onClick={() => select({ filePath: file, name: file.split('/').at(-1) })}>{file}</button>)}
                     </details>)}
-                    {areas.length === 0 && ownedReading.data.totalFiles > 0 && <p>No changed path matches this filter.</p>}
+                    {areas.length === 0 && ownedReading.data.totalFiles > 0 && <p>{t("No changed path matches this filter.")}</p>}
                 </>}
             </aside>}
             <main className="change-analysis-evidence">
                 <div className="change-analysis-selection">
-                    {selectedTarget?.filePath && <button type="button" onClick={() => select(selectedTarget)}>Use current editor selection</button>}
+                    {selectedTarget?.filePath && <button type="button" onClick={() => select(selectedTarget)}>{t("Use current editor selection")}</button>}
                     {target?.filePath ? <>
                         <strong>{target.filePath}</strong>
-                        <label>Analysis scope <select aria-label="Analysis scope" value={target.qualifiedName ?? ''} onChange={event => {
+                        <label>{t("Analysis scope ")}<select aria-label={t("Analysis scope")} value={target.qualifiedName ?? ''} onChange={event => {
                             const next = ownedSymbols?.rows.find(row => row.qualifiedName === event.currentTarget.value);
                             select(next ?? { filePath: target.filePath, name: target.filePath.split('/').at(-1) });
-                        }}><option value="">Entire indexed file</option>
+                        }}><option value="">{t("Entire indexed file")}</option>
                             {target.qualifiedName && !ownedSymbols?.rows.some(row => row.qualifiedName === target.qualifiedName)
                                 && <option value={target.qualifiedName}>{target.name ?? target.qualifiedName}</option>}
-                            {ownedSymbols?.rows.map(row => <option key={row.qualifiedName} value={row.qualifiedName}>{row.name} · line {row.line ?? '?'}</option>)}
+                            {ownedSymbols?.rows.map(row => <option key={row.qualifiedName} value={row.qualifiedName}>{row.name}{t(" · line ")}{row.line ?? '?'}</option>)}
                         </select></label>
-                        <button type="button" onClick={() => onOpenSource(target)}>Open source evidence</button>
-                        {client && !ownedSymbols && <small role="status">Reading indexed function and method choices…</small>}
+                        <button type="button" onClick={() => onOpenSource(target)}>{t("Open source evidence")}</button>
+                        {client && !ownedSymbols && <small role="status">{t("Reading indexed function and method choices…")}</small>}
                         {mode !== 'selection' && ownedReading?.data && <>
-                            <span>{selectedChanged ? 'This file is in the detected change set.' : 'This selection is outside the loaded changed-file list.'}</span>
-                            <small>{target.qualifiedName ? 'This symbol was selected manually; edited lines are not automatically mapped to declarations.'
-                                : 'Whole-file impact includes unchanged declarations. Select a function or method to refine the graph scope.'}</small>
-                            <details className="change-analysis-diff"><summary>Inspect this file’s local diff</summary>
-                                <LocalEvidenceCommand command={localDiffCommand(ownedReading.data.mergeBase, target.filePath)} label="Copy local diff command" />
-                                <small>Git diff shows tracked changes. For an untracked path, inspect its source and Git status.</small></details>
+                            <span>{selectedChanged ? t("This file is in the detected change set.") : t("This selection is outside the loaded changed-file list.")}</span>
+                            <small>{target.qualifiedName ? t("This symbol was selected manually; edited lines are not automatically mapped to declarations.")
+                                : t("Whole-file impact includes unchanged declarations. Select a function or method to refine the graph scope.")}</small>
+                            <details className="change-analysis-diff"><summary>{t("Inspect this file’s local diff")}</summary>
+                                <LocalEvidenceCommand command={localDiffCommand(ownedReading.data.mergeBase, target.filePath)} label={t("Copy local diff command")} />
+                                <small>{t("Git diff shows tracked changes. For an untracked path, inspect its source and Git status.")}</small></details>
                         </>}
-                        {ownedSymbols?.error && <p role="alert">Symbol choices unavailable: {ownedSymbols.error}. Whole-file analysis remains available.</p>}
-                        {ownedSymbols && ownedSymbols.rows.length >= 200 && <small>Symbol choices are bounded to the first 200 functions and 200 methods.</small>}
-                    </> : <p>Select a changed file or open a repository file to start the analysis.</p>}
+                        {ownedSymbols?.error && <p role="alert">{t("Symbol choices unavailable: ")}{ownedSymbols.error}{t(". Whole-file analysis remains available.")}</p>}
+                        {ownedSymbols && ownedSymbols.rows.length >= 200 && <small>{t("Symbol choices are bounded to the first 200 functions and 200 methods.")}</small>}
+                    </> : <p>{t("Select a changed file or open a repository file to start the analysis.")}</p>}
                 </div>
                 <SelectionImpactWidget project={project} target={target} expectedGeneration={expectedGeneration}
                     onOpen={onOpenSource} onDiagnose={onDiagnose} load={loadImpact} compact />

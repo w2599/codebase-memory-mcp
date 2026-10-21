@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /*
  * Herkunft: portiert am 2026-08-28 aus CodeAtlasIDE,
  * /Users/bernhard/Desktop/CodeAtlasIDE/theia-extensions/codeatlas-intelligence/src/node/ir/checklist-generator.ts
@@ -110,7 +111,7 @@ export const CONSTRUCTION_STRATEGY = 'construction';
 
 /** The sentence shown when the tests family is empty and only inferred. */
 export const NO_TEST_CALLERS_LABEL =
-    'No test callers found (inferred): decide if this needs a test';
+    t("No test callers found (inferred): decide if this needs a test");
 
 /**
  * A checklist item's identity.
@@ -230,7 +231,7 @@ export function generateChecklist(input: ChecklistInput): ChecklistItem[] {
     for (const call of callees) {
         items.push(item(
             'core-logic',
-            `Understand the call to ${call.targetName}`,
+            tr`Understand the call to ${call.targetName}`,
             call.targetQualifiedName,
             calleeTarget(root, call) ?? here
         ));
@@ -241,7 +242,7 @@ export function generateChecklist(input: ChecklistInput): ChecklistItem[] {
     for (const type of distinctBy(input.typeRefs, ref => ref.qualifiedName ?? ref.name)) {
         items.push(item(
             'inputs',
-            `Know the shape of ${type.name}`,
+            tr`Know the shape of ${type.name}`,
             type.qualifiedName,
             refAt(root, type.file, type.line, type.name, type.qualifiedName) ?? here
         ));
@@ -256,7 +257,7 @@ export function generateChecklist(input: ChecklistInput): ChecklistItem[] {
     for (const call of constructed) {
         items.push(item(
             'implementations',
-            `Read the class ${call.targetName} being constructed`,
+            tr`Read the class ${call.targetName} being constructed`,
             call.targetQualifiedName,
             calleeTarget(root, call) ?? here
         ));
@@ -269,7 +270,7 @@ export function generateChecklist(input: ChecklistInput): ChecklistItem[] {
     for (const caller of callers) {
         items.push(item(
             'callers',
-            `See who calls this: ${caller.name}`,
+            tr`See who calls this: ${caller.name}`,
             caller.qualifiedName,
             refAt(root, caller.file, caller.line, caller.name, caller.qualifiedName) ?? here
         ));
@@ -281,7 +282,7 @@ export function generateChecklist(input: ChecklistInput): ChecklistItem[] {
     for (const entry of throwTypes) {
         items.push(item(
             'error-handling',
-            `Understand when ${entry.type} is raised`,
+            tr`Understand when ${entry.type} is raised`,
             `raises:${entry.type}`,
             refAt(root, entry.file, entry.line, entry.type) ?? here
         ));
@@ -291,7 +292,7 @@ export function generateChecklist(input: ChecklistInput): ChecklistItem[] {
         // Deliberately the focused symbol and not a raise site: the question is
         // what happens to the error above this symbol, and the only place the
         // reader can start answering it from is here.
-        items.push(item('error-handling', `Check how ${named} is handled upstream`, `handled:${named}`, here));
+        items.push(item('error-handling', tr`Check how ${named} is handled upstream`, `handled:${named}`, here));
     }
 
     // config: an environment value is a deployment obligation, not a code one,
@@ -301,7 +302,7 @@ export function generateChecklist(input: ChecklistInput): ChecklistItem[] {
     for (const env of distinctBy(input.envReads, ref => ref.name)) {
         items.push(item(
             'config',
-            `Confirm ${env.name} is set in every environment`,
+            tr`Confirm ${env.name} is set in every environment`,
             `env:${env.name}`,
             refAt(root, env.file, env.line, env.name, env.qualifiedName) ?? here
         ));
@@ -315,7 +316,7 @@ export function generateChecklist(input: ChecklistInput): ChecklistItem[] {
         for (const test of distinctBy(input.tests, entry => testItemKey(root, entry.file, entry.name))) {
             items.push(item(
                 'tests',
-                `Re-read the test ${test.name}`,
+                tr`Re-read the test ${test.name}`,
                 testItemKey(root, test.file, test.name),
                 refAt(root, test.file, test.line, test.name) ?? here
             ));

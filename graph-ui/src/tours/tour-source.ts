@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 /**
  * Where the project walk gets its input, and nowhere else.
  *
@@ -35,7 +36,7 @@ import type { ActiveTour } from './entry-walk';
 
 /** The sentence a project with nothing indexed gets, instead of an empty walk. */
 export const NO_INDEX_FOR_TOUR =
-    'the index holds no file for this project, so there is no reading order to walk';
+    t("the index holds no file for this project, so there is no reading order to walk");
 
 /** What the project walk needs from a provider, and nothing else. */
 export interface TourSource {
@@ -71,7 +72,7 @@ export async function generateProjectTour(
         kind: 'project',
         document,
         endNote: graph.truncated
-            ? 'the dependency read stopped at its bound, so this order was derived from part of the import graph'
+            ? t("the dependency read stopped at its bound, so this order was derived from part of the import graph")
             : '',
     };
 }

@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /**
  * Letting the local model word the twin's sentences for the selected reader,
  * and refusing when it did anything else.
@@ -182,8 +183,8 @@ function orderRefusal(lines: readonly ReaderLine[], incoming: readonly string[])
         const mine = overlap(rewritten, built[index]);
         for (let other = 0; other < built.length; other += 1) {
             if (other !== index && overlap(rewritten, built[other]) > mine) {
-                return `sentence ${index + 1} reads like the built sentence ${other + 1}, `
-                    + 'so the statements came back in a different order';
+                return tr`sentence ${index + 1} reads like the built sentence ${other + 1}, `
+                    + t("so the statements came back in a different order");
             }
         }
     }
@@ -192,13 +193,13 @@ function orderRefusal(lines: readonly ReaderLine[], incoming: readonly string[])
 
 /** Why one line was rejected, or the empty string when it was fine. */
 function lineRefusal(original: ReaderLine, incoming: string, index: number): string {
-    const where = `sentence ${index + 1}`;
+    const where = tr`sentence ${index + 1}`;
     if (incoming.trim().length === 0) {
-        return `${where} came back empty`;
+        return tr`${where} came back empty`;
     }
     if (incoming.length > lengthCeiling(original.text)) {
-        return `${where} came back ${incoming.length} characters long, over the ceiling of `
-            + `${lengthCeiling(original.text)} for a sentence of ${original.text.length}`;
+        return tr`${where} came back ${incoming.length} characters long, over the ceiling of `
+            + tr`${lengthCeiling(original.text)} for a sentence of ${original.text.length}`;
     }
     const got = factsOf(incoming);
     const want = original.facts;
@@ -207,12 +208,12 @@ function lineRefusal(original: ReaderLine, incoming: string, index: number): str
             continue;
         }
         if (want[at] === undefined) {
-            return `${where} added "${got[at]}", which is not in the sentence it was given`;
+            return tr`${where} added "${got[at]}", which is not in the sentence it was given`;
         }
         if (got[at] === undefined) {
-            return `${where} dropped "${want[at]}"`;
+            return tr`${where} dropped "${want[at]}"`;
         }
-        return `${where} says "${got[at]}" where the built sentence says "${want[at]}"`;
+        return tr`${where} says "${got[at]}" where the built sentence says "${want[at]}"`;
     }
     return '';
 }
@@ -228,15 +229,15 @@ export function applyReaderRewrite(
 ): ReaderRewriteOutcome {
     const incoming = refinedLines(unfence(answer));
     if (lines.length === 0) {
-        return { kind: 'refused', reason: 'there was nothing on this level to reword' };
+        return { kind: 'refused', reason: t("there was nothing on this level to reword") };
     }
     if (incoming.length === 0) {
-        return { kind: 'refused', reason: 'the model answered with nothing' };
+        return { kind: 'refused', reason: t("the model answered with nothing") };
     }
     if (incoming.length !== lines.length) {
         return {
             kind: 'refused',
-            reason: `the rewrite has ${incoming.length} sentences instead of ${lines.length}`,
+            reason: tr`the rewrite has ${incoming.length} sentences instead of ${lines.length}`,
         };
     }
     for (let index = 0; index < lines.length; index += 1) {

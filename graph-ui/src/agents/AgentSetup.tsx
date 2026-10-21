@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 import { useEffect, useState } from 'react';
 import type { AtlasApi } from '../app/atlas-api';
 import hookSource from '../../agents/hooks/atlas-trace.py?raw';
@@ -16,7 +17,7 @@ export default function AgentSetup({ api, project, port }: { api?: Pick<AtlasApi
         let disposed = false;
         setReading(undefined); setCopied('');
         void api.repoInfo(project).then(info => {
-            if (!disposed) setReading({ project, root: info.rootPath, error: info.rootPath ? '' : 'The daemon did not report this repository root.' });
+            if (!disposed) setReading({ project, root: info.rootPath, error: info.rootPath ? '' : t("The daemon did not report this repository root.") });
         }).catch(error => {
             if (!disposed) setReading({ project, root: '', error: error instanceof Error ? error.message : String(error) });
         });
@@ -30,21 +31,20 @@ export default function AgentSetup({ api, project, port }: { api?: Pick<AtlasApi
         anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
     };
     return <details className="cbm-agent-setup" onToggle={event => setOpen(event.currentTarget.open)}>
-        <summary>Connect your agent</summary>
-        <p>Claude Code on macOS/Linux · Python 3 required. This installs a project-local PostToolUse hook. Connecting the browser only reads history; it does not configure your coding client.</p>
-        {!project || !api ? <p>Select an indexed project to generate its setup command.</p> : <>
+        <summary>{t("Connect your agent")}</summary>
+        <p>{t("Claude Code on macOS/Linux · Python 3 required. This installs a project-local PostToolUse hook. Connecting the browser only reads history; it does not configure your coding client.")}</p>
+        {!project || !api ? <p>{t("Select an indexed project to generate its setup command.")}</p> : <>
             <ol>
-                <li><button type="button" onClick={download}>Download hook</button> Save <code>cbm-atlas-trace.py</code> in Downloads, or adjust its path in the command below.</li>
-                <li>Review and run this command in your terminal. It copies the hook into <code>.claude/hooks/</code> and adds it to <code>.claude/settings.local.json</code>, preserving unrelated settings. Conflicting existing hooks are refused.
-                    {current?.error ? <p role="alert">Setup unavailable: {current.error}</p> : command ? <>
-                        <pre>{command}</pre><button type="button" onClick={() => { void navigator.clipboard.writeText(command).then(() => setCopied('Command copied')).catch(() => setCopied('Clipboard unavailable; select and copy the command.')); }}>Copy setup command</button> <span role="status">{copied}</span>
-                    </> : <p>Reading the indexed repository root…</p>}
+                <li><button type="button" onClick={download}>{t("Download hook")}</button>{t(" Save ")}<code>cbm-atlas-trace.py</code>{t(" in Downloads, or adjust its path in the command below.")}</li>
+                <li>{t("Review and run this command in your terminal. It copies the hook into ")}<code>.claude/hooks/</code>{t(" and adds it to ")}<code>.claude/settings.local.json</code>{t(", preserving unrelated settings. Conflicting existing hooks are refused.")}{current?.error ? <p role="alert">{t("Setup unavailable: ")}{current.error}</p> : command ? <>
+                        <pre>{command}</pre><button type="button" onClick={() => { void navigator.clipboard.writeText(command).then(() => setCopied(t("Command copied"))).catch(() => setCopied(t("Clipboard unavailable; select and copy the command."))); }}>{t("Copy setup command")}</button> <span role="status">{copied}</span>
+                    </> : <p>{t("Reading the indexed repository root…")}</p>}
                 </li>
-                <li>Start a new Claude Code session in that repository and perform a tool call. Then choose <strong>Load recorded activity</strong> here. A new recorded event is the evidence that the hook reached this daemon.</li>
+                <li>{t("Start a new Claude Code session in that repository and perform a tool call. Then choose ")}<strong>{t("Load recorded activity")}</strong>{t(" here. A new recorded event is the evidence that the hook reached this daemon.")}</li>
             </ol>
-            <p>Destination: <code>http://127.0.0.1:{port}/api/agent-events</code> · Project: <code>{project}</code>. No bridge or extra listener. Pending events retry on the next tool call.</p>
+            <p>{t("Destination: ")}<code>http://127.0.0.1:{port}/api/agent-events</code>{t(" · Project: ")}<code>{project}</code>{t(". No bridge or extra listener. Pending events retry on the next tool call.")}</p>
         </>}
-        <p>The hook records tool names, paths, timestamps, optional line spans and up to 180 characters of a command or search pattern. It records no file contents or tool results. Metadata stays in the local daemon; commands and paths can still contain sensitive information.</p>
-        <p>To remove it, delete only the entry referencing <code>cbm-atlas-trace.py</code> from this project's <code>PostToolUse</code> hooks. Other coding clients need their own event adapter; their activity is not inferred.</p>
+        <p>{t("The hook records tool names, paths, timestamps, optional line spans and up to 180 characters of a command or search pattern. It records no file contents or tool results. Metadata stays in the local daemon; commands and paths can still contain sensitive information.")}</p>
+        <p>{t("To remove it, delete only the entry referencing ")}<code>cbm-atlas-trace.py</code>{t(" from this project's ")}<code>PostToolUse</code>{t(" hooks. Other coding clients need their own event adapter; their activity is not inferred.")}</p>
     </details>;
 }

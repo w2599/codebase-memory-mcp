@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 import { useEffect, useRef, useState } from 'react';
 import type { RpcIntelligenceClient } from '../provider/rpc-client';
 import type { CodeSnippetResult } from '../provider/rpc-schemas';
@@ -8,8 +9,8 @@ import './source-evidence.css';
 export interface SourceEvidenceTarget { filePath: string; line?: number; name?: string; kind?: 'callsite' | 'declaration' | 'file' }
 const PAGE_LINES = 160;
 /* Hand test K13: a disabled "Next lines" at the last page read like a fault. The page says where the file ends. */
-const END_OF_FILE = ' · end of file';
-const endOfFileTitle = (line: number) => `Line ${line} is the last line of this file.`;
+const END_OF_FILE = t(" · end of file");
+const endOfFileTitle = (line: number) => tr`Line ${line} is the last line of this file.`;
 const validLine = (value: number | undefined): value is number => value !== undefined && Number.isSafeInteger(value) && value > 0;
 
 export function fileQualifiedName(graph: GraphData | undefined, path: string): string | undefined {
@@ -57,7 +58,7 @@ export default function SourceEvidenceDrawer({ project, target, graph, client, o
             if (alive) setReading({ key: readKey, error: error instanceof Error ? error.message : String(error) });
         };
         if (!project || !target.filePath || /[\x00-\x1f\x7f]/.test(target.filePath)) {
-            fail('Select a project and a valid repository file to inspect source evidence.');
+            fail(t("Select a project and a valid repository file to inspect source evidence."));
             return;
         }
         void (async () => {
@@ -74,17 +75,17 @@ export default function SourceEvidenceDrawer({ project, target, graph, client, o
                     resolvedName = files[0]?.[COLUMNS.fileNode[0]] || undefined;
                 }
             }
-            if (!resolvedName) throw new Error('No indexed Module or File declaration was found for this project and path. Check index diagnostics or choose another source location.');
+            if (!resolvedName) throw new Error(t("No indexed Module or File declaration was found for this project and path. Check index diagnostics or choose another source location."));
             const source = await client.getCodeSnippet(project, resolvedName, { startLine: start, maxLines: PAGE_LINES });
             if (!alive) return;
-            if (source.qualified_name && source.qualified_name !== resolvedName) throw new Error('The source reply identifies a different indexed file. Refresh the map before following this evidence.');
+            if (source.qualified_name && source.qualified_name !== resolvedName) throw new Error(t("The source reply identifies a different indexed file. Refresh the map before following this evidence."));
             const returnedPath = source.file_path?.replace(/\\/g, '/');
             if (returnedPath && returnedPath !== target.filePath && !returnedPath.endsWith(`/${target.filePath}`))
-                throw new Error('The source reply identifies a different file path.');
+                throw new Error(t("The source reply identifies a different file path."));
             if (!validLine(source.start_line) || !validLine(source.end_line) || source.end_line < source.start_line)
-                throw new Error('The source reply has no usable line range. No source location can be verified.');
-            if (source.source_mode && source.source_mode !== 'full') throw new Error('The daemon returned an outline instead of source. Open Explore to inspect the available file information.');
-            if (source.source.trim() === '(source not available)') throw new Error('The daemon could not read the current local source.');
+                throw new Error(t("The source reply has no usable line range. No source location can be verified."));
+            if (source.source_mode && source.source_mode !== 'full') throw new Error(t("The daemon returned an outline instead of source. Open Explore to inspect the available file information."));
+            if (source.source.trim() === '(source not available)') throw new Error(t("The daemon could not read the current local source."));
             setReading({ key: readKey, source });
         })().catch(fail);
         return () => { alive = false; };
@@ -126,36 +127,35 @@ export default function SourceEvidenceDrawer({ project, target, graph, client, o
             await navigator.clipboard.writeText(`${target.filePath}:${requestedLine ?? firstLine ?? 1}`);
             if (activeKey.current === readKey) { setCopiedKey(readKey); setCopyError(undefined); }
         } catch {
-            if (activeKey.current === readKey) setCopyError({ key: readKey, message: 'Copy unavailable. Select the location above to copy it manually.' });
+            if (activeKey.current === readKey) setCopyError({ key: readKey, message: t("Copy unavailable. Select the location above to copy it manually.") });
         }
     };
-    return <aside className="source-evidence-drawer" role="dialog" aria-modal="false" aria-label="Source evidence" onKeyDown={event => {
+    return <aside className="source-evidence-drawer" role="dialog" aria-modal="false" aria-label={t("Source evidence")} onKeyDown={event => {
         if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); onClose(); }
     }}>
-        <header><div><span>Source evidence</span><h2>{target.name ?? target.filePath.split('/').at(-1)}</h2></div>
-            <button ref={closeRef} onClick={onClose} aria-label="Close source evidence">Close</button></header>
+        <header><div><span>{t("Source evidence")}</span><h2>{target.name ?? target.filePath.split('/').at(-1)}</h2></div>
+            <button ref={closeRef} onClick={onClose} aria-label={t("Close source evidence")}>{t("Close")}</button></header>
         <p className="source-evidence-location">{target.filePath}{requestedLine ? `:${requestedLine}` : ''}</p>
-        <p className="source-evidence-note">{target.kind === 'callsite' ? 'Indexed call site' : target.kind === 'declaration' ? 'Indexed declaration' : 'Requested source location'}.
-            {' '}Current local source may have changed since indexing. The map stays open.</p>
-        <div className="source-evidence-actions"><button onClick={() => void copy()}>{copiedKey === readKey ? 'Copied location' : 'Copy location'}</button>
-            <button onClick={() => setRefresh(value => value + 1)}>Refresh source</button>
-            <button onClick={() => { restoreFocus.current = false; onExplore(target); }}>Open in Explore</button></div>
+        <p className="source-evidence-note">{target.kind === 'callsite' ? t("Indexed call site") : target.kind === 'declaration' ? t("Indexed declaration") : t("Requested source location")}.
+            {' '}{t("Current local source may have changed since indexing. The map stays open.")}</p>
+        <div className="source-evidence-actions"><button onClick={() => void copy()}>{copiedKey === readKey ? t("Copied location") : t("Copy location")}</button>
+            <button onClick={() => setRefresh(value => value + 1)}>{t("Refresh source")}</button>
+            <button onClick={() => { restoreFocus.current = false; onExplore(target); }}>{t("Open in Explore")}</button></div>
         {copyError?.key === readKey && <p role="status">{copyError.message}</p>}
-        {current?.error ? <p role="alert">{current.error}</p> : !source ? <p role="status">Reading local source…</p> : <>
-            {!rangeMatches && <p role="alert">Source text does not match the reported line range. Line numbers and highlighting are unavailable.</p>}
-            {requestedLine && !locationVisible && rangeMatches && <p role="status" className="source-evidence-notice">Requested line {requestedLine} is outside this returned window.
-                {start === initialStart ? ' The index or requested source window may be stale.' : <button onClick={() => moveTo(initialStart)}>Return to requested location</button>}</p>}
-            <pre ref={sourceRef} tabIndex={0} aria-label="Source lines" className="source-evidence-lines"><code>{shownLines.map((line, index) => {
+        {current?.error ? <p role="alert">{current.error}</p> : !source ? <p role="status">{t("Reading local source…")}</p> : <>
+            {!rangeMatches && <p role="alert">{t("Source text does not match the reported line range. Line numbers and highlighting are unavailable.")}</p>}
+            {requestedLine && !locationVisible && rangeMatches && <p role="status" className="source-evidence-notice">{t("Requested line ")}{requestedLine}{t(" is outside this returned window.")}{start === initialStart ? t(" The index or requested source window may be stale.") : <button onClick={() => moveTo(initialStart)}>{t("Return to requested location")}</button>}</p>}
+            <pre ref={sourceRef} tabIndex={0} aria-label={t("Source lines")} className="source-evidence-lines"><code>{shownLines.map((line, index) => {
                 const number = (firstLine ?? 1) + index;
                 const selected = rangeMatches && number === requestedLine;
                 return <span key={number} data-selected={selected} ref={selected ? selectedRef : undefined}>
                     <span className="source-evidence-line-number" aria-hidden="true">{rangeMatches ? number : ''}</span>{line || ' '}<br /></span>;
             })}</code></pre>
-            {lines.length === 0 && <p role="status">No source text was returned.</p>}
-            {more && !canNext && <p role="status">The source is truncated, but no valid next page was supplied. Refresh or open Explore to inspect the available source.</p>}
-            <nav aria-label="Source pages"><button disabled={!rangeMatches || !firstLine || firstLine <= 1} onClick={() => moveTo(Math.max(1, firstLine! - PAGE_LINES))}>Previous lines</button>
-                <span>{rangeMatches ? `Lines ${firstLine} to ${lastFileLine}` : 'Unverified line range'}{source.original_end_line ? ` · reported end ${source.original_end_line}` : ''}{atEnd ? END_OF_FILE : ''}</span>
-                <button disabled={!canNext} title={atEnd ? endOfFileTitle(lastFileLine!) : undefined} onClick={() => moveTo(next!)}>Next lines</button></nav>
+            {lines.length === 0 && <p role="status">{t("No source text was returned.")}</p>}
+            {more && !canNext && <p role="status">{t("The source is truncated, but no valid next page was supplied. Refresh or open Explore to inspect the available source.")}</p>}
+            <nav aria-label={t("Source pages")}><button disabled={!rangeMatches || !firstLine || firstLine <= 1} onClick={() => moveTo(Math.max(1, firstLine! - PAGE_LINES))}>{t("Previous lines")}</button>
+                <span>{rangeMatches ? tr`Lines ${firstLine} to ${lastFileLine}` : t("Unverified line range")}{source.original_end_line ? tr` · reported end ${source.original_end_line}` : ''}{atEnd ? END_OF_FILE : ''}</span>
+                <button disabled={!canNext} title={atEnd ? endOfFileTitle(lastFileLine!) : undefined} onClick={() => moveTo(next!)}>{t("Next lines")}</button></nav>
         </>}
     </aside>;
 }

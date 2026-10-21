@@ -1,3 +1,5 @@
+import { formatCount } from '../i18n/count';
+import { t, tr } from '../i18n/translate';
 /*
  * Herkunft: portiert am 2026-08-28 aus CodeAtlasIDE,
  * /Users/bernhard/Desktop/CodeAtlasIDE/theia-extensions/codeatlas-intelligence/src/node/ir/semantic-ir-builder.ts
@@ -193,8 +195,7 @@ export function evaluateRisks(
             id: RISK_UNTESTED_HUB,
             severity: 'medium',
             kind: RISK_UNTESTED_HUB,
-            message: `${symbol.name} is called from ${countOf(callers.value.length, 'place', 'places')}`
-                + ' and no test caller was found, so a change here is unverified everywhere it is used.'
+            message: tr`${symbol.name} is called from ${formatCount(callers.value.length, 'place', 'places')} and no test caller was found, so a change here is unverified everywhere it is used.`
         });
     }
     return risks;
@@ -293,7 +294,7 @@ export async function buildIr(
 
     const note = (family: string, error: string | undefined): void => {
         if (error !== undefined) {
-            warnings.push(`${family} is unknown: ${error}`);
+            warnings.push(tr`${family} is unknown: ${error}`);
         }
     };
     note('callees', calleesLeg.error);
@@ -302,7 +303,7 @@ export async function buildIr(
     note('envReads', envLeg.error);
     note('typeRefs', typesLeg.error);
     if (snippet.error !== undefined) {
-        warnings.push(`the source snippet is unavailable: ${snippet.error}`);
+        warnings.push(tr`the source snippet is unavailable: ${snippet.error}`);
     }
 
     const calls = normalizeCalls(root, calleesLeg.facts.callees ?? unknownFact<CallSite[]>([]));
@@ -382,12 +383,12 @@ async function requestSnippet(
 ): Promise<{ hash?: string; error?: string }> {
     const qualifiedName = symbol.qualifiedName;
     if (!qualifiedName) {
-        return { error: 'the symbol has no qualified name to look up' };
+        return { error: t("the symbol has no qualified name to look up") };
     }
     try {
         const source = await provider.getSnippet(root, qualifiedName, opts);
         if (source.length === 0) {
-            return { error: 'the provider returned no source for this symbol' };
+            return { error: t("the provider returned no source for this symbol") };
         }
         return { hash: await sha256Hex(source) };
     } catch (error) {

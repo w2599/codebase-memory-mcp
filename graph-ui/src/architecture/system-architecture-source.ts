@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 import { callToolJson } from '../provider/rpc-transport';
 import type { CallToolOptions } from '../provider/rpc-transport';
 
@@ -60,7 +61,7 @@ export type SystemArchitectureLoader = (request: SystemArchitectureRequest, sign
 
 const record = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === 'object' && !Array.isArray(value);
 const list = (value: unknown): unknown[] => {
-    if (!Array.isArray(value)) throw new Error('Architecture response is missing a collection.');
+    if (!Array.isArray(value)) throw new Error(t("Architecture response is missing a collection."));
     return value;
 };
 const integer = (value: unknown): value is number => Number.isSafeInteger(value) && Number(value) >= 0;
@@ -123,15 +124,15 @@ function behavior(value: unknown): boolean {
 /** Validate the wire boundary before letting a response drive rendering or source navigation. */
 export function readSystemArchitecture(value: unknown): SystemArchitectureResponse {
     if (!record(value) || !['pending', 'ready', 'failed'].includes(String(value.status)) || typeof value.generation !== 'string') {
-        throw new Error('This server returned an unsupported architecture response.');
+        throw new Error(t("This server returned an unsupported architecture response."));
     }
-    if (value.retry_after_ms !== undefined && !integer(value.retry_after_ms)) throw new Error('Invalid architecture retry interval.');
-    if (value.error !== undefined && typeof value.error !== 'string') throw new Error('Invalid architecture error.');
+    if (value.retry_after_ms !== undefined && !integer(value.retry_after_ms)) throw new Error(t("Invalid architecture retry interval."));
+    if (value.error !== undefined && typeof value.error !== 'string') throw new Error(t("Invalid architecture error."));
     if (value.status !== 'ready') return value as unknown as SystemArchitectureResponse;
     const result = value.result;
     if (!record(result) || result.schema_version !== 1 || result.kind !== 'static_projection'
         || !['ready', 'limited'].includes(String(result.status)) || typeof result.complete !== 'boolean') {
-        throw new Error('This server returned an unsupported architecture projection.');
+        throw new Error(t("This server returned an unsupported architecture projection."));
     }
     if (!list(result.components).every(component)
         || !list(result.dependencies).every(dependency)
@@ -143,7 +144,7 @@ export function readSystemArchitecture(value: unknown): SystemArchitectureRespon
         || !record(result.totals) || !Object.values(result.totals).every(integer)
         || !record(result.limits) || !Object.values(result.limits).every(limit => integer(limit) || typeof limit === 'boolean')
         || (result.overview !== undefined && !overview(result.overview)) || (result.behavior !== undefined && !behavior(result.behavior))) {
-        throw new Error('Architecture evidence has an invalid shape.');
+        throw new Error(t("Architecture evidence has an invalid shape."));
     }
     return value as unknown as SystemArchitectureResponse;
 }

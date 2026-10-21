@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /**
  * Der Zustand des lokalen Modell-Sidecars, und was die Oberflaeche darueber
  * sagen darf.
@@ -386,7 +387,7 @@ export async function probeSidecar(
             state: 'not-running',
             router: false,
             models: [],
-            detail: `GET /health antwortete mit ${health.status}`,
+            detail: tr`GET /health antwortete mit ${health.status}`,
         };
     }
 
@@ -395,7 +396,7 @@ export async function probeSidecar(
     try {
         const props = await fetchImpl(`${origin}/props`);
         if (!props.ok) {
-            throw new Error(`GET /props antwortete mit ${props.status}`);
+            throw new Error(tr`GET /props antwortete mit ${props.status}`);
         }
         const payload = await props.json();
         router = readsAsRouter(payload);
@@ -408,7 +409,7 @@ export async function probeSidecar(
             state: 'ready',
             router: false,
             models: [],
-            detail: `die Auskunft ueber das Modell war nicht lesbar: ${error instanceof Error ? error.message : String(error)}`,
+            detail: tr`die Auskunft ueber das Modell war nicht lesbar: ${error instanceof Error ? error.message : String(error)}`,
         };
     }
 
@@ -442,13 +443,13 @@ export async function probeSidecar(
             state: 'ready',
             router,
             models,
-            detail: 'der Router fuehrt kein Modell in seinem Cache-Verzeichnis.',
+            detail: t("der Router fuehrt kein Modell in seinem Cache-Verzeichnis."),
         };
     }
     try {
         const scoped = await fetchImpl(`${origin}/props?model=${encodeURIComponent(active.id)}`);
         if (!scoped.ok) {
-            throw new Error(`GET /props?model= antwortete mit ${scoped.status}`);
+            throw new Error(tr`GET /props?model= antwortete mit ${scoped.status}`);
         }
         facts = readProps(await scoped.json());
     } catch (error) {

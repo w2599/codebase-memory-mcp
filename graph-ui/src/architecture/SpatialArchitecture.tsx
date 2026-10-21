@@ -1,3 +1,5 @@
+import { kindLabel } from '../i18n/presentation';
+import { t, tr } from '../i18n/translate';
 import { Component, Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { PlaceChange, SpatialPlace } from './architecture-history';
 import { useLiftedPlace, useOnIdentityChange } from './lifted-place';
@@ -38,16 +40,16 @@ class SceneBoundary extends Component<{ children: ReactNode }, { failed: boolean
     state = { failed: false };
     static getDerivedStateFromError() { return { failed: true }; }
     render() {
-        return this.state.failed ? <div className="spatial-unavailable" role="status">3D rendering is unavailable. Explore the same nodes and relationships in the lists beside the map.</div> : this.props.children;
+        return this.state.failed ? <div className="spatial-unavailable" role="status">{t("3D rendering is unavailable. Explore the same nodes and relationships in the lists beside the map.")}</div> : this.props.children;
     }
 }
 
 const viewNotes: Record<SemanticView, string> = {
-    overview: 'Find the main parts. Select an area to inspect its connections, then open its files.',
-    dependencies: 'Follow directed dependencies. Select a connection to see the indexed source behind it.',
-    entryPoints: 'Choose a starting point and follow its static call graph. Depth measures call distance, not execution order.',
-    routes: 'Explore HTTP and asynchronous connections to indexed endpoints. Registrations without a resolved connection remain visible.',
-    hotspots: 'Inspect ranked symbols and their connections. Gravity wells grow with static fan-in; select a finding to read its measured signals.',
+    overview: t("Find the main parts. Select an area to inspect its connections, then open its files."),
+    dependencies: t("Follow directed dependencies. Select a connection to see the indexed source behind it."),
+    entryPoints: t("Choose a starting point and follow its static call graph. Depth measures call distance, not execution order."),
+    routes: t("Explore HTTP and asynchronous connections to indexed endpoints. Registrations without a resolved connection remain visible."),
+    hotspots: t("Inspect ranked symbols and their connections. Gravity wells grow with static fan-in; select a finding to read its measured signals."),
 };
 const relationKinds = ['CALLS', 'IMPORTS', 'USAGE', 'INHERITS', 'IMPLEMENTS', 'DATA_FLOWS'];
 
@@ -155,13 +157,13 @@ export default function SpatialArchitecture({ project, generation, graph, overvi
     };
     const opened = !selectedNode && !selectedEdge && (areaPath || filePath || hotspotArea) ? openedEvidence() : undefined;
     useSelectionEvidence(onSelectionEvidence, selectedNode || selectedEdge || areaPath || filePath || hotspotArea ? {
-        project, generation, view: `architecture-${view}`, source: 'indexed repository graph and architecture summary',
+        project, generation, view: `architecture-${view}`, source: t("indexed repository graph and architecture summary"),
         label: selectedNode?.label ?? (selectedEdge ? `${nodesById.get(selectedEdge.source)?.label} → ${nodesById.get(selectedEdge.target)?.label}` : filePath ?? areaPath ?? hotspotArea ?? model.title),
         selected: selectedEdge ? edgeEvidence(selectedEdge) : selectedNode ? { ...nodeEvidence(selectedNode), measurement: selectedMeasure, hotspots: selectedHotspots } : opened?.selected,
         relationships: selectedNode ? { count: edges.length, items: edges.slice(0, 24).map(edgeEvidence), omitted: Math.max(0, edges.length - 24) } : opened?.relationships,
         scope: { view, areaPath, filePath, hotspotArea, visibleNodes: model.nodes.length, visibleEdges: model.edges.length },
         limitations: { omittedNodes: model.omittedNodes, omittedEdges: model.omittedEdges, warnings: model.warnings,
-            graphNote, interpretation: 'Source areas group source locations. Hotspots measure static references, not runtime frequency. Relationships do not prove execution.' },
+            graphNote, interpretation: t("Source areas group source locations. Hotspots measure static references, not runtime frequency. Relationships do not prove execution.") },
     } : undefined, active);
     const selectNode = (id: string) => {
         setSelection({ scope, node: id }); setMemberLimit(5);
@@ -181,93 +183,93 @@ export default function SpatialArchitecture({ project, generation, graph, overvi
         if (current) onSelect?.(current);
         openSource(node);
     };
-    return <section className="spatial-architecture" data-testid="spatial-architecture" aria-label="Spatial architecture explorer">
-        <div className="spatial-heading"><div><span className="spatial-eyebrow">Repository atlas / {view === 'entryPoints' ? 'entry points' : view}</span><h2>{model.title}</h2><p>{viewNotes[view]}</p></div>
-            <div className="spatial-camera-controls" role="group" aria-label="Map camera">
-                <button aria-pressed={!planar} onClick={() => changePlace({ planar: false })}>3D</button><button aria-pressed={planar} onClick={() => changePlace({ planar: true })}>Plan</button>
+    return <section className="spatial-architecture" data-testid="spatial-architecture" aria-label={t("Spatial architecture explorer")}>
+        <div className="spatial-heading"><div><span className="spatial-eyebrow">{t("Repository atlas / ")}{view === 'entryPoints' ? t("entry points") : view}</span><h2>{model.title}</h2><p>{viewNotes[view]}</p></div>
+            <div className="spatial-camera-controls" role="group" aria-label={t("Map camera")}>
+                <button aria-pressed={!planar} onClick={() => changePlace({ planar: false })}>3D</button><button aria-pressed={planar} onClick={() => changePlace({ planar: true })}>{t("Plan")}</button>
                 <button onClick={() => setResetKey(value => value + 1)}>{text.fitMap}</button>
             </div>
         </div>
         <div className="spatial-controls">
             <div className="atlas-arch-context">{navigation}
-            {(view === 'overview' || view === 'dependencies') && <nav aria-label="Architecture location"><button onClick={clearScope}>{project}</button>
+            {(view === 'overview' || view === 'dependencies') && <nav aria-label={t("Architecture location")}><button onClick={clearScope}>{project}</button>
                 {areaPath && areaLevels(areaPath).map((level, index, levels) => <Fragment key={level}><span>/</span><button onClick={() => { changePlace({ areaPath: level, filePath: undefined }); setSelection(undefined); }}>{index ? level.slice(levels[index - 1].length + 1) : level}</button></Fragment>)}{filePath && <><span>/</span><span>{filePath.split('/').at(-1)}</span></>}
             </nav>}
-            {view === 'hotspots' && (hotspotArea ? <nav aria-label="Hotspot area"><button onClick={clearScope}>All hotspots</button><span>/ {hotspotArea}</span></nav> : <span>All hotspots</span>)}
-            {view === 'routes' && <span title={filter || undefined}>{filter || 'All endpoints'}</span>}
+            {view === 'hotspots' && (hotspotArea ? <nav aria-label={t("Hotspot area")}><button onClick={clearScope}>{t("All hotspots")}</button><span>/ {hotspotArea}</span></nav> : <span>{t("All hotspots")}</span>)}
+            {view === 'routes' && <span title={filter || undefined}>{filter || t("All endpoints")}</span>}
             </div>
-            {['overview', 'dependencies', 'entryPoints'].includes(view) && <div className="spatial-projection-modes" role="group" aria-label="Overview mode"><button aria-pressed={view !== 'entryPoints'} onClick={() => onView('overview')}>Structure</button><button aria-pressed={view === 'entryPoints'} onClick={() => onView('entryPoints')}>Entry points</button></div>}
-            {view === 'entryPoints' && <><label>Start <select aria-label="Entry point" value={currentEntry?.id ?? ''} onChange={event => { const node = entries.find(node => node.id === Number(event.target.value)); setEntryChoice(node ? { node, generation } : undefined); setSelection(undefined); }}>
-                {!entries.length && <option value="">No indexed entry points</option>}{entries.map(node => <option key={node.id} value={node.id}>{node.name} · {node.file_path}</option>)}
-            </select></label><label>Call depth <select aria-label="Call depth" value={depth} onChange={event => setDepth(Number(event.target.value))}>{[1, 2, 3, 4].map(value => <option key={value}>{value}</option>)}</select></label></>}
+            {['overview', 'dependencies', 'entryPoints'].includes(view) && <div className="spatial-projection-modes" role="group" aria-label={t("Overview mode")}><button aria-pressed={view !== 'entryPoints'} onClick={() => onView('overview')}>{t("Structure")}</button><button aria-pressed={view === 'entryPoints'} onClick={() => onView('entryPoints')}>{t("Entry points")}</button></div>}
+            {view === 'entryPoints' && <><label>{t("Start ")}<select aria-label={t("Entry point")} value={currentEntry?.id ?? ''} onChange={event => { const node = entries.find(node => node.id === Number(event.target.value)); setEntryChoice(node ? { node, generation } : undefined); setSelection(undefined); }}>
+                {!entries.length && <option value="">{t("No indexed entry points")}</option>}{entries.map(node => <option key={node.id} value={node.id}>{node.name} · {node.file_path}</option>)}
+            </select></label><label>{t("Call depth ")}<select aria-label={t("Call depth")} value={depth} onChange={event => setDepth(Number(event.target.value))}>{[1, 2, 3, 4].map(value => <option key={value}>{value}</option>)}</select></label></>}
             {view === 'routes' && <RefreshControl labels={text.refreshFeedback.routes} feedback={routeRefresh.feedback}
                 onRefresh={() => { routeRefresh.begin(); setRouteRevision(value => value + 1); }} />}
             {view === 'routes' && <label className="spatial-gravity-toggle"><input type="checkbox" checked={includeTestRoutes} onChange={event => { setIncludeTestRoutes(event.target.checked); setSelection(undefined); }} />{routesChecking ? text.includeTestRoutesChecking : text.includeTestRoutes(model.hiddenRoutes ?? 0)}</label>}
-            {filePath && (view === 'overview' || view === 'dependencies') && <button onClick={() => onNavigate(filePath, 1)}>Read this file</button>}
-            {(view === 'overview' || view === 'dependencies') && <div className="spatial-relations" role="group" aria-label="Relationship types">
-                <button aria-pressed={!relations.length} onClick={() => setRelations([])}>All</button>{relationKinds.map(type => <button key={type} aria-pressed={relations.includes(type)} onClick={() => setRelations(current => current.includes(type) ? current.filter(item => item !== type) : [...current, type])}>{type.replaceAll('_', ' ').toLowerCase()}</button>)}
+            {filePath && (view === 'overview' || view === 'dependencies') && <button onClick={() => onNavigate(filePath, 1)}>{t("Read this file")}</button>}
+            {(view === 'overview' || view === 'dependencies') && <div className="spatial-relations" role="group" aria-label={t("Relationship types")}>
+                <button aria-pressed={!relations.length} onClick={() => setRelations([])}>{t("All")}</button>{relationKinds.map(type => <button key={type} aria-pressed={relations.includes(type)} onClick={() => setRelations(current => current.includes(type) ? current.filter(item => item !== type) : [...current, type])}>{kindLabel(type).replaceAll('_', ' ').toLowerCase()}</button>)}
             </div>}
         </div>
-        <div className="spatial-encoding-controls" aria-label="Map appearance">
-            {hasSourceBricks && <label>Height <select aria-label="Brick height" value={heightMetric} onChange={event => setPreferences({ brickHeight: event.target.value as 'lines' | 'uniform' })}><option value="lines">Source size</option><option value="uniform">Uniform</option></select></label>}
-            <label>Color <select aria-label="Brick color" value={colorMetric} onChange={event => setPreferences({ brickColor: event.target.value as 'language' | 'kind' })}><option value="language">Language</option><option value="kind">Node kind</option></select></label>
-            <label className="spatial-gravity-toggle"><input aria-label="Hotspot gravity" type="checkbox" checked={showHotspots} onChange={event => setPreferences({ hotspotGravity: event.target.checked })} />Hotspot gravity</label>
-            {(view === 'overview' || view === 'dependencies') && <label>Files <select aria-label="File visibility" value={fileVisibility} onChange={event => { setPreferences({ fileVisibility: event.target.value as typeof fileVisibility }); setSelection(undefined); setInventoryLimit(24); }}><option value="all">All known files</option><option value="connected">With connections</option><option value="unconnected">Without known connections</option></select></label>}
-            {colorMetric === 'language' && <div className="spatial-language-legend" aria-label="Language colors">{catalog.total.languages.slice(0, 5).map(language => <span key={language.name}><i style={{ background: language.color }} />{language.name}</span>)}{catalog.total.languages.length > 5 && <span>+{catalog.total.languages.length - 5} types</span>}</div>}
+        <div className="spatial-encoding-controls" aria-label={t("Map appearance")}>
+            {hasSourceBricks && <label>{t("Height ")}<select aria-label={t("Brick height")} value={heightMetric} onChange={event => setPreferences({ brickHeight: event.target.value as 'lines' | 'uniform' })}><option value="lines">{t("Source size")}</option><option value="uniform">{t("Uniform")}</option></select></label>}
+            <label>{t("Color ")}<select aria-label={t("Brick color")} value={colorMetric} onChange={event => setPreferences({ brickColor: event.target.value as 'language' | 'kind' })}><option value="language">{t("Language")}</option><option value="kind">{t("Node kind")}</option></select></label>
+            <label className="spatial-gravity-toggle"><input aria-label={t("Hotspot gravity")} type="checkbox" checked={showHotspots} onChange={event => setPreferences({ hotspotGravity: event.target.checked })} />{t("Hotspot gravity")}</label>
+            {(view === 'overview' || view === 'dependencies') && <label>{t("Files ")}<select aria-label={t("File visibility")} value={fileVisibility} onChange={event => { setPreferences({ fileVisibility: event.target.value as typeof fileVisibility }); setSelection(undefined); setInventoryLimit(24); }}><option value="all">{t("All known files")}</option><option value="connected">{t("With connections")}</option><option value="unconnected">{t("Without known connections")}</option></select></label>}
+            {colorMetric === 'language' && <div className="spatial-language-legend" aria-label={t("Language colors")}>{catalog.total.languages.slice(0, 5).map(language => <span key={language.name}><i style={{ background: language.color }} />{language.name}</span>)}{catalog.total.languages.length > 5 && <span>+{catalog.total.languages.length - 5}{t(" types")}</span>}</div>}
         </div>
         <div className="spatial-map-layout">
             <div className="spatial-map"><SceneBoundary key={project}>
                 {model.nodes.length ? <ArchitectureScene model={model} selectedId={selectedNode?.id} selectedEdgeId={selectedEdge?.id} onSelect={selectNode}
                     onSelectEdge={id => { setSelection({ scope, edge: id }); setMemberLimit(5); }} onOpen={id => { const node = nodesById.get(id); if (node?.routePrefix) onFilter?.(node.routePrefix); else if (node && (node.kind === 'area' || node.kind === 'file')) openGroup(node); }} onClearSelection={clearScope} active={active} planar={planar} resetKey={resetKey} catalog={catalog} heightMetric={heightMetric} colorMetric={colorMetric} hotspots={hotspotCatalog} showHotspots={showHotspots}
                     adaptiveLabels={view === 'overview' || view === 'dependencies' || view === 'routes'} />
-                    : <div className="spatial-unavailable">{filter ? 'No matching graph evidence. Try a broader filter.' : view === 'hotspots' ? 'No ranked hotspot measurements are available in this snapshot.' : view === 'entryPoints' ? 'No indexed entry points in this snapshot.' : view === 'routes' ? 'No endpoint evidence is available in this snapshot.' : filePath ? 'No indexed symbols in this file. Use “Read this file” to inspect its source.' : 'No source nodes are available in this repository snapshot.'}</div>}
-            </SceneBoundary><div className="spatial-map-caption"><span title={model.positionMeaning}>{view === 'hotspots' ? 'Gravity: incoming references' : view === 'entryPoints' ? 'Static call paths' : 'Source folders and indexed relationships'}</span><span>Drag to orbit · scroll to zoom · select to inspect</span></div></div>
-            <aside className="spatial-inspector" aria-label="Architecture inspector">
-                {selectedEdge ? <><span className="spatial-eyebrow">Indexed connection</span><h3>{nodesById.get(selectedEdge.source)?.label} <span>→</span> {nodesById.get(selectedEdge.target)?.label}</h3>
-                    <p>{selectedEdge.type} · {selectedEdge.count} retained relationships</p>
+                    : <div className="spatial-unavailable">{filter ? t("No matching graph evidence. Try a broader filter.") : view === 'hotspots' ? t("No ranked hotspot measurements are available in this snapshot.") : view === 'entryPoints' ? t("No indexed entry points in this snapshot.") : view === 'routes' ? t("No endpoint evidence is available in this snapshot.") : filePath ? t("No indexed symbols in this file. Use “Read this file” to inspect its source.") : t("No source nodes are available in this repository snapshot.")}</div>}
+            </SceneBoundary><div className="spatial-map-caption"><span title={model.positionMeaning}>{view === 'hotspots' ? t("Gravity: incoming references") : view === 'entryPoints' ? t("Static call paths") : t("Source folders and indexed relationships")}</span><span>{t("Drag to orbit · scroll to zoom · select to inspect")}</span></div></div>
+            <aside className="spatial-inspector" aria-label={t("Architecture inspector")}>
+                {selectedEdge ? <><span className="spatial-eyebrow">{t("Indexed connection")}</span><h3>{nodesById.get(selectedEdge.source)?.label} <span>→</span> {nodesById.get(selectedEdge.target)?.label}</h3>
+                    <p>{selectedEdge.type} · {selectedEdge.count}{t(" retained relationships")}</p>
                     <div className="spatial-evidence">{selectedEdge.evidence.slice(0, memberLimit).map((evidence, index) => <article key={`${evidence.id}:${index}`}>
-                        <button disabled={!evidence.source.file_path} onClick={() => openSource(evidence.source)}>{evidence.source.name}</button><span>→ {evidence.type}</span>
+                        <button disabled={!evidence.source.file_path} onClick={() => openSource(evidence.source)}>{evidence.source.name}</button><span>→ {kindLabel(evidence.type)}</span>
                         <button disabled={!evidence.target.file_path} onClick={() => openSource(evidence.target)}>{evidence.target.name}</button>
                         {evidence.routePath && <code>{evidence.routePath}</code>}<small>{evidence.source.file_path}{evidence.source.start_line ? `:${evidence.source.start_line}` : ''}</small>
-                        <small>{evidence.id === undefined ? 'Index relationship' : `Edge #${evidence.id}`}{evidence.strategy ? ` · ${evidence.strategy}` : ''}{evidence.via ? ` · ${evidence.via}` : ''}</small>
-                    </article>)}</div>{selectedEdge.evidence.length > memberLimit && <button onClick={() => setMemberLimit(value => value + 16)}>More source evidence</button>}
-                </> : selectedNode ? <><span className="spatial-eyebrow">{selectedNode.kind === 'area' ? 'Inferred source area' : selectedNode.kind}</span><h3>{selectedNode.label}</h3><p>{selectedNode.detail}</p>
-                    {selectedMeasure && <details className="spatial-selection-details"><summary>{selectedMeasure.files.toLocaleString()} files · {selectedMeasure.lines?.toLocaleString() ?? "Unknown"} indexed lines</summary><SourceMetricsDetails measure={selectedMeasure} catalog={catalog} /></details>}
-                    {selectedHotspots && <details className="spatial-hotspot-details"><summary>{selectedHotspots.findings.length} hotspot findings · peak fan-in {selectedHotspots.maxFanIn ?? 'unknown'}</summary><p>Static incoming references, not runtime frequency.</p>{selectedHotspots.findings.slice(0, memberLimit).map(finding => <article key={hotspotIdentity(finding)}><button disabled={!finding.filePath} onClick={() => onNavigate(finding.filePath!, finding.line, finding.name)}>{finding.name}</button><div>{hotspotSignals(finding).map(signal => <span key={signal}>{signal}</span>)}</div></article>)}{selectedHotspots.findings.length > memberLimit && <button onClick={() => setMemberLimit(value => value + 16)}>More hotspot findings</button>}</details>}
-                    {(selectedNode.kind === 'area' || selectedNode.kind === 'file') && <button className="spatial-primary" onClick={() => openGroup(selectedNode)}>Open {selectedNode.kind === 'area' ? 'area' : 'file symbols'} →</button>}
+                        <small>{evidence.id === undefined ? t("Index relationship") : tr`Edge #${evidence.id}`}{evidence.strategy ? ` · ${evidence.strategy}` : ''}{evidence.via ? ` · ${evidence.via}` : ''}</small>
+                    </article>)}</div>{selectedEdge.evidence.length > memberLimit && <button onClick={() => setMemberLimit(value => value + 16)}>{t("More source evidence")}</button>}
+                </> : selectedNode ? <><span className="spatial-eyebrow">{selectedNode.kind === 'area' ? t("Inferred source area") : kindLabel(selectedNode.kind)}</span><h3>{selectedNode.label}</h3><p>{selectedNode.detail}</p>
+                    {selectedMeasure && <details className="spatial-selection-details"><summary>{selectedMeasure.files.toLocaleString()}{t(" files · ")}{selectedMeasure.lines?.toLocaleString() ?? t("Unknown")}{t(" indexed lines")}</summary><SourceMetricsDetails measure={selectedMeasure} catalog={catalog} /></details>}
+                    {selectedHotspots && <details className="spatial-hotspot-details"><summary>{selectedHotspots.findings.length}{t(" hotspot findings · peak fan-in ")}{selectedHotspots.maxFanIn ?? t("unknown")}</summary><p>{t("Static incoming references, not runtime frequency.")}</p>{selectedHotspots.findings.slice(0, memberLimit).map(finding => <article key={hotspotIdentity(finding)}><button disabled={!finding.filePath} onClick={() => onNavigate(finding.filePath!, finding.line, finding.name)}>{finding.name}</button><div>{hotspotSignals(finding).map(signal => <span key={signal}>{signal}</span>)}</div></article>)}{selectedHotspots.findings.length > memberLimit && <button onClick={() => setMemberLimit(value => value + 16)}>{t("More hotspot findings")}</button>}</details>}
+                    {(selectedNode.kind === 'area' || selectedNode.kind === 'file') && <button className="spatial-primary" onClick={() => openGroup(selectedNode)}>{t("Open ")}{selectedNode.kind === 'area' ? t("area") : t("file symbols")} →</button>}
                     {selectedNode.routePrefix && onFilter && <button className="spatial-primary" onClick={() => onFilter(selectedNode.routePrefix!)}>{text.showRoutes(selectedNode.count)}</button>}
-                    {selectedNode.filePath && <button onClick={() => onNavigate(selectedNode.filePath!, selectedNode.line, selectedNode.label)}>Open source</button>}
-                    {!!selectedNode.members.length && <details className="spatial-selection-details"><summary>Source members · {selectedNode.members.length}</summary><div className="spatial-members">{selectedNode.members.slice(0, memberLimit).map(node => <button key={`${node.qualified_name}:${node.id}`} onClick={() => inspectMember(node)}>{node.name}<small>{node.file_path}{node.start_line ? `:${node.start_line}` : ''}</small></button>)}</div>
-                        {selectedNode.members.length > memberLimit && <button onClick={() => setMemberLimit(value => value + 16)}>More members</button>}</details>}
+                    {selectedNode.filePath && <button onClick={() => onNavigate(selectedNode.filePath!, selectedNode.line, selectedNode.label)}>{t("Open source")}</button>}
+                    {!!selectedNode.members.length && <details className="spatial-selection-details"><summary>{t("Source members · ")}{selectedNode.members.length}</summary><div className="spatial-members">{selectedNode.members.slice(0, memberLimit).map(node => <button key={`${node.qualified_name}:${node.id}`} onClick={() => inspectMember(node)}>{node.name}<small>{node.file_path}{node.start_line ? `:${node.start_line}` : ''}</small></button>)}</div>
+                        {selectedNode.members.length > memberLimit && <button onClick={() => setMemberLimit(value => value + 16)}>{t("More members")}</button>}</details>}
                     {selectedNode.graphNode && selectionPanel}
                 </> : openedScope ? <><span className="spatial-eyebrow">{openedScope.eyebrow}</span><h3 title={openedScope.path}>{openedScope.title}</h3>
                     {openedScope.measure && <details className="spatial-selection-details"><summary>{text.scopeMeasure(openedScope.measure.files, openedScope.measure.lines)}</summary><SourceMetricsDetails measure={openedScope.measure} catalog={catalog} /></details>}
                     <p>{text.openedScopeHint}</p>
-                </> : <><span className="spatial-eyebrow">{view === 'hotspots' ? 'Review areas' : 'Repository'}</span><h3>{view === 'hotspots' ? `${hotspotCatalog.findings.length} hotspot findings` : `${catalog.files.size.toLocaleString()} files`}</h3>
-                    {view === 'hotspots' ? <><p>Grouped by source area. Outside dependents are distinct files with direct incoming relationships in the loaded graph.</p><div className="spatial-area-summary" aria-label="Hotspots by source area">{areas.slice(0, 5).map(area => <button key={area.path} aria-pressed={hotspotArea === area.path} onClick={() => { changePlace({ hotspotArea: area.path }); setSelection(undefined); setResetKey(value => value + 1); }}><strong>{area.path}</strong><small>{area.findings} findings · {area.files} files</small><small>{area.dependentFiles} outside dependent files</small></button>)}</div>{areas.length > 5 && <details className="spatial-selection-details"><summary>{areas.length - 5} more areas</summary><div className="spatial-area-summary">{areas.slice(5).map(area => <button key={area.path} onClick={() => { changePlace({ hotspotArea: area.path }); setSelection(undefined); setResetKey(value => value + 1); }}><strong>{area.path}</strong><small>{area.findings} findings · {area.dependentFiles} outside dependent files</small></button>)}</div></details>}</>
-                        : <p>Select a part or connection to inspect it. Open an area to explore its files.</p>}
+                </> : <><span className="spatial-eyebrow">{view === 'hotspots' ? t("Review areas") : t("Repository")}</span><h3>{view === 'hotspots' ? tr`${hotspotCatalog.findings.length} hotspot findings` : tr`${catalog.files.size.toLocaleString()} files`}</h3>
+                    {view === 'hotspots' ? <><p>{t("Grouped by source area. Outside dependents are distinct files with direct incoming relationships in the loaded graph.")}</p><div className="spatial-area-summary" aria-label={t("Hotspots by source area")}>{areas.slice(0, 5).map(area => <button key={area.path} aria-pressed={hotspotArea === area.path} onClick={() => { changePlace({ hotspotArea: area.path }); setSelection(undefined); setResetKey(value => value + 1); }}><strong>{area.path}</strong><small>{area.findings}{t(" findings · ")}{area.files}{t(" files")}</small><small>{area.dependentFiles}{t(" outside dependent files")}</small></button>)}</div>{areas.length > 5 && <details className="spatial-selection-details"><summary>{areas.length - 5}{t(" more areas")}</summary><div className="spatial-area-summary">{areas.slice(5).map(area => <button key={area.path} onClick={() => { changePlace({ hotspotArea: area.path }); setSelection(undefined); setResetKey(value => value + 1); }}><strong>{area.path}</strong><small>{area.findings}{t(" findings · ")}{area.dependentFiles}{t(" outside dependent files")}</small></button>)}</div></details>}</>
+                        : <p>{t("Select a part or connection to inspect it. Open an area to explore its files.")}</p>}
                 </>}
-                <details className="spatial-node-list"><summary>Browse map · {model.nodes.length} parts</summary>{model.nodes.map(node => <button key={node.id} aria-pressed={selectedNode?.id === node.id} onClick={() => selectNode(node.id)}><span>{node.label}</span><small>{node.kind} · {node.count}</small></button>)}</details>
+                <details className="spatial-node-list"><summary>{t("Browse map · ")}{model.nodes.length}{t(" parts")}</summary>{model.nodes.map(node => <button key={node.id} aria-pressed={selectedNode?.id === node.id} onClick={() => selectNode(node.id)}><span>{node.label}</span><small>{kindLabel(node.kind)} · {node.count}</small></button>)}</details>
             </aside>
         </div>
-        <div className="spatial-bottom"><span>{model.nodes.length} parts · {model.edges.length} connections</span><span>{model.omittedNodes || model.omittedEdges ? 'Partial map · open an area to see more' : 'Select to inspect · double-click to explore'}</span></div>
-        {view === 'routes' && !routeSnapshot && <p role="status" className="spatial-notice">{routeReading?.key === routeKey && routeReading.error ? `Connections unavailable: ${routeReading.error}` : 'Reading indexed endpoint connections…'}</p>}
-        <details className="spatial-map-details"><summary>Browse files, connections and map details</summary>
-        <details className="spatial-file-inventory"><summary>File inventory · {catalog.files.size.toLocaleString()} known files</summary>
-            <p>Every returned file remains reachable here, even without connections or outside the 3D display limit. Unindexed folders may contain additional files that the index has not listed.</p>
-            <div className="spatial-inventory-list">{inventoryFiles.slice(0, inventoryLimit).map(file => <article key={file.path}><button onClick={() => { changePlace({ areaPath: undefined, filePath: file.path }); setSelection(undefined); onView('overview'); }}>{file.path}</button><small>{file.language} · {file.lines === undefined ? 'size unknown' : `${file.lines.toLocaleString()} indexed lines`} · {file.connection === 'connected' ? 'connected' : file.connection === 'none' ? 'no indexed connections' : 'connections unknown'}{coverage?.records.get(file.path) ? ` · ${coverage.records.get(file.path)!.state}` : ''}</small><button aria-label={`Read ${file.path}`} onClick={() => onNavigate(file.path, 1)}>Read source</button></article>)}</div>
-            <small>{Math.min(inventoryLimit, inventoryFiles.length)} / {inventoryFiles.length} files</small>{inventoryLimit < inventoryFiles.length && <button onClick={() => setInventoryLimit(value => value + 24)}>More files</button>}
-            {(overview.symbolKinds.find(kind => kind.kind === 'File')?.count ?? 0) > overview.files.length && <p className="spatial-notice">The file inventory query is limited. Additional files are available through the explorer tree.</p>}
+        <div className="spatial-bottom"><span>{model.nodes.length}{t(" parts · ")}{model.edges.length}{t(" connections")}</span><span>{model.omittedNodes || model.omittedEdges ? t("Partial map · open an area to see more") : t("Select to inspect · double-click to explore")}</span></div>
+        {view === 'routes' && !routeSnapshot && <p role="status" className="spatial-notice">{routeReading?.key === routeKey && routeReading.error ? tr`Connections unavailable: ${routeReading.error}` : t("Reading indexed endpoint connections…")}</p>}
+        <details className="spatial-map-details"><summary>{t("Browse files, connections and map details")}</summary>
+        <details className="spatial-file-inventory"><summary>{t("File inventory · ")}{catalog.files.size.toLocaleString()}{t(" known files")}</summary>
+            <p>{t("Every returned file remains reachable here, even without connections or outside the 3D display limit. Unindexed folders may contain additional files that the index has not listed.")}</p>
+            <div className="spatial-inventory-list">{inventoryFiles.slice(0, inventoryLimit).map(file => <article key={file.path}><button onClick={() => { changePlace({ areaPath: undefined, filePath: file.path }); setSelection(undefined); onView('overview'); }}>{file.path}</button><small>{file.language} · {file.lines === undefined ? t("size unknown") : tr`${file.lines.toLocaleString()} indexed lines`} · {file.connection === 'connected' ? t("connected") : file.connection === 'none' ? t("no indexed connections") : t("connections unknown")}{coverage?.records.get(file.path) ? ` · ${coverage.records.get(file.path)!.state}` : ''}</small><button aria-label={tr`Read ${file.path}`} onClick={() => onNavigate(file.path, 1)}>{t("Read source")}</button></article>)}</div>
+            <small>{Math.min(inventoryLimit, inventoryFiles.length)} / {inventoryFiles.length}{t(" files")}</small>{inventoryLimit < inventoryFiles.length && <button onClick={() => setInventoryLimit(value => value + 24)}>{t("More files")}</button>}
+            {(overview.symbolKinds.find(kind => kind.kind === 'File')?.count ?? 0) > overview.files.length && <p className="spatial-notice">{t("The file inventory query is limited. Additional files are available through the explorer tree.")}</p>}
             {coverage?.truncations.map(note => <p key={note} className="spatial-notice">{note}</p>)}
         </details>
-        {!!(model.omittedNodes || model.omittedEdges) && <p className="spatial-notice">The map is bounded for readability. {model.omittedNodes} nodes and {model.omittedEdges} connections are outside this view; open an area to inspect a smaller scope.</p>}
+        {!!(model.omittedNodes || model.omittedEdges) && <p className="spatial-notice">{t("The map is bounded for readability. ")}{model.omittedNodes}{t(" nodes and ")}{model.omittedEdges}{t(" connections are outside this view; open an area to inspect a smaller scope.")}</p>}
         {model.warnings.map(warning => <p className="spatial-notice" key={warning}>{warning}</p>)}
-        <details className="spatial-relationship-list"><summary>Connections{selectedNode ? ` for ${selectedNode.label}` : ''} · {edges.length}</summary><div aria-label="Architecture relationships">
-            {!edges.length && <p>No matching indexed connections in this view.</p>}{edges.map(edge => <button key={edge.id} aria-pressed={selectedEdge?.id === edge.id} onClick={() => { setSelection({ scope, edge: edge.id }); setMemberLimit(5); }}>
-                <span>{nodesById.get(edge.source)?.label} → {nodesById.get(edge.target)?.label}</span><small>{edge.type} · {edge.count}</small></button>)}
+        <details className="spatial-relationship-list"><summary>{t("Connections")}{selectedNode ? tr` for ${selectedNode.label}` : ''} · {edges.length}</summary><div aria-label={t("Architecture relationships")}>
+            {!edges.length && <p>{t("No matching indexed connections in this view.")}</p>}{edges.map(edge => <button key={edge.id} aria-pressed={selectedEdge?.id === edge.id} onClick={() => { setSelection({ scope, edge: edge.id }); setMemberLimit(5); }}>
+                <span>{nodesById.get(edge.source)?.label} → {nodesById.get(edge.target)?.label}</span><small>{kindLabel(edge.type)} · {edge.count}</small></button>)}
         </div></details>
-        <p className="spatial-measure-note">Height represents source size; color follows file type. Gravity represents static fan-in. {catalog.total.measuredFiles.toLocaleString()} / {catalog.total.files.toLocaleString()} files have line measurements{catalog.partial ? '; totals cover measured files only' : ''}.</p>
-        {graphNote && <details className="spatial-coverage"><summary>Index coverage and limits</summary><p>{graphNote}</p></details>}
+        <p className="spatial-measure-note">{t("Height represents source size; color follows file type. Gravity represents static fan-in. ")}{catalog.total.measuredFiles.toLocaleString()} / {catalog.total.files.toLocaleString()}{t(" files have line measurements")}{catalog.partial ? t("; totals cover measured files only") : ''}.</p>
+        {graphNote && <details className="spatial-coverage"><summary>{t("Index coverage and limits")}</summary><p>{graphNote}</p></details>}
         </details>
     </section>;
 }

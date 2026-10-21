@@ -1,3 +1,4 @@
+import { kindLabel } from '../i18n/presentation';
 /**
  * Die Hover-Karte der Galaxie, in den Tokens dieses Projekts.
  *
@@ -72,7 +73,7 @@ export function NodeTooltipCard({ node }: { node: GraphNode }): JSX.Element {
                 <div className="atlas-galaxy-card-head">
                     <span className="atlas-galaxy-card-dot" style={{ backgroundColor: node.color }} />
                     <span className="atlas-galaxy-card-name">{graphNodeName(node)}</span>
-                    <span className="atlas-galaxy-card-label">{node.label}</span>
+                    <span className="atlas-galaxy-card-label">{kindLabel(node.label)}</span>
                 </div>
                 {indexName !== undefined && <p className="atlas-galaxy-card-path">{indexName}</p>}
                 {file !== undefined && file.length > 0 && (

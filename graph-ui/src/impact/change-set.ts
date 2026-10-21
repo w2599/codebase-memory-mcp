@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 import { callToolJson } from '../provider/rpc-transport';
 import type { SelectionImpactTarget } from './selection-impact';
 
@@ -27,7 +28,7 @@ export function validChangeRef(value: string): boolean {
 /** Read file pages separately from graph impact so one cannot consume the other's budget. */
 export async function loadChangeSet(project: string, base: string, signal?: AbortSignal,
     read: ChangeSetRequest = request): Promise<ChangeSetReading> {
-    if (!project || !validChangeRef(base)) throw new Error('Choose a project and a valid local Git revision.');
+    if (!project || !validChangeRef(base)) throw new Error(t("Choose a project and a valid local Git revision."));
     const files = new Set<string>();
     let cursor: string | undefined;
     const cursors = new Set<string>();
@@ -42,15 +43,15 @@ export async function loadChangeSet(project: string, base: string, signal?: Abor
         if (payload.base !== base || typeof payload.merge_base !== 'string' || !Array.isArray(payload.changed_files)
             || !Number.isSafeInteger(payload.changed_total) || Number(payload.changed_total) < 0
             || typeof payload.changed_has_more !== 'boolean') {
-            throw new Error('The daemon returned an incomplete change-set response. No empty or safe result was inferred.');
+            throw new Error(t("The daemon returned an incomplete change-set response. No empty or safe result was inferred."));
         }
         if (total >= 0 && (total !== payload.changed_total || mergeBase !== payload.merge_base)) {
-            throw new Error('The Git change set moved while its pages were loading. Refresh to read one snapshot.');
+            throw new Error(t("The Git change set moved while its pages were loading. Refresh to read one snapshot."));
         }
         total = Number(payload.changed_total); mergeBase = payload.merge_base;
         const entries = payload.changed_files;
         if (entries.some(file => typeof file !== 'string' || !file || file.startsWith('/') || file.split('/').includes('..'))) {
-            throw new Error('The daemon returned an invalid repository-relative changed path.');
+            throw new Error(t("The daemon returned an invalid repository-relative changed path."));
         }
         if (entries.length === 0 && payload.changed_has_more && payload.changed_continuation_requires_higher_budget && budget < 24000) {
             budget = 24000; continue;
@@ -60,17 +61,17 @@ export async function loadChangeSet(project: string, base: string, signal?: Abor
         for (const file of entries as string[]) files.add(file);
         if (!payload.changed_has_more) {
             complete = files.size === total;
-            if (!complete) limitations.push('The returned file pages do not account for the reported total.');
+            if (!complete) limitations.push(t("The returned file pages do not account for the reported total."));
             break;
         }
         const next = payload.changed_next_cursor;
         if (typeof next !== 'string' || !next || cursors.has(next) || files.size === previousSize) {
-            limitations.push('The daemon could not provide a progressing snapshot cursor for the remaining changed files.');
+            limitations.push(t("The daemon could not provide a progressing snapshot cursor for the remaining changed files."));
             break;
         }
         cursors.add(next); cursor = next;
     }
-    if (!complete && limitations.length === 0) limitations.push('Changed-file reading reached its limit of 8 pages / 4,000 paths.');
+    if (!complete && limitations.length === 0) limitations.push(t("Changed-file reading reached its limit of 8 pages / 4,000 paths."));
     return { project, base, mergeBase, checkedAt: new Date().toISOString(), files: [...files], totalFiles: total,
         complete, pages, limitations };
 }

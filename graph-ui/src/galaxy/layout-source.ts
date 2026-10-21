@@ -1,3 +1,4 @@
+import { tr } from '../i18n/translate';
 /**
  * Woher die Galaxie ihre Punkte bekommt.
  *
@@ -163,20 +164,20 @@ export async function loadLayout(
         });
     } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        throw new LayoutError(0, `${LAYOUT_ROUTE} war nicht erreichbar: ${message}`);
+        throw new LayoutError(0, tr`${LAYOUT_ROUTE} war nicht erreichbar: ${message}`);
     }
     const body = await response.text();
     if (!response.ok) {
         throw new LayoutError(
             response.status,
-            `${LAYOUT_ROUTE} antwortete mit HTTP ${response.status}: ${body.slice(0, 200)}`,
+            tr`${LAYOUT_ROUTE} antwortete mit HTTP ${response.status}: ${body.slice(0, 200)}`,
         );
     }
     let parsed: unknown;
     try {
         parsed = JSON.parse(body) as unknown;
     } catch {
-        throw new LayoutError(response.status, `${LAYOUT_ROUTE} lieferte kein JSON: ${body.slice(0, 200)}`);
+        throw new LayoutError(response.status, tr`${LAYOUT_ROUTE} lieferte kein JSON: ${body.slice(0, 200)}`);
     }
     return readGraphData(parsed);
 }

@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /** Same-origin daemon polling over the existing sequential HTTP transport.
  * Off means zero requests. Cursors are committed only after a validated page;
  * reconnects retain state, and a replaced SQLite database resets its generation. */
@@ -207,14 +208,14 @@ export function useAgentStream(options: AgentStreamOptions): AgentStream {
             if (cursor.current === 0) announce({ state: 'connecting', error: '' });
             try {
                 const response = await doFetch(url, { signal: controller.signal });
-                if (!response.ok) throw new Error(`daemon activity: HTTP ${response.status}`);
+                if (!response.ok) throw new Error(tr`daemon activity: HTTP ${response.status}`);
                 const page = await response.json() as {
                     events: unknown[]; cursor: number; generation: string; reset: boolean;
                     has_more: boolean; truncated: boolean; retained: number;
                 };
                 if (!Array.isArray(page.events) || !Number.isSafeInteger(page.cursor)
                     || page.cursor < 0 || typeof page.generation !== 'string') {
-                    throw new Error('Invalid daemon activity response');
+                    throw new Error(t("Invalid daemon activity response"));
                 }
                 if (stopped) return;
                 if (page.reset || (generation.current !== undefined && generation.current !== page.generation)) {
@@ -238,8 +239,8 @@ export function useAgentStream(options: AgentStreamOptions): AgentStream {
                 incomplete.current ||= page.truncated;
                 setReading({ project, value: next });
                 announce({ state: 'connected', error: incomplete.current
-                    ? 'Older activity expired from local retention; this history is incomplete.' : '',
-                    hello: { mode: 'live', file: 'daemon SQLite activity', events: page.retained, unreadable: next.unreadable } });
+                    ? t("Older activity expired from local retention; this history is incomplete.") : '',
+                    hello: { mode: 'live', file: t("daemon SQLite activity"), events: page.retained, unreadable: next.unreadable } });
                 timer = setTimeout(() => void connect(), page.has_more ? 0 : POLL_MS);
             } catch (failure) {
                 if (stopped) return;

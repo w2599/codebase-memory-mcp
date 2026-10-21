@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 import type { CodeAtlasSymbolKind, SymbolRef } from '../core/focus-protocol';
 import { COLUMNS, declarationsInFiles } from '../provider/cypher';
 import { EngineError } from '../provider/engine-errors';
@@ -31,11 +32,11 @@ export async function loadFileSymbols(
     path: string,
 ): Promise<FileSymbolResult> {
     if (project.trim().length === 0 || path.trim().length === 0) {
-        throw new Error('Select a project and file before loading symbols.');
+        throw new Error(t("Select a project and file before loading symbols."));
     }
     const results = await Promise.allSettled(LABELS.map(async ([label]) => {
         const query = declarationsInFiles(label, [path], FILE_SYMBOL_LIMIT);
-        if (!query) throw new Error('The file path could not be queried.');
+        if (!query) throw new Error(t("The file path could not be queried."));
         return client.queryRows(project, query);
     }));
     const symbols = new Map<string, SymbolRef>();
@@ -69,16 +70,16 @@ export async function loadFileSymbols(
     }
     if (answered === 0) {
         throw new Error(failed.length > 0
-            ? `Could not load file symbols. Queries failed for ${failed.join(', ')}.${absent.length ? ` Labels unavailable: ${absent.join(', ')}.` : ''}`
-            : `The current index does not provide these symbol labels: ${absent.join(', ')}.`);
+            ? tr`Could not load file symbols. Queries failed for ${failed.join(', ')}.${absent.length ? tr` Labels unavailable: ${absent.join(', ')}.` : ''}`
+            : tr`The current index does not provide these symbol labels: ${absent.join(', ')}.`);
     }
     const ordered = [...symbols.values()].sort((a, b) => a.range.start.line - b.range.start.line
         || (a.qualifiedName ?? a.name).localeCompare(b.qualifiedName ?? b.name));
     const notes: string[] = [];
-    if (failed.length > 0) notes.push(`Partial results: queries failed for ${failed.join(', ')}.`);
-    if (absent.length > 0) notes.push(`Labels unavailable in this index: ${absent.join(', ')}.`);
-    if (capped.length > 0) notes.push(`Some symbols may be omitted: ${capped.join(', ')} reached the ${FILE_SYMBOL_LIMIT}-row query limit.`);
-    if (ordered.length > FILE_SYMBOL_LIMIT) notes.push(`Showing the first ${FILE_SYMBOL_LIMIT} returned symbols by declaration line.`);
-    if (invalid > 0) notes.push(`${invalid} result${invalid === 1 ? '' : 's'} without a valid declaration in this file omitted.`);
+    if (failed.length > 0) notes.push(tr`Partial results: queries failed for ${failed.join(', ')}.`);
+    if (absent.length > 0) notes.push(tr`Labels unavailable in this index: ${absent.join(', ')}.`);
+    if (capped.length > 0) notes.push(tr`Some symbols may be omitted: ${capped.join(', ')} reached the ${FILE_SYMBOL_LIMIT}-row query limit.`);
+    if (ordered.length > FILE_SYMBOL_LIMIT) notes.push(tr`Showing the first ${FILE_SYMBOL_LIMIT} returned symbols by declaration line.`);
+    if (invalid > 0) notes.push(tr`${invalid} result${invalid === 1 ? '' : 's'} without a valid declaration in this file omitted.`);
     return { symbols: ordered.slice(0, FILE_SYMBOL_LIMIT), message: notes.join(' ') };
 }

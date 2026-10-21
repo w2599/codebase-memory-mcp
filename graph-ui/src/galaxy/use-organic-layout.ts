@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 import { useEffect, useRef, useState } from 'react';
 import type { OrganicClusterLayout, OrganicClusterOptions } from './organic-clusters';
 import type { OrganicLayoutRequest, OrganicLayoutResponse } from './organic-layout.worker';
@@ -68,9 +69,9 @@ export function useOrganicLayout(data: GraphData | undefined, options: OrganicCl
                 };
                 instance.onerror = event => {
                     event.preventDefault();
-                    stopWithError(event.message || 'The graph layout worker failed.');
+                    stopWithError(event.message || t("The graph layout worker failed."));
                 };
-                instance.onmessageerror = () => stopWithError('Could not read the graph layout worker response.');
+                instance.onmessageerror = () => stopWithError(t("Could not read the graph layout worker response."));
                 instance.postMessage(request);
             } catch (error: unknown) { fail(error); }
         }

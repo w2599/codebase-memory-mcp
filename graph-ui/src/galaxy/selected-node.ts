@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 import { galaxyNodeContext } from '../browser-ai/galaxy-context';
 import type { BrowserChatContext } from '../browser-ai/chat-model';
 import { graphNodeName } from './node-names';
@@ -33,18 +34,18 @@ export function selectedGraphContext(layout: GraphData | undefined, selected: Gr
     };
     return {
         id: snapshotId,
-        label: `Graph node · ${graphNodeName(selected).slice(0, 60)}`,
+        label: tr`Graph node · ${graphNodeName(selected).slice(0, 60)}`,
         text: JSON.stringify({
             kind: 'graph-selection-snapshot',
             source: 'selected-graph-node',
             project: field(project, 'project'),
             selectedNode,
-            loadedLayout: 'This symbol is outside the loaded layout; its displayed identity and source location are retained.',
-            relationships: { state: 'unavailable', reason: 'The loaded layout does not contain this selected symbol.' },
+            loadedLayout: t("This symbol is outside the loaded layout; its displayed identity and source location are retained."),
+            relationships: { state: 'unavailable', reason: t("The loaded layout does not contain this selected symbol.") },
             indexCoverage: { state: 'unavailable' },
             generation: { state: 'unavailable' },
             truncatedFields,
-            limitations: 'Selection metadata only. No source code or relationships were fetched. Render IDs are omitted because they are not index identities. Absence from the loaded layout does not imply absent code or calls.',
+            limitations: t("Selection metadata only. No source code or relationships were fetched. Render IDs are omitted because they are not index identities. Absence from the loaded layout does not imply absent code or calls."),
         }, null, 2),
     };
 }

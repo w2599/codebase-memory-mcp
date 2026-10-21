@@ -1,3 +1,4 @@
+import { tr } from '../i18n/translate';
 /**
  * Die /api-Routen des Servers, so weit dieses Chrome sie braucht.
  *
@@ -134,7 +135,7 @@ export class AtlasApi {
             response = await doFetch(url, init);
         } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
-            const failure = new AtlasApiError(route, 0, `${route} war nicht erreichbar: ${message}`);
+            const failure = new AtlasApiError(route, 0, tr`${route} war nicht erreichbar: ${message}`);
             // Ein abgebrochener Aufruf ist die Sache des Aufrufers und kein Fehler des Servers.
             if (this.options.signal?.aborted) throw failure;
             throw announce(failure);
@@ -142,7 +143,7 @@ export class AtlasApi {
         const body = await response.text();
         if (!response.ok) {
             throw announce(
-                new AtlasApiError(route, response.status, `${route} antwortete mit HTTP ${response.status}: ${body.slice(0, 200)}`),
+                new AtlasApiError(route, response.status, tr`${route} antwortete mit HTTP ${response.status}: ${body.slice(0, 200)}`),
                 body.slice(0, 400),
             );
         }
@@ -150,7 +151,7 @@ export class AtlasApi {
             return JSON.parse(body) as unknown;
         } catch {
             throw announce(
-                new AtlasApiError(route, response.status, `${route} lieferte kein JSON: ${body.slice(0, 200)}`),
+                new AtlasApiError(route, response.status, tr`${route} lieferte kein JSON: ${body.slice(0, 200)}`),
                 body.slice(0, 400),
             );
         }

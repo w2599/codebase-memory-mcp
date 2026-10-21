@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /**
  * Der Flow-Erklaerer als Overlay ueber der Editorflaeche: links das
  * Sequenzdiagramm, rechts die nach Symbolen gruppierte Schrittliste, darunter
@@ -217,7 +218,7 @@ export default function FlowOverlay(props: FlowOverlayProps): JSX.Element {
             walkCap: 0,
             unresolved: 0,
             subject: [],
-            validateRewrite: () => ({ applied: false, reason: 'no flow is shown' }),
+            validateRewrite: () => ({ applied: false, reason: t("no flow is shown") }),
             aiState: 'idle',
             aiReason: '',
         };
@@ -263,14 +264,14 @@ export default function FlowOverlay(props: FlowOverlayProps): JSX.Element {
                     {explainerTitle(props.symbolName)}
                 </span>
                 {props.aiAvailable === true && builtLines.length > 0 && aiState !== 'applied' && (
-                    <button type="button" data-testid="atlas-flow-ai-btn" disabled={aiState === 'running'} onClick={askAi}>AI version</button>
+                    <button type="button" data-testid="atlas-flow-ai-btn" disabled={aiState === 'running'} onClick={askAi}>{t("AI version")}</button>
                 )}
                 {props.aiAvailable === true && aiState === 'applied' && (
-                    <button type="button" data-testid="atlas-flow-ai-restore" onClick={() => { setAiLines(undefined); setAiState('idle'); }}>built version</button>
+                    <button type="button" data-testid="atlas-flow-ai-restore" onClick={() => { setAiLines(undefined); setAiState('idle'); }}>{t("built version")}</button>
                 )}
             </header>
-            <p data-testid="atlas-flow-built-provenance">built from indexed flow steps.</p>
-            {aiLines !== undefined && <p data-testid="atlas-flow-ai-provenance">worded by local model {props.modelName ?? ''}; every required fact passed the rewrite guard.</p>}
+            <p data-testid="atlas-flow-built-provenance">{t("built from indexed flow steps.")}</p>
+            {aiLines !== undefined && <p data-testid="atlas-flow-ai-provenance">{t("worded by local model ")}{props.modelName ?? ''}{t("; every required fact passed the rewrite guard.")}</p>}
             {aiState === 'refused' && <p data-testid="atlas-flow-ai-refused">{aiReason}</p>}
 
             {aiLines !== undefined ? (
@@ -298,7 +299,7 @@ export default function FlowOverlay(props: FlowOverlayProps): JSX.Element {
                             data-active-arrow={activeArrow}
                         >
                             <div className="atlas-flow-legend">
-                                {`${EXPLAINER_PARTICIPANTS_LABEL} as columns, ${EXPLAINER_ARROWS_LABEL} as arrows`}
+                                {tr`${EXPLAINER_PARTICIPANTS_LABEL} as columns, ${EXPLAINER_ARROWS_LABEL} as arrows`}
                             </div>
                             <div className="atlas-flow-box" data-testid="atlas-flow-box">
                                 <Diagram
@@ -499,7 +500,7 @@ function Diagram(props: {
             height={diagram.height}
             preserveAspectRatio="xMinYMin meet"
             role="img"
-            aria-label="sequence of the recorded calls"
+            aria-label={t("sequence of the recorded calls")}
         >
             {/*
               * Die Grenze wird gezeichnet statt beschrieben.

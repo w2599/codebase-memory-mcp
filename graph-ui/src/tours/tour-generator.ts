@@ -1,3 +1,5 @@
+import { formatCount } from '../i18n/count';
+import { t, tr } from '../i18n/translate';
 /*
  * Herkunft: portiert am 2026-08-28 aus CodeAtlasIDE,
  * /Users/bernhard/Desktop/CodeAtlasIDE/theia-extensions/codeatlas-intelligence/src/node/tours/tour-generator.ts
@@ -93,7 +95,7 @@ import type {
 export const MAX_TOUR_STEPS = 12;
 
 /** Title of the one tour this generator produces. */
-export const GETTING_STARTED_TITLE = 'Getting started';
+export const GETTING_STARTED_TITLE = t("Getting started");
 
 /**
  * The directory CodeAtlas keeps its own files in, which a tour never walks.
@@ -205,7 +207,7 @@ export const ROLE_PATH_WORDS: Readonly<Record<string, TourStepRole>> = Object.fr
 
 /** The word a step's title leads with, one per role. */
 export const ROLE_TITLES: Readonly<Record<TourStepRole, string>> = Object.freeze({
-    entry: 'Way in',
+    entry: t("Way in"),
     route: 'Routes',
     service: 'Service',
     data: 'Storage',
@@ -213,10 +215,10 @@ export const ROLE_TITLES: Readonly<Record<TourStepRole, string>> = Object.freeze
     types: 'Types',
     util: 'Helpers',
     test: 'Test',
-    'layer-entry': 'Entry layer',
-    'layer-core': 'Core layer',
-    'layer-internal': 'Internal layer',
-    'layer-leaf': 'Leaf layer',
+    'layer-entry': t("Entry layer"),
+    'layer-core': t("Core layer"),
+    'layer-internal': t("Internal layer"),
+    'layer-leaf': t("Leaf layer"),
     unclassified: 'File'
 });
 
@@ -232,24 +234,24 @@ export const ROLE_TITLES: Readonly<Record<TourStepRole, string>> = Object.freeze
  * one: this generator has not read a line of the source.
  */
 export const ROLE_SENTENCES: Readonly<Record<TourStepRole, string>> = Object.freeze({
-    entry: 'Its path names it as a way into the program, so a run starts somewhere in here.',
-    route: 'Its path names it as routing, so what it holds is the mapping from something arriving to the code that answers it.',
-    service: 'Its path names it as a service, so what it holds sits between the ways in and the pieces they lean on.',
-    data: 'Its path names it as storage, so what it holds is where data is read and written.',
-    config: 'Its path names it as configuration, so the values it deals in are set outside the code and read from here.',
-    types: 'Its path names it as types, so what it holds is shapes other files agree on rather than behaviour.',
-    util: 'Its path names it as shared helpers, so what it holds is reached from several places and depends on little.',
-    test: 'Its path names it as a test, so what it holds is the shortest written description of what the code it exercises is supposed to do.',
-    'layer-entry': 'Its path says nothing about its role. The index places its group in the entry layer.',
-    'layer-core': 'Its path says nothing about its role. The index places its group in the core layer.',
-    'layer-internal': 'Its path says nothing about its role. The index places its group in the internal layer.',
-    'layer-leaf': 'Its path says nothing about its role. The index places its group in the leaf layer.',
-    unclassified: 'Neither its path nor the index says what part this file plays, so this step says only where it sits in the dependency order.'
+    entry: t("Its path names it as a way into the program, so a run starts somewhere in here."),
+    route: t("Its path names it as routing, so what it holds is the mapping from something arriving to the code that answers it."),
+    service: t("Its path names it as a service, so what it holds sits between the ways in and the pieces they lean on."),
+    data: t("Its path names it as storage, so what it holds is where data is read and written."),
+    config: t("Its path names it as configuration, so the values it deals in are set outside the code and read from here."),
+    types: t("Its path names it as types, so what it holds is shapes other files agree on rather than behaviour."),
+    util: t("Its path names it as shared helpers, so what it holds is reached from several places and depends on little."),
+    test: t("Its path names it as a test, so what it holds is the shortest written description of what the code it exercises is supposed to do."),
+    'layer-entry': t("Its path says nothing about its role. The index places its group in the entry layer."),
+    'layer-core': t("Its path says nothing about its role. The index places its group in the core layer."),
+    'layer-internal': t("Its path says nothing about its role. The index places its group in the internal layer."),
+    'layer-leaf': t("Its path says nothing about its role. The index places its group in the leaf layer."),
+    unclassified: t("Neither its path nor the index says what part this file plays, so this step says only where it sits in the dependency order.")
 });
 
 /** `n thing` or `n things`, so a generated sentence never reads as machine output. */
 function countOf(count: number, singular: string, plural: string): string {
-    return `${count} ${count === 1 ? singular : plural}`;
+    return formatCount(count, singular, plural);
 }
 
 /**
@@ -261,22 +263,22 @@ function countOf(count: number, singular: string, plural: string): string {
  */
 export function dependencySentence(importsOut: number, importsIn: number): string {
     if (importsOut === 0 && importsIn === 0) {
-        return 'The index records no import either way for it: nothing here imports it and it imports nothing here.';
+        return t("The index records no import either way for it: nothing here imports it and it imports nothing here.");
     }
     if (importsOut === 0) {
-        return `It imports nothing else in this workspace, and ${countOf(importsIn, 'file imports', 'files import')} it.`;
+        return tr`It imports nothing else in this workspace, and ${countOf(importsIn, 'file imports', 'files import')} it.`;
     }
     if (importsIn === 0) {
-        return `It imports ${countOf(importsOut, 'file', 'files')} in this workspace, and nothing here imports it.`;
+        return tr`It imports ${countOf(importsOut, 'file', 'files')} in this workspace, and nothing here imports it.`;
     }
-    return `It imports ${countOf(importsOut, 'file', 'files')} in this workspace, and `
-        + `${countOf(importsIn, 'file imports', 'files import')} it.`;
+    return tr`It imports ${countOf(importsOut, 'file', 'files')} in this workspace, and `
+        + tr`${countOf(importsIn, 'file imports', 'files import')} it.`;
 }
 
 /** The clause that quotes a layer assignment, with the analysis's own reason. */
 export function layerSentence(group: string, layer: string, reason: string | undefined): string {
     const because = reason === undefined || reason.length === 0 ? '' : `: ${reason}`;
-    return `The index places the group ${group} in the ${layer} layer${because}.`;
+    return tr`The index places the group ${group} in the ${layer} layer${because}.`;
 }
 
 /** Path stems of a file, deepest first: the basename without its extension, then its directories. */
@@ -645,7 +647,7 @@ export function generateHeuristicTour(input: TourGeneratorInput): TourDocument {
         } else if (role.startsWith('layer-')) {
             const reason = assignment?.reason;
             if (reason !== undefined && reason.length > 0) {
-                sentences.push(`The reason it gives is: ${reason}.`);
+                sentences.push(tr`The reason it gives is: ${reason}.`);
             }
         }
         sentences.push(dependencySentence(outDegree.get(filePath) ?? 0, inCount.get(filePath) ?? 0));

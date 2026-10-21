@@ -1,6 +1,7 @@
+import { t } from './i18n/translate';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App';
+import { getLocale, initializeLocale } from './i18n/locale';
 import { installUiLog } from './app/ui-log-install';
 // Erst die Tokens, dann das Chrome, das sie benutzt. Die Reihenfolge ist keine
 // Kosmetik: eine Regel, die eine noch nicht definierte Variable liest, faellt
@@ -16,11 +17,17 @@ installUiLog();
 
 const container = document.getElementById('root');
 if (container === null) {
-  throw new Error('#root fehlt in index.html');
+  throw new Error(t("#root fehlt in index.html"));
 }
 
-createRoot(container).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+void initializeLocale().then(async () => {
+  // Monaco reads its NLS table while its modules initialize, before editor creation.
+  if (getLocale() === 'zh') await import('monaco-editor/nls/lang/zh-cn');
+  return import('./App');
+}).then(({ default: App }) => {
+  createRoot(container).render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  );
+});

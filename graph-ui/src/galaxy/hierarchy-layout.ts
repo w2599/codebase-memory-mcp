@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /**
  * Der Vorwaerts-Walk als Bild: eine Spalte je Aufruf-Tiefe, ab dem gewaehlten
  * Einstiegspunkt.
@@ -602,9 +603,9 @@ export function hierarchyHeadline(
     origin: HierarchyRootOrigin = 'walk',
 ): string {
     const head =
-        `hierarchy of ${projection.rootName}${origin === 'focus' ? ' (in focus)' : ''}: `
+        tr`hierarchy of ${projection.rootName}${origin === 'focus' ? t(" (in focus)") : ''}: `
         + `${projection.symbols} ${projection.symbols === 1 ? 'symbol' : 'symbols'}, `
-        + `depth ${projection.depth}`;
+        + tr`depth ${projection.depth}`;
     const cap = capNote(projection.truncated, projection.cap, projection.walkDepth);
     return cap.length === 0 ? head : `${head}; ${cap}`;
 }
@@ -628,6 +629,6 @@ export function hierarchyHeadline(
  * 0.60, also auf die Grenze, die W5c dafuer gezogen hat.
  */
 export function hierarchyEdgeNote(walkEdges: number, indexEdges: number): string {
-    return `${walkEdges} ${walkEdges === 1 ? 'call' : 'calls'} from the walk, `
-        + `${indexEdges} ${indexEdges === 1 ? 'link' : 'links'} from the index`;
+    return tr`${walkEdges} ${walkEdges === 1 ? t("call") : t("calls")} from the walk, `
+        + tr`${indexEdges} ${indexEdges === 1 ? t("link") : t("links")} from the index`;
 }

@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /**
  * Die committete Projekt-Policy und ihr Vorrang vor jeder Nutzerpraeferenz.
  *
@@ -87,11 +88,11 @@ export function readPolicySource(source: string): PolicyReading {
         return {
             verdict: 'unreadable',
             path: POLICY_PATH,
-            detail: `die Datei ist kein lesbares JSON: ${error instanceof Error ? error.message : String(error)}`,
+            detail: tr`die Datei ist kein lesbares JSON: ${error instanceof Error ? error.message : String(error)}`,
         };
     }
     if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-        return { verdict: 'unreadable', path: POLICY_PATH, detail: 'die Datei enthaelt kein JSON-Objekt' };
+        return { verdict: 'unreadable', path: POLICY_PATH, detail: t("die Datei enthaelt kein JSON-Objekt") };
     }
     const value = (parsed as Record<string, unknown>)['llm'];
     if (value === undefined) {
@@ -106,7 +107,7 @@ export function readPolicySource(source: string): PolicyReading {
     return {
         verdict: 'unreadable',
         path: POLICY_PATH,
-        detail: `"llm" traegt den Wert ${JSON.stringify(value)}, und dieses Programm kennt nur "allow" und "deny"`,
+        detail: tr`"llm" traegt den Wert ${JSON.stringify(value)}, und dieses Programm kennt nur "allow" und "deny"`,
     };
 }
 
@@ -124,7 +125,7 @@ export async function readLlmPolicy(
     project: string,
 ): Promise<PolicyReading> {
     if (project.length === 0) {
-        return { verdict: 'absent', path: POLICY_PATH, detail: 'kein Projekt gewaehlt' };
+        return { verdict: 'absent', path: POLICY_PATH, detail: t("kein Projekt gewaehlt") };
     }
     try {
         const document = await loadFileDocument(client, project, POLICY_PATH);
@@ -136,8 +137,7 @@ export async function readLlmPolicy(
         return {
             verdict: 'unreadable',
             path: POLICY_PATH,
-            detail: `die Policy war ueber ${POLICY_RPC_TOOL} nicht zu holen: `
-                + `${error instanceof Error ? error.message : String(error)}`,
+            detail: tr`die Policy war ueber ${POLICY_RPC_TOOL} nicht zu holen: ${error instanceof Error ? error.message : String(error)}`,
         };
     }
 }

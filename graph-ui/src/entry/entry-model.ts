@@ -1,3 +1,4 @@
+import { t, tr } from '../i18n/translate';
 /**
  * What the entry-point dialog offers, as a plain list.
  *
@@ -45,12 +46,12 @@ export interface EntryRow {
 /** The headline over the list: what it holds and what it is not showing. */
 export function entryHeadline(total: number, shown: number): string {
     if (total === 0) {
-        return 'the index flagged no entry point for this project';
+        return t("the index flagged no entry point for this project");
     }
     if (shown < total) {
-        return `${total} ways in the index flagged, ${shown} shown: search for the rest`;
+        return tr`${total} ways in the index flagged, ${shown} shown: search for the rest`;
     }
-    return total === 1 ? '1 way in the index flagged' : `${total} ways in the index flagged`;
+    return total === 1 ? t("1 way in the index flagged") : tr`${total} ways in the index flagged`;
 }
 
 /**
@@ -65,8 +66,8 @@ export function entryHeadline(total: number, shown: number): string {
  * is nothing to explain.
  */
 export const NO_ROUTES_NOTE =
-    'no route is listed: the index reported none for this project, and this surface reads no source '
-    + 'files of its own, so an unreported route cannot be recovered here';
+    t("no route is listed: the index reported none for this project, and this surface reads no source ")
+    + t("files of its own, so an unreported route cannot be recovered here");
 
 /** The sentence under the list, or empty when the list needs no sentence. */
 export function routeNote(
@@ -91,7 +92,7 @@ function rowOfHit(hit: SymbolSearchHit): EntryRow {
         key: `symbol:${hit.qualifiedName ?? `${hit.filePath ?? ''}#${hit.name}`}`,
         name: hit.name,
         where: whereOf(hit.filePath, hit.line),
-        origin: 'entry point',
+        origin: t("entry point"),
         ...(hit.filePath === undefined || hit.filePath.length === 0
             ? {}
             : {
@@ -113,7 +114,7 @@ function rowOfRoute(route: RouteRef): EntryRow {
         key: `route:${label}`,
         name: route.handler === undefined || route.handler.length === 0 ? label : `${label} -> ${route.handler}`,
         where: whereOf(route.filePath, route.line),
-        origin: route.origin === 'index' ? 'route (from the index)' : 'route (read from the source)',
+        origin: route.origin === 'index' ? t("route (from the index)") : t("route (read from the source)"),
         ...(route.filePath === undefined || route.filePath.length === 0
             ? {}
             : {
